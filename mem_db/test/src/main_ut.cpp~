@@ -1,0 +1,4 @@
+/*
+* This should should be used as the main
+* for any test suit wishing to use cppunit
+*/

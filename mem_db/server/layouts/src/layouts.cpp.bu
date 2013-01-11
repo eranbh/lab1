@@ -1,0 +1,109 @@
+/*
+* 
+*/
+#include <string.h>
+#include "layouts.h"
+
+template<typename TYP>
+ArrayLayout<TYP>::ArrayLayout(unsigned int i_sz): 
+                                  m_data(0)
+{
+  // Allocating the layout
+  mem_allocator::Pointer pointer;
+  void* pshm;
+
+  mem_allocator& alloc= mem_allocator::get_alloc();
+  
+  assert(0 < (pshm = alloc.allocChunk((i_sz*sizeof(TYP))+sizeof(LayoutHeader),
+                                       pointer)));
+  // TODO write layout header
+  // TODO register the pointer in the layout registry
+
+  for(unsigned int i=0 ; i<i_sz ; i++)
+    m_stack.push(i);
+  assert(m_stack.capacity == m_stack.sz);
+}
+
+/*
+*/
+template<typename TYP>
+int ArrayLayout<TYP>::addEntry(void* i_pDat)
+{
+  assert(0 < i_pDat);
+  assert(mem_allocator::NULL_POINTER != m_data);
+  assert(0 < m_stack.sz);
+  
+  if(0 == m_stack.capacity) return -1;
+
+  mem_allocator& alloc= mem_allocator::get_alloc();
+  
+  TYP* ptyp = 
+    __CAST_SHM_TO_TYP_P(TYP,m_data,alloc);
+
+  ptyp+=sizeof(LayoutHeader);
+
+  ptyp+=m_stack.pop();
+
+  *ptyp=*(__RE_INTPRT_SHM_TO_TYPE(TYP,i_pDat)); // place on layout
+  
+  return 0;
+}
+
+#define INV_LOCATION ((unsigned int)-1)
+
+
+template<typename TYP>
+unsigned int ArrayLayout<TYP>::
+findEntry(const Comparable& i_comp, TYP* o_pTyp)
+{
+  assert(mem_allocator::NULL_POINTER != m_data);
+  assert(0 < m_stack.sz);
+
+  mem_allocator& alloc= mem_allocator::get_alloc();
+
+  LayoutHeader* pHeader = 
+    __CAST_SHM_TO_TYP_P(LayoutHeader,m_data,alloc);
+  
+  TYP* ptyp = __CAST_SHM_TO_TYP_P(TYP,m_data,alloc);
+  ptyp+=sizeof(LayoutHeader);
+
+  ColName* pCompCol=0;
+
+  for(unsigned int i=0;
+      i<i_comp.sz ; 
+      i++, pCompCol=&i_comp.pName[i])
+  {
+    ColumnDef* pcol=0;
+    for(unsigned int j=0;
+        j<pHeader->sz;
+        j++, pcol=&pHeader->columns[j])
+    {
+      if(pCompCol->sz != pcol->name.sz) continue;
+      if(0 == memcmp(pcol->name.buff,pCompCol->buff, pcol->name.sz))
+      {
+	// FOUND A MATCH
+        ptyp+= pcol->loc;
+        o_pTyp=ptyp;
+        return pcol->loc;
+      }
+    }
+  }
+  return INV_LOCATION;
+}
+
+/*
+* 
+*/
+template<typename TYP>
+int ArrayLayout<TYP>::delEntry(const Comparable& i_comp)
+{
+  assert(mem_allocator::NULL_POINTER != m_data);
+  assert(0 < m_stack.sz);
+
+  if(m_stack.sz == m_stack.capacity) return -1; //empty == no such obj
+
+  unsigned int indx=0;
+  if(INV_LOCATION == (indx = findEntry(i_comp))) return -1; // no such obj
+
+  m_stack.push(indx);
+}

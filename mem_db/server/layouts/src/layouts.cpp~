@@ -1,0 +1,91 @@
+/*
+* 
+*/
+#include "layouts.h"
+
+template<typename TYP,typename CMP>
+ArrayLayout<TYP,CMP>::ArrayLayout(unsigned int i_sz): 
+                                  m_data(0)
+{
+  // Allocating the layout
+  mem_allocator::Pointer pointer;
+  void* pshm;
+
+  mem_allocator& alloc= mem_allocator::get_alloc();
+  
+  assert(0 < (pshm = alloc.allocChunk(i_sz*sizeof(TYP), pointer)));
+  // TODO register the pointer in the layout registry
+
+  for(unsigned int i=0 ; i<i_sz ; i++)
+    m_stack.push(i);
+  assert(m_stack.capacity == m_stack.sz);
+}
+
+
+/*
+*/
+template<typename TYP,typename CMP>
+int ArrayLayout<TYP,CMP>::addEntry(void* i_pDat)
+{
+  assert(0 < i_pDat);
+  assert(mem_allocator::NULL_POINTER != m_data);
+  assert(0 < m_stack.sz);
+  
+  if(0 == m_stack.capacity) return -1;
+
+  mem_allocator& alloc= mem_allocator::get_alloc();
+  
+  TYP* ptyp = 
+    __CAST_SHM_TO_TYP_P(TYP,m_data,alloc);
+
+  ptyp+=m_stack.pop();
+
+  *ptyp=*(__RE_INTPRT_SHM_TO_TYPE(TYP,i_pDat)); // place on layout
+  
+  return 0;
+}
+
+#define INV_LOCATION ((unsigned int)-1)
+
+template<typename TYP,typename CMP>
+unsigned int ArrayLayout<TYP,CMP>::findEntry(void* i_pDat)
+{
+  assert(0 < i_pDat);
+  assert(mem_allocator::NULL_POINTER != m_data);
+  assert(0 < m_stack.sz);
+  
+  mem_allocator& alloc= mem_allocator::get_alloc();
+
+  TYP* ptyp = 
+    __CAST_SHM_TO_TYP_P(TYP,m_data,alloc);
+
+  CMP* cmp = 
+    __RE_INTPRT_SHM_TO_TYPE(CMP,i_pDat);
+
+  unsigned int indx=0;
+  while(0 != memcmp(ptyp++,
+                    cmp,
+                    sizeof(CMP))){indx++;}
+
+  if(indx == m_stack.sz) return INV_LOCATION; // not found
+
+  return indx;
+}
+
+/*
+* 
+*/
+template<typename TYP,typename CMP>
+int ArrayLayout<TYP,CMP>::delEntry(void* i_pDat)
+{
+  assert(0 < i_pDat);
+  assert(mem_allocator::NULL_POINTER != m_data);
+  assert(0 < m_stack.sz);
+
+  if(m_stack.sz == m_stack.capacity) return -1; //empty == no such obj
+
+  unsigned int indx=0;
+  if(0 == (INV_LOCATION=findEntry(i_pDat))) return -1; // no such obj
+
+  m_stack.push(indx);
+}

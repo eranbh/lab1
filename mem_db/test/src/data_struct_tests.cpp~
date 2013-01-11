@@ -1,0 +1,37 @@
+/*
+* Contains all the data struct tests
+*/
+#include "data_struct_tests.h"
+
+CPPUNIT_TEST_SUITE_REGISTRATION(DataStructsUT); 
+
+#define __CAST_TO_UINT32(VAL) \
+  (mem_db::Uint32)VAL 
+
+DataStructsUT::DataStructsUT()
+{
+  // one time init
+}
+
+void DataStructsUT::setUp()
+{
+  
+}
+void DataStructsUT::tearDown()
+{
+  //per test destruct
+}
+
+
+void DataStructsUT::test_first_bit_on()
+{
+  m_bMap.bit_on(1);
+  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_first_bit_on",
+                                __CAST_TO_UINT32(0x1),
+                                 m_bMap.bits);
+
+   CPPUNIT_ASSERT_EQUAL_MESSAGE("test_first_bit_on",
+                                true,
+				m_bMap.is_on(0x1));
+  
+}

@@ -1,0 +1,42 @@
+#ifndef __MEM_DB_COMMON_MACROS_H_
+#define __MEM_DB_COMMON_MACROS_H_
+
+#define __SYS_CALL_TEST_RETURN(EXP) \
+  if(0 > (EXP)) \
+  { \
+    perror(__func__); \
+    return -1; \
+  }
+
+#define __SYS_CALL_TEST_RETURN_NULL(EXP) \
+  if(0 > (EXP)) \
+  { \
+    perror(__func__); \
+    return (void*)0;	      \
+  }
+
+#define __SYS_CALL_TEST(EXP) \
+  if(0 > (EXP)) \
+    perror(__func__);
+
+
+
+#define __SYS_CALL_TEST_EXIT(EXP) \
+  if(0 > (EXP)) \
+  { \
+    perror(__func__); \
+    exit(1); \
+  }
+
+#define __RE_INTPRT_SHM_TO_TYPE(TYP,SHM) \
+  reinterpret_cast<TYP*>(SHM)
+
+
+#define __INIT_SHM_POINTER(PNT) \
+  PNT.key=0; \
+  PNT.offset=0;
+
+#define _P printf("print\n");
+
+
+#endif //  __MEM_DB_COMMON_MACROS_H_

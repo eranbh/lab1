@@ -1,0 +1,38 @@
+#ifndef __MEM_DB_TEST_INC_DATA_STRUCT_H_
+#define __MEM_DB_TEST_INC_DATA_STRUCT_H_
+/*
+* This class encapsulates all the TCs
+* for the data structures the DB uses
+*/
+#include "cppunit/TestFixture.h"
+#include "cppunit/extensions/HelperMacros.h"
+#include "data_structs.h"
+
+class DataStructsUT : public CppUnit::TestFixture
+{
+ 
+  private:
+    CPPUNIT_TEST_SUITE(DataStructsUT);
+
+    CPPUNIT_TEST(test_first_bit_on);
+
+    CPPUNIT_TEST_SUITE_END();
+
+    BitMap m_bMap;
+
+    
+  public:
+    DataStructsUT();
+    ~DataStructsUT(){}
+    virtual void setUp();
+    virtual void tearDown();
+
+    void test_first_bit_on();
+
+};
+
+
+
+
+#endif // __MEM_DB_TEST_INC_DATA_STRUCT_H_
+
