@@ -25,6 +25,7 @@ class LayoutsUT : public CppUnit::TestFixture
     
     CPPUNIT_TEST(test_create_layout);
     CPPUNIT_TEST(test_create_add_entry);
+    CPPUNIT_TEST(test_find_entry);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -48,6 +49,7 @@ class LayoutsUT : public CppUnit::TestFixture
 
     void test_create_layout();
     void test_create_add_entry();
+    void test_find_entry();
 };
 
 #endif // __MEM_DB_TEST_INC_LAYOUTS_H_

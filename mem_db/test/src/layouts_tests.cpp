@@ -79,7 +79,7 @@ LayoutsUT::test_create_add_entry()
 	                               (unsigned int)sizeof(ArrayLayoutData)+(unsigned int)sizeof(MyType)*3,
 	                               mem_allocator::getSz(layout.m_vpHeader));
 
-	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_layout mem_allocator::getActSz",
+	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_add_entry mem_allocator::getActSz",
 	                                 (unsigned int)sizeof(ArrayLayoutData),
 	                                 mem_allocator::getActSz(layout.m_vpHeader));
 
@@ -87,24 +87,85 @@ LayoutsUT::test_create_add_entry()
 	  char* vdata = layout.m_vpData+ 31*layout.m_totTypSz;
 
 	  int shmi = *(reinterpret_cast<int*>(vdata));
-	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_layout mem_allocator::getActSz",
+	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_add_entry mem_allocator::getActSz",
 	                                 myType.i,
 	                                 shmi);
 
 	  vdata+=sizeof(int);
 	  float shmf = *(reinterpret_cast<float*>(vdata));
-	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_layout mem_allocator::getActSz",
+	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_add_entry mem_allocator::getActSz",
 	                                 myType.f,
 	                                  shmf);
 
 	  vdata+=sizeof(float);
 	  double shmd = *(reinterpret_cast<double*>(vdata));
-	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_layout mem_allocator::getActSz",
+	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_add_entry mem_allocator::getActSz",
 	 	 	 	                                 myType.d,
 	 	 	 	                                 shmd);
 	layout.destroy();
 }
 
+
+void LayoutsUT::test_find_entry()
+{
+	typedef struct tMyType
+	{
+		int i;
+		float f;
+		double d;
+	}MyType;
+
+	MyType myType;
+
+	myType.i=1;
+	myType.f=5.5;
+	myType.d=4.566;
+
+	UserInp inp[3] = {{0,{4,"col1"}, mem_db::INT} ,
+						{sizeof(int),{4,"col2"}, mem_db::FLOAT},
+						{sizeof(int)+sizeof(float),{4,"col3"}, mem_db::DOUBLE} };
+
+	LayoutHeader head;
+	prepareLyoutHdr(3, &head, inp);
+
+	// BUILDING THE LAYOUT [room for 3]
+	ArrayLayout layout(head, sizeof(MyType)*3);
+	layout.addEntry(&myType);
+
+	// build comparable to match desired criteria
+	ColName colNms[2];
+	strncpy(colNms[0].buff, "col2", 4);
+	colNms[0].sz=4;
+	strncpy(colNms[1].buff, "col3", 4);
+	colNms[1].sz=4;
+	RawVal vals[2];
+	vals[0]= *(reinterpret_cast<RawVal*>(&myType.f));
+	vals[1]= *(reinterpret_cast<RawVal*>(&myType.d));
+
+	Comparable comp(colNms, vals, 2, &head);
+	ResultBuff buff;
+	// now attempt to find it
+	layout.findEntry(comp, &buff);
+
+	// now for the big moment!!!
+	MyType* type2 = reinterpret_cast<MyType*>(buff.resData[0].buff);
+
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("test_find_entry mem_allocator::getActSz",
+		                          type2->i,
+		                           myType.i);
+
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("test_find_entry mem_allocator::getActSz",
+	                                 myType.f,
+	                                 type2->f);
+
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("test_find_entry mem_allocator::getActSz",
+    	                                 myType.d,
+    	                                 type2->d);
+
+
+	layout.destroy();
+
+}
 
 int  LayoutsUT::
 prepareLyoutHdr(unsigned int i_num, 

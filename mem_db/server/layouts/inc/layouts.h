@@ -28,14 +28,13 @@ const unsigned short MAX_ARRAY_LAY_SZ=4096;
 
 typedef mem_db::BufferSz ColName;
 typedef mem_db::BufferSz ResultData;
-typedef mem_db::Uint32 RawVal;
+typedef mem_db::Uint64 RawVal;
 
 typedef struct tResultBuff
 {
   tResultBuff():sz(0){}
   ResultData resData[MAX_OBJ_NUM];
   unsigned int sz;
-  unsigned int indices[MAX_OBJ_NUM];
 }ResultBuff;
 
 
@@ -82,7 +81,7 @@ typedef struct tLayoutHeader
     for(unsigned int i=0;i<sz;++i)
       if(i_pName->sz == columns[i].name.sz &&
          0 == memcmp(i_pName->buff, columns[i].name.buff, i_pName->sz))
-	return &columns[i];
+    	  return &columns[i];
     return 0;
   }
 
@@ -283,19 +282,19 @@ private:
 		      &result))
        return 0; // no such obj
 
-   char* vpdata = (char*)m_vpData;
-   unsigned int upd=0; 
-
-    for(unsigned int i=0;i<result.sz;++i)
-    {
-      vpdata+= (result.indices[i]*m_totTypSz);
-      for(unsigned int j=0;j<i_updComp.sz;++j)
-      {
-	vpdata+=i_updComp.colDef[j]->loc;
-	memcpy(vpdata, &i_updComp.pVals[j], i_updComp.colDef[j]->typsz);
-	upd++;
-       }
-     } 
+//   char* vpdata = (char*)m_vpData;
+   unsigned int upd=0;
+//
+//    for(unsigned int i=0;i<result.sz;++i)
+//    {
+//      vpdata+= (result.indices[i]*m_totTypSz);
+//      for(unsigned int j=0;j<i_updComp.sz;++j)
+//      {
+//	vpdata+=i_updComp.colDef[j]->loc;
+//	memcpy(vpdata, &i_updComp.pVals[j], i_updComp.colDef[j]->typsz);
+//	upd++;
+//       }
+//     }
     return upd;
   }
 
@@ -321,8 +320,8 @@ private:
     for(unsigned int i=0;i<result.sz;++i)
     {
       // TODO check return sts
-       m_vpStack->push(result.indices[i]);
-       m_vpBitMap->bit_off(result.indices[i]);
+//       m_vpStack->push(result.indices[i]);
+//       m_vpBitMap->bit_off(result.indices[i]);
     }
     return result.sz;
   }
@@ -344,12 +343,13 @@ private:
     // to prevent adding an 'if' in the bmap, just
     // go over all the bits, and check
     
-    for(unsigned int objIndx=0; objIndx<UINT_MAX; ++objIndx)
+    for(unsigned int objIndx=1; objIndx<MAX_BIT; ++objIndx)
     {
       if(false == m_vpBitMap->is_on(objIndx)) continue;
       printf("looking into obj %u\n", objIndx);
       char* vpdata = (char*)m_vpData;
       vpdata+=(objIndx*m_totTypSz);
+
       for(unsigned int compIndx=0;
 	  compIndx<i_comp.sz;
 	  compIndx++)
@@ -364,13 +364,15 @@ private:
              if(matchesFound == i_comp.sz)
 	     {
 	       printf("obj %u matches nicely\n", objIndx);
-               totMatchFound++;
-               matchesFound=0;
-               break;
-	      }
+	       memcpy(o_pRes->resData[totMatchFound].buff, vpdata, m_totTypSz);
+	       o_pRes->resData[totMatchFound++].sz=m_totTypSz;
+           matchesFound=0;
+           break;
+	     }
 	   }
 	} // for compIndx
     } // for objIndx
+    o_pRes->sz=totMatchFound;
     return totMatchFound;
   }
 
