@@ -1,0 +1,48 @@
+#include <sys/types.h>  // 
+#include <sys/socket.h> // for socket(2)
+#include "acceptor.h" // for my stuff
+
+#define __SYS_CALL_TEST_NM1_RETURN(EXP) \
+  do \
+  { \
+     if(0 > EXP)	\
+     { perror(#EXP); return -1;  } \
+  }while(0)
+
+int
+acceptor::init(const char* const ip_ip)
+{
+  assert(0 < ip_ip);
+  
+  __SYS_CALL_TEST_NM1_RETURN((m_listen_fd=socket(AF_INET, SOCK_STREAM, 0)));
+  
+  struct sockaddr_in addr_in;
+  memset(&addr_in, 0, sizeof(sockaddr_in));
+
+  addr_in.sin_family = AF_INET;
+  addr_in.sin_port = 9898;
+  addr_in.sin_addr.s_addr = INADDR_ANY;
+
+  
+  __SYS_CALL_TEST_NM1_RETURN((bind(m_listen_fd,
+                                   (struct sockaddr*) addr_in,
+                                   sizeof(addr_in) )));
+
+  __SYS_CALL_TEST_NM1_RETURN(listen(m_listen_fd, 10));
+
+  /* socket is now listenable*/
+  
+  return 0;
+
+}
+
+/*
+* This might block in that - oh so rare case - where
+* there are no loggers trying to xmit their stuff over
+* This assumes that setting up is over, and listens forever
+*/
+int
+acceptor::listen_2_events()
+{
+  
+}
