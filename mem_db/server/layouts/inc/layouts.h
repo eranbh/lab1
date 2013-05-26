@@ -193,12 +193,12 @@ private:
     m_vpHeader= __RE_INTPRT_SHM_TO_TYPE(LayoutHeader, pshm);
     m_vpStack= __RE_INTPRT_SHM_TO_TYPE(Stack, 
                                      m_vpHeader+1);
+    m_vpStack->init(MAX_OBJ_NUM);
     for(unsigned int i=0 ; i<MAX_OBJ_NUM ; i++)
       m_vpStack->push(i);
 
      assert(m_vpStack->getCapacity() == m_vpStack->getSz());
 
-    m_vpStack->init(MAX_OBJ_NUM);
     m_vpBitMap= __RE_INTPRT_SHM_TO_TYPE(BitMap, 
                                      m_vpStack+1);
     m_vpBitMap->init();
@@ -230,7 +230,7 @@ private:
       
 
 #ifdef __HAS_SHM_RPRT_ 
-    mem_allocator::updateActSz(m_totTypSz, pshm);
+    mem_allocator::updateActSz(sizeof(ArrayLayoutData), pshm);
 #endif //  __HAS_SHM_RPRT_ 
     
     // TODO register the layout in the layout registry
@@ -246,8 +246,6 @@ private:
   {
     assert(0 < i_pDat);
     assert(0 < m_vpStack->getSz());
-  
-    if(0 == m_vpBitMap->bits) return -1;
 
     char* vpdata = (char*)m_vpData;
     char* vpinp = __RE_INTPRT_SHM_TO_TYPE(char, i_pDat);
@@ -342,7 +340,7 @@ private:
     unsigned short matchesFound=0, totMatchFound=0;
 
     // Ok in an ideal world, there would be a heap
-    // holding the max bit num in the map. For now
+    // holding the max/min bit nums in the map. For now
     // to prevent adding an 'if' in the bmap, just
     // go over all the bits, and check
     
@@ -380,8 +378,8 @@ private:
   int destroy()
   {
     // TODO take shm pointer from registry
-    /*mem_allocator& alloc= mem_allocator::get_alloc();
-      __SYS_CALL_TEST_RETURN(alloc.disposeChunk(m_data));*/
+    mem_allocator& alloc= mem_allocator::get_alloc();
+      __SYS_CALL_TEST_RETURN(alloc.disposeChunk(m_data));
     return 0;
   }
 

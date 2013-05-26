@@ -12,7 +12,7 @@
 #include "types.h"
 
 // TODO is this ok here?
-const unsigned short MAX_OBJ_NUM=256;
+const unsigned short MAX_OBJ_NUM=32;
 #define INV_LOCATION ((unsigned int)-1)
 
 // TODO consider failpoints for testing
@@ -68,6 +68,7 @@ private:
 
   unsigned int sz;
   unsigned int capacity;
+  // using ints to support large data sets
   unsigned int pstack[MAX_OBJ_NUM];
 
 }Stack;
@@ -75,10 +76,9 @@ private:
 
 //////////////////////////////////////////////////////////////////
 
-
+#define __
 const unsigned short MIN_BIT=0x1;
-const unsigned short MAX_BIT=0x20; // 32bit;
-
+const unsigned short MAX_BIT=0x31; // the highest bit possible is 31
   // for testing
 class DataStructsUT;
 

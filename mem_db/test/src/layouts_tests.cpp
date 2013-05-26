@@ -44,8 +44,65 @@ void  LayoutsUT::test_create_layout()
                                mem_allocator::getSz(layout.m_vpHeader));
 
   CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_layout mem_allocator::getActSz",
-                               layout.m_totTypSz,
+                               (unsigned int)sizeof(ArrayLayoutData),
                                mem_allocator::getActSz(layout.m_vpHeader));
+
+  layout.destroy();
+}
+
+void
+LayoutsUT::test_create_add_entry()
+{
+	struct MyType
+	{
+		int i;
+		float f;
+		double d;
+	}myType;
+
+	myType.i=1;
+	myType.f=5.5;
+	myType.d=4.566;
+
+	UserInp inp[3] = {{0,{4,"col1"}, mem_db::INT} ,
+	                    {1,{4,"col2"}, mem_db::FLOAT},
+	                    {2,{4,"col3"}, mem_db::DOUBLE} };
+
+	LayoutHeader head;
+	prepareLyoutHdr(3, &head, inp);
+
+	// BUILDING THE LAYOUT [room for 3]
+	ArrayLayout layout(head, sizeof(MyType)*3);
+	layout.addEntry(&myType);
+	// make sure the total is cool
+	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_add_entry mem_allocator::getSz",
+	                               (unsigned int)sizeof(ArrayLayoutData)+(unsigned int)sizeof(MyType)*3,
+	                               mem_allocator::getSz(layout.m_vpHeader));
+
+	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_layout mem_allocator::getActSz",
+	                                 (unsigned int)sizeof(ArrayLayoutData),
+	                                 mem_allocator::getActSz(layout.m_vpHeader));
+
+	  // ok - there's only one entry, and the first bit to get alloc'd is 31
+	  char* vdata = layout.m_vpData+ 31*layout.m_totTypSz;
+
+	  int shmi = *(reinterpret_cast<int*>(vdata));
+	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_layout mem_allocator::getActSz",
+	                                 myType.i,
+	                                 shmi);
+
+	  vdata+=sizeof(int);
+	  float shmf = *(reinterpret_cast<float*>(vdata));
+	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_layout mem_allocator::getActSz",
+	                                 myType.f,
+	                                  shmf);
+
+	  vdata+=sizeof(float);
+	  double shmd = *(reinterpret_cast<double*>(vdata));
+	  CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_layout mem_allocator::getActSz",
+	 	 	 	                                 myType.d,
+	 	 	 	                                 shmd);
+	layout.destroy();
 }
 
 
