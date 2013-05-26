@@ -35,6 +35,7 @@ typedef struct tResultBuff
   tResultBuff():sz(0){}
   ResultData resData[MAX_OBJ_NUM];
   unsigned int sz;
+  unsigned int indices[MAX_OBJ_NUM];
 }ResultBuff;
 
 
@@ -270,7 +271,7 @@ private:
   }
 
   unsigned int updateEntry(const Comparable& i_selecComp,
-                           const Comparable& i_updComp)
+                           const mem_db::BufferSz* i_updBuff)
   {
     assert(0 < m_vpStack->getSz());
 
@@ -282,20 +283,20 @@ private:
 		      &result))
        return 0; // no such obj
 
-//   char* vpdata = (char*)m_vpData;
+   char* vpdata = (char*)m_vpData;
    unsigned int upd=0;
-//
-//    for(unsigned int i=0;i<result.sz;++i)
-//    {
-//      vpdata+= (result.indices[i]*m_totTypSz);
-//      for(unsigned int j=0;j<i_updComp.sz;++j)
-//      {
-//	vpdata+=i_updComp.colDef[j]->loc;
-//	memcpy(vpdata, &i_updComp.pVals[j], i_updComp.colDef[j]->typsz);
-//	upd++;
-//       }
-//     }
-    return upd;
+
+   for(unsigned int i=0;i<result.sz;++i)
+   {
+      vpdata+= (result.indices[i]*m_totTypSz);
+      for(unsigned int j=0;j<i_selecComp.sz;++j)
+      {
+    	  vpdata+=i_selecComp.colDef[j]->loc;
+    	  memcpy(vpdata, i_updBuff[j].buff, i_updBuff[j].sz);
+    	  upd++;
+       } // for j
+   } // for i
+   return upd;
   }
 
   /*
@@ -365,7 +366,8 @@ private:
 	     {
 	       printf("obj %u matches nicely\n", objIndx);
 	       memcpy(o_pRes->resData[totMatchFound].buff, vpdata, m_totTypSz);
-	       o_pRes->resData[totMatchFound++].sz=m_totTypSz;
+	       o_pRes->resData[totMatchFound].sz=m_totTypSz;
+	       o_pRes->indices[totMatchFound++]=objIndx; // need this for update/delete
            matchesFound=0;
            break;
 	     }

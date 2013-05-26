@@ -167,6 +167,76 @@ void LayoutsUT::test_find_entry()
 
 }
 
+
+void LayoutsUT::test_update_entry()
+{
+	typedef struct tMyType
+	{
+		int i;
+		float f;
+		double d;
+	}MyType;
+
+	MyType myType;
+
+	myType.i=1;
+	myType.f=5.5;
+	myType.d=4.566;
+
+	UserInp inp[3] = {{0,{4,"col1"}, mem_db::INT} ,
+						{sizeof(int),{4,"col2"}, mem_db::FLOAT},
+						{sizeof(int)+sizeof(float),{4,"col3"}, mem_db::DOUBLE} };
+
+	LayoutHeader head;
+	prepareLyoutHdr(3, &head, inp);
+
+	// BUILDING THE LAYOUT [room for 3]
+	ArrayLayout layout(head, sizeof(MyType)*3);
+	layout.addEntry(&myType);
+
+	// build comparable to match desired criteria
+	ColName colNms[2];
+	strncpy(colNms[0].buff, "col2", 4);
+	colNms[0].sz=4;
+	strncpy(colNms[1].buff, "col3", 4);
+	colNms[1].sz=4;
+	RawVal vals[2];
+	vals[0]= *(reinterpret_cast<RawVal*>(&myType.f));
+	vals[1]= *(reinterpret_cast<RawVal*>(&myType.d));
+
+	// compare criteria
+	Comparable comp(colNms, vals, 2, &head);
+
+	// data with which to update - we know its gonna be the last 2 fields ...
+	mem_db::BufferSz buffsz[2];
+	float newval=4545;
+	memcpy(buffsz[0].buff, &newval, sizeof(float));
+	buffsz[0].sz=sizeof(float);
+
+	double newvald=5454;
+	memcpy(buffsz[1].buff, &newvald, sizeof(double));
+	buffsz[1].sz=sizeof(double);
+
+	// work your magic --> 2 recs should get updated!!!
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("test_find_entry mem_allocator::getActSz",
+			                     layout.updateEntry(comp, buffsz),
+			                     (unsigned int)1);
+
+	// ok - there's only one entry, and the first bit to get alloc'd is 31
+    char* vdata = layout.m_vpData+ 31*layout.m_totTypSz;
+
+	MyType* ptyp = reinterpret_cast<MyType*>(vdata);
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_add_entry mem_allocator::getActSz",
+		                          ptyp->f,
+		                          (float)4545);
+
+	CPPUNIT_ASSERT_EQUAL_MESSAGE("test_create_add_entry mem_allocator::getActSz",
+			                          ptyp->d,
+			                        (double)5454);
+
+}
+
+
 int  LayoutsUT::
 prepareLyoutHdr(unsigned int i_num, 
                 LayoutHeader* o_head,
