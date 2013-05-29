@@ -13,7 +13,7 @@
 #include "nw_message.h" // network message stuff
 
 
-namespace app_srv {
+namespace mem_db {
   namespace nw {
 
 int
@@ -50,7 +50,7 @@ const unsigned short MAX_EVENTS=10;
 
 /*
 * This might block in that - oh so rare case - where
-* there are no loggers trying to xmit their stuff over
+* there are no clients trying to xmit their stuff over
 * This assumes that setting up is over, and listens forever
 */
 int
@@ -148,4 +148,4 @@ acceptor::handle_request(int fd)
 }
 
   } // namespace nw
-} // namespace app_srv
+} // namespace mem_db

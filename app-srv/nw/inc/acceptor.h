@@ -2,13 +2,13 @@
 #define __NW_INC_ACCEPTOR_H_
 
 /*
-* This module is responsible for handling all the interaction with logger
-* module over the network. This is achieved by means of multiplexing the
-* communication of several loggers to one comm handler using epoll(7)
+* This module is responsible for handling all the interaction with clients
+* over the network. This is achieved by means of multiplexing the
+* communication of several clients to one comm handler using epoll(7)
 */
 
 
-namespace app_srv{
+namespace mem_db{
   namespace nw{
 
 class acceptor
@@ -49,7 +49,7 @@ private:
 };
 
   } // namespace nw
-} // namespace app_srv
+} // namespace mem_db
 
 
 #endif // __NW_INC_ACCEPTOR_H_
