@@ -1,0 +1,8 @@
+/*
+* This is he basic task symbole. Any code
+* extending this class needs to take care
+* of 3 hooks:
+* 1. init - initializes each thread TSS
+* 2. run  - executes task logic [thread safeness
+            is under the responsibilty of the user]   
+*/

@@ -13,13 +13,12 @@
 #include "nw_message.h" // network message stuff
 
 
-namespace mem_db {
-  namespace nw {
+namespace nw {
 
 int
-acceptor::init(const char* const ip_ip)
+acceptor::init(const char* const p_ip)
 {
-  assert(0 < ip_ip);
+  assert(0 < p_ip);
 
   sockaddr_in addr_in;
   
@@ -147,5 +146,5 @@ acceptor::handle_request(int fd)
   return 0;
 }
 
-  } // namespace nw
-} // namespace mem_db
+} // namespace nw
+
