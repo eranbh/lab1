@@ -15,8 +15,7 @@
 
 namespace nw {
 
-int
-acceptor::init(const char* const p_ip)
+Acceptor::Acceptor(const char* const p_ip)
 {
   assert(0 < p_ip);
 
@@ -53,7 +52,7 @@ const unsigned short MAX_EVENTS=10;
 * This assumes that setting up is over, and listens forever
 */
 int
-acceptor::listen_2_events()
+Acceptor::listen_2_events()
 {
   /* We want an edge trigered reactor. This means its our responsability to
      to consume the entire buffer every time an event occurs. otherwise we hang
@@ -120,7 +119,7 @@ acceptor::listen_2_events()
 * Handle request
 */
 int
-acceptor::handle_request(int fd)
+Acceptor::handle_request(int fd)
 {
   printf("request on fd %d - draining\n", fd);
 

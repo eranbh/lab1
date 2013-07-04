@@ -11,19 +11,19 @@
 namespace mem_db{
   namespace nw{
 
-class acceptor
+class Acceptor
 {
 public:
   
   /*
   * C'tor
   */
-  acceptor(){}
+  Acceptor(const char* const);
 
   /*
   * D'tor
   */ 
-  virtual ~acceptor(){}
+  virtual ~Acceptor(){}
 
   /*
   * sets up the multiplexing
