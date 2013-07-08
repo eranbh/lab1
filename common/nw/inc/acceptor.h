@@ -8,16 +8,22 @@
 */
 
 
-namespace mem_db{
-  namespace nw{
+namespace nw{
+
+  namespace ut{
+    class nwUT;
+  }
 
 class Acceptor
 {
 public:
   
+  friend class nw::ut::nwUT;
+  
   /*
   * C'tor
   */
+
   Acceptor(const char* const);
 
   /*
@@ -48,8 +54,7 @@ private:
   
 };
 
-  } // namespace nw
-} // namespace mem_db
+} // namespace nw
 
 
 #endif // __NW_INC_ACCEPTOR_H_

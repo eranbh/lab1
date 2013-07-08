@@ -9,6 +9,14 @@
   }while(0)
 
 
+#define __SYS_CALL_TEST_NM1_EXIT(EXP) \
+  do \
+  { \
+     if(0 > EXP)	\
+       { perror(#EXP); exit(1);  }		\
+  }while(0)
+
+
 
 #define __STRINGIFY(W) #W
 

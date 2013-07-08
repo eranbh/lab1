@@ -6,7 +6,9 @@
  */
 #include "nwUT.h"
 
-namespace nw {
+namespace nw{
+
+  namespace ut {
 
 CPPUNIT_TEST_SUITE_REGISTRATION(utNW);
 
@@ -20,13 +22,20 @@ void nwUT::tearDown(){}
 * */
 void nwUT::test_init_localhost()
 {
-	acceptor acc;
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("init failed for localhost",
-			                     acc.init("localhost"),
-			                     0);
+  nw::acceptor acc("localhost");
+  CPPUNIT_ASSERT_NOT_EQUAL_MESSAGE("init failed for localhost",
+			       acc.m_listen_fd,
+			       -1);
+
+  CPPUNIT_ASSERT_NOT_EQUAL_MESSAGE("init failed for localhost",
+				   acc.m_epoll_fd,
+				   -1);
+  
 }
 
-} // namespace nw
+  } // namespace ut
+}// namespace nw
+
 
 
 
