@@ -14,24 +14,28 @@
 
 namespace nw {
 
+  namespace ut {
+
 class nwUT : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(nwUT);
 
-	CPPUNIT_TEST(test_open_sock);
+	CPPUNIT_TEST(test_init_localhost);
 
 	CPPUNIT_TEST_SUITE_END();
 
 
 	public:
 
-		nwUT();
+	        nwUT(){}
 		virtual ~nwUT(){}
 		virtual void setUp();
 		virtual void tearDown();
 
 		void test_init_localhost();
 };
+
+  } // namespace ut
 
 } // namespace nw
 

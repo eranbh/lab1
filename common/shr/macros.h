@@ -1,6 +1,7 @@
 #ifndef __APP_SRV_COMMON_INC_MACROS_H_
 #define __APP_SRV_COMMON_INC_MACROS_H__
 
+
 #define __SYS_CALL_TEST_NM1_RETURN(EXP) \
   do \
   { \

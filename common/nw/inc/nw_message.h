@@ -10,8 +10,8 @@
 
 // TODO create a set of typedefs for primitives according to platforms
 
-namespace app_srv {
-  namespace nw {
+
+namespace nw {
 
 // signed quantities
 typedef long  int64;
@@ -28,9 +28,9 @@ typedef unsigned short uint16;
 
 class nw_message
 {
-  friend class acceptor;
+  friend class Acceptor;
  public:
-  class header
+  struct header
   {
     friend class acceptor;
     uint32 m_msg_type;
@@ -46,8 +46,8 @@ class nw_message
   header m_header;
   char   m_body[MAX_MSG_SZ];
 };
-  } // namespace nw
 
-} // namespace app_srv
+} // namespace nw
+
 
 #endif // __APP_SRV_NW_INC_NW_MESSAGE_H_

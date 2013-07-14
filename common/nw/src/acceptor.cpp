@@ -22,7 +22,7 @@ Acceptor::Acceptor(const char* const p_ip)
   sockaddr_in addr_in;
   
   
-  __SYS_CALL_TEST_NM1_RETURN((m_listen_fd=socket(AF_INET, SOCK_STREAM, 0)));
+  __SYS_CALL_TEST_NM1_EXIT((m_listen_fd=socket(AF_INET, SOCK_STREAM, 0)));
   
   memset(&addr_in, 0, sizeof(sockaddr_in));
 
@@ -31,16 +31,14 @@ Acceptor::Acceptor(const char* const p_ip)
   addr_in.sin_addr.s_addr = INADDR_ANY;
 
   
-  __SYS_CALL_TEST_NM1_RETURN((bind(m_listen_fd,
+  __SYS_CALL_TEST_NM1_EXIT((bind(m_listen_fd,
                                    (struct sockaddr*) &addr_in,
                                    sizeof(addr_in) )));
 
-  __SYS_CALL_TEST_NM1_RETURN(listen(m_listen_fd, 10));
+  __SYS_CALL_TEST_NM1_EXIT(listen(m_listen_fd, 10));
 
   /* socket is now listenable*/
-  __SYS_CALL_TEST_NM1_RETURN( (m_epoll_fd=epoll_create(10/*not used*/)));
-    
-  return 0;
+  __SYS_CALL_TEST_NM1_EXIT( (m_epoll_fd=epoll_create(10/*not used*/)));
 }
 
 // this might need to go in consts header 

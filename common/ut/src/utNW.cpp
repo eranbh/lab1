@@ -4,17 +4,20 @@
  *  Created on: Jun 19, 2013
  *      Author: eranbh
  */
-#include "nwUT.h"
+#include "nwUT.h" // for nw test suite
+#include "acceptor.h" // class to be tested
 
 namespace nw{
 
   namespace ut {
 
-CPPUNIT_TEST_SUITE_REGISTRATION(utNW);
+CPPUNIT_TEST_SUITE_REGISTRATION(nwUT);
 
 void nwUT::setUp(){}
 void nwUT::tearDown(){}
 
+
+static const std::string LOC_HOST("localhost"); 
 
 /*
 * 1. creating an acceptor
@@ -22,14 +25,12 @@ void nwUT::tearDown(){}
 * */
 void nwUT::test_init_localhost()
 {
-  nw::acceptor acc("localhost");
-  CPPUNIT_ASSERT_NOT_EQUAL_MESSAGE("init failed for localhost",
-			       acc.m_listen_fd,
-			       -1);
+  nw::Acceptor acc(LOC_HOST.c_str());
+  CPPUNIT_ASSERT_ASSERTION_FAIL_MESSAGE("init failed for localhost",
+			                (acc.m_listen_fd == -1));
 
-  CPPUNIT_ASSERT_NOT_EQUAL_MESSAGE("init failed for localhost",
-				   acc.m_epoll_fd,
-				   -1);
+  CPPUNIT_ASSERT_ASSERTION_FAIL_MESSAGE("init failed for localhost",
+					(acc.m_epoll_fd == -1));
   
 }
 
