@@ -21,18 +21,22 @@ class nwUT : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE(nwUT);
 
 	CPPUNIT_TEST(test_init_localhost);
+	CPPUNIT_TEST(test_nwmsg);
 
 	CPPUNIT_TEST_SUITE_END();
 
 
-	public:
+ public:
+	nwUT(){}
+	virtual ~nwUT(){}
+	virtual void setUp();
+	virtual void tearDown();
+	
+	void test_init_localhost();
+	void test_nwmsg();
 
-	        nwUT(){}
-		virtual ~nwUT(){}
-		virtual void setUp();
-		virtual void tearDown();
-
-		void test_init_localhost();
+ private:
+	static int run_srv();
 };
 
   } // namespace ut
