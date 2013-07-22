@@ -36,7 +36,28 @@ class nwUT : public CppUnit::TestFixture
 	void test_nwmsg();
 
  private:
-	static int run_srv();
+
+	static int run_client();
+
+	/*
+	* simple tcp client to test the robustness 
+        * of the acceptor class. this needs to be
+        * factored to a seperate file, and also used
+        * as a process in its own right
+	*/
+	class ClientImpl
+	{
+	public:
+	  ClientImpl(const char* const i_pIp,
+		     unsigned int i_numEvntToSnd);
+
+	  int startTrsm();
+	  
+	private:
+	  int m_socket_fd;
+	  unsigned int m_numEvntToSnd;
+	  	 
+	};
 };
 
   } // namespace ut
