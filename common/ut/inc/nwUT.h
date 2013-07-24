@@ -49,13 +49,15 @@ class nwUT : public CppUnit::TestFixture
 	{
 	public:
 	  ClientImpl(const char* const i_pIp,
-		     unsigned int i_numEvntToSnd);
+		     unsigned int i_numEvntToSnd,
+		     std::string& m_clntMsg);
 
 	  int startTrsm();
 	  
 	private:
 	  int m_socket_fd;
 	  unsigned int m_numEvntToSnd;
+	  std::string& m_clntMsg;
 	  	 
 	};
 };

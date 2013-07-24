@@ -64,7 +64,7 @@ int nwUT::run_client()
   /* go ahead son. show me what you've got */
   if(0 == pid)
   {
-    //////// ADD CHILD/CLIENT STUFF HERE
+    
   }
 
   return 0;
@@ -74,25 +74,20 @@ int nwUT::run_client()
 
 nwUT::ClientImpl::
 ClientImpl(const char* const i_pIp,
-           unsigned int i_numEvntToSnd = 10):m_numEvntToSnd(i_numEvntToSnd)
+           unsigned int i_numEvntToSnd = 10,
+	   const std::string& i_msg,
+	   std::string& i_clntMsg):m_numEvntToSnd(i_numEvntToSnd),
+				   m_clntMsg(i_clntMsg)
 {
+   struct sockaddr_in server_info;
+   struct hostent *he;
 
   if ((m_socket_fd = socket(AF_INET, SOCK_STREAM, 0))== -1) {
      fprintf(stderr, "Socket Failure!!\n");
      exit(1);
   }
 
-
-}
-
-int 
-nwUT::ClientImpl::startTrsm()
-{
-  char buffer[1024];
-  struct sockaddr_in server_info;
-  struct hostent *he;
-
-  if ((he = gethostbyname("localhost"))==NULL) {
+   if ((he = gethostbyname(i_pIp))==NULL) {
       fprintf(stderr, "Cannot get host name\n");
       exit(1);
   }
@@ -110,15 +105,23 @@ nwUT::ClientImpl::startTrsm()
     exit(1);
   }
 
+
+}
+
+int 
+nwUT::ClientImpl::startTrsm()
+{
+  char buffer[1024];
+ 
   //buffer = "Hello World!! Lets have fun\n";
   //memset(buffer, 0 , sizeof(buffer));
   while(1) 
   {
-    fgets(buffer,MAXSIZE-1,stdin);
-    if ((send(m_socket_fd,buffer, strlen(buffer),0))== -1) {
+    //fgets(buffer,MAXSIZE-1,stdin);
+    if ((send(m_socket_fd,m_clntMsg.c_str(), m_clntMsg.size(),0))== -1) {
       fprintf(stderr, "Failure Sending Message\n");
       close(m_socket_fd);
-      exit(1);
+      exit(1); 
     }
     else {
       printf("Message being sent: %s\n",buffer);
