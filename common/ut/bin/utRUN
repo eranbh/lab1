@@ -1,0 +1,20 @@
+#!/bin/bash
+
+########################################################################
+# this is a basic shell wrapper for all of my ut magic. any testing code
+# wishing to register with this, needs to create a "target" for itself.
+########################################################################
+
+#exec_target()
+#{
+#}
+
+
+
+
+
+
+###main###
+
+export LD_LIBRARY_PATH=/home/eranbh/work/sw_lab/common/nw/lib:${LD_LIBRARY_PATH}
+/home/eranbh/work/sw_lab/common/ut/bin/utNW
