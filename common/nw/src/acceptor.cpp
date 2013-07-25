@@ -27,8 +27,17 @@ Acceptor::Acceptor(const char* const p_ip)
   memset(&addr_in, 0, sizeof(sockaddr_in));
 
   addr_in.sin_family = AF_INET;
-  addr_in.sin_port = 9898;
+  addr_in.sin_port = 9000;
   addr_in.sin_addr.s_addr = INADDR_ANY;
+
+  int reuse=1;
+
+  /* lets reuse addresses for better living */
+  __SYS_CALL_TEST_NM1_EXIT(setsockopt(m_listen_fd, 
+				      SOL_SOCKET, 
+				      SO_REUSEADDR,
+				      &reuse,
+				      sizeof(reuse)));
 
   
   __SYS_CALL_TEST_NM1_EXIT((bind(m_listen_fd,

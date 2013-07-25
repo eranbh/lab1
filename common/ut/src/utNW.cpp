@@ -10,6 +10,7 @@
 #include <errno.h> // for perror(3) till we have a logger
 #include <netinet/in.h> // for struct sockaddr_in
 #include <netdb.h> // for gethostbyname(3)
+#include <sys/wait.h> // for wait(2)
 #include "nwUT.h" // for nw test suite
 #include "acceptor.h" // class to be tested
 
@@ -26,6 +27,9 @@ void nwUT::tearDown(){}
 static const std::string LOC_HOST("localhost");
 static const unsigned short PORT=3490;
 static const unsigned short MAXSIZE=1024;
+
+const std::string 
+nwUT::ClientImpl::s_defMsg="Client Default Msg";
 
 /*
 * 1. creating an acceptor
@@ -46,6 +50,19 @@ void nwUT::test_nwmsg()
 {
   nw::Acceptor acc(LOC_HOST.c_str());
   
+  int pid=nwUT::run_client();
+  acc.listen_2_events(); /* bring srv up */
+
+  nwUT::run_client(); /* bring clnt up */
+  
+  int status=0;
+  pid=waitpid(pid, &status, 0);
+  
+  CPPUNIT_ASSERT_MESSAGE("waitpid terminated abnormally",
+		         (pid != -1));
+
+  CPPUNIT_ASSERT_MESSAGE("client code terminated abnormally",
+		         (status != -1));
   
 }
 
@@ -64,20 +81,20 @@ int nwUT::run_client()
   /* go ahead son. show me what you've got */
   if(0 == pid)
   {
-    
+    ClientImpl impl("localhost");
+    impl.startTrsm();
+    exit(0);
   }
 
-  return 0;
+  return pid;
 }
-
 
 
 nwUT::ClientImpl::
 ClientImpl(const char* const i_pIp,
-           unsigned int i_numEvntToSnd = 10,
-	   const std::string& i_msg,
-	   std::string& i_clntMsg):m_numEvntToSnd(i_numEvntToSnd),
-				   m_clntMsg(i_clntMsg)
+           unsigned int i_numEvntToSnd,
+	   const std::string& i_msg):m_numEvntToSnd(i_numEvntToSnd),
+				     m_clntMsg(const_cast<std::string&>(i_msg))
 {
    struct sockaddr_in server_info;
    struct hostent *he;
