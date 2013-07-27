@@ -27,7 +27,7 @@ Acceptor::Acceptor(const char* const p_ip)
   memset(&addr_in, 0, sizeof(struct sockaddr_in));
 
   addr_in.sin_family = AF_INET;
-  addr_in.sin_port = 12345;
+  addr_in.sin_port = 9999;
   addr_in.sin_addr.s_addr = INADDR_ANY;
 
   int reuse=1;
