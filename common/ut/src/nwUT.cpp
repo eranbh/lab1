@@ -13,6 +13,7 @@
 #include <sys/wait.h> // for wait(2)
 #include "nwUT.h" // for nw test suite
 #include "acceptor.h" // class to be tested
+#include "nw_message.h"
 
 namespace nw{
 
@@ -25,7 +26,7 @@ void nwUT::tearDown(){}
 
 
 static const std::string LOC_HOST("localhost");
-static const unsigned short PORT=3490;
+static const unsigned short PORT=8001;
 static const unsigned short MAXSIZE=1024;
 
 const std::string 
@@ -49,17 +50,13 @@ void nwUT::test_init_localhost()
 void nwUT::test_nwmsg()
 {
   nw::Acceptor acc(LOC_HOST.c_str());
-  
-  int pid=nwUT::run_client();
-  
-  nwUT::run_client(); /* bring clnt up */
-  
   int status=0;
-  pid=waitpid(pid, &status, 0);
-  
+  int pid=nwUT::run_client();
 
   acc.listen_2_events(); /* bring srv up */
 
+  if(pid != 0)
+    pid=waitpid(pid, &status, 0);
   
   CPPUNIT_ASSERT_MESSAGE("waitpid terminated abnormally",
 		         (pid != -1));
@@ -131,20 +128,25 @@ ClientImpl(const char* const i_pIp,
 int 
 nwUT::ClientImpl::startTrsm()
 {
-  char buffer[1024];
- 
+
   //buffer = "Hello World!! Lets have fun\n";
   //memset(buffer, 0 , sizeof(buffer));
-  while(1) 
+  std::string buff("yalla work already");
+
+  nw::nw_message msg(buff.c_str(), buff.size(), nw::nw_message::REG);
+ 
+  
+  for(unsigned int i=0;i<m_numEvntToSnd;++i)
   {
     //fgets(buffer,MAXSIZE-1,stdin);
-    if ((send(m_socket_fd,m_clntMsg.c_str(), m_clntMsg.size(),0))== -1) {
+    if (write(m_socket_fd, &msg, sizeof(nw_message))== -1) 
+    {
       fprintf(stderr, "Failure Sending Message\n");
       close(m_socket_fd);
       exit(1); 
     }
     else {
-      printf("Message being sent: %s\n",buffer);
+      printf("client|Message sent: %s\n",m_clntMsg.c_str());
     }
   }   
 

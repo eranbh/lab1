@@ -27,7 +27,7 @@ Acceptor::Acceptor(const char* const p_ip)
   memset(&addr_in, 0, sizeof(struct sockaddr_in));
 
   addr_in.sin_family = AF_INET;
-  addr_in.sin_port = 9999;
+  addr_in.sin_port = htons(8001);
   addr_in.sin_addr.s_addr = INADDR_ANY;
 
   int reuse=1;
@@ -37,12 +37,12 @@ Acceptor::Acceptor(const char* const p_ip)
 				      SOL_SOCKET, 
 				      SO_REUSEADDR,
 				      &reuse,
-				      sizeof(reuse)));
+				      sizeof(int)));
 
   
   __SYS_CALL_TEST_NM1_EXIT((bind(m_listen_fd,
                                    (struct sockaddr*) &addr_in,
-				 sizeof(struct sockaddr_in) )));
+				 sizeof(struct sockaddr) )));
 
   __SYS_CALL_TEST_NM1_EXIT(listen(m_listen_fd, 10));
 
@@ -69,7 +69,7 @@ Acceptor::listen_2_events()
      not fatal. Need to screen for those*/
 
   epoll_event event, events[MAX_EVENTS];
-  event.events=EPOLLIN | EPOLLRDHUP | EPOLLET;
+  event.events=EPOLLIN;
   event.data.fd = m_listen_fd;
 
   /* first setup should always succeed. failure is not an option*/
@@ -99,6 +99,7 @@ Acceptor::listen_2_events()
       /* new connection*/
       if (events[i].data.fd == m_listen_fd) 
       {
+	printf("looking into fd: %d\n", events[i].data.fd);
 	int acc_fd;
 	sockaddr_in addr_in;
 	socklen_t addrlen=sizeof(sockaddr_in);
@@ -108,7 +109,7 @@ Acceptor::listen_2_events()
 				                  (struct sockaddr *) &addr_in, 
 		 				   &addrlen)));
 	// not deciding if to block here. the worker will do that
-	event.events = EPOLLIN|EPOLLET;
+	event.events = EPOLLIN;
 	event.data.fd = acc_fd;
 	// pass it to a thread here. its epoll will do completion
 	__SYS_CALL_TEST_NM1_RETURN( epoll_ctl(m_epoll_fd, 
@@ -117,7 +118,11 @@ Acceptor::listen_2_events()
 					      &event) );
       }
       else /* this is only here till we setup pthreads*/
-	handle_request(events[i].data.fd);
+      {
+	printf("event happened\n");
+	if(events[i].events & EPOLLIN)
+	  handle_request(events[i].data.fd);
+      }
     }
   }
 }
@@ -140,9 +145,9 @@ Acceptor::handle_request(int fd)
   /* The decision whether to drain the body has to be made while taking other
      tasks that might need to be executed, in consideration*/
 
-  __READ_FD_DRAIN(nmsg.m_body, 
-                  fd, 
-		  nmsg.m_header.m_msg_sz);
+  //__READ_FD_DRAIN(nmsg.m_body, 
+  //                fd, 
+  //		  nmsg.m_header.m_msg_sz);
 
   // Testing only!!!
   printf("handling request of type [%u].\n", nmsg.m_header.m_msg_type);

@@ -9,7 +9,7 @@
 */
 
 // TODO create a set of typedefs for primitives according to platforms
-
+#include<assert.h> // for assert(3)
 
 namespace nw {
 
@@ -29,10 +29,41 @@ typedef unsigned short uint16;
 class nw_message
 {
   friend class Acceptor;
+
  public:
+
+  typedef enum {REG=0, INV}tMsgTypes;
+
+  
+  nw_message()
+  {
+    m_header.m_msg_sz=0;
+    m_header.m_msg_type=INV;
+  }
+
+
+  nw_message(const char* const i_pMsg, 
+	     tMsgTypes i_type)
+  {
+    assert(i_pMsg);
+    unsigned int len=strlen(i_pMsg);
+    memcpy(m_body, "yalla why not go home", len);
+    m_header.m_msg_sz=strlen(i_pMsg);
+    m_header.m_msg_type=i_type;
+  }
+  
+  nw_message(const char* const i_pMsg, 
+	     unsigned int i_len,
+	     tMsgTypes i_type)
+  {
+    assert(i_pMsg);
+    memcpy(m_body, "yalla why not go home", i_len);
+    m_header.m_msg_sz=i_len;
+    m_header.m_msg_type=i_type;
+  }
+
   struct header
   {
-    friend class acceptor;
     uint32 m_msg_type;
     uint32 m_msg_sz;
   };

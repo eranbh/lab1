@@ -29,7 +29,7 @@ public:
   /*
   * D'tor
   */ 
-  virtual ~Acceptor(){}
+  virtual ~Acceptor(){close(m_listen_fd);close(m_epoll_fd);}
 
   /*
   * sets up the multiplexing
