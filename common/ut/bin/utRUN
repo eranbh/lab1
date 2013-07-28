@@ -15,6 +15,6 @@
 
 
 ###main###
-
-export LD_LIBRARY_PATH=/home/eranbh/work/sw_lab/common/nw/lib:${LD_LIBRARY_PATH}
-/home/eranbh/work/sw_lab/common/ut/bin/utNW
+export SWLAB_ROOT=${HOME}/work/sw_lab
+export LD_LIBRARY_PATH=${SWLAB_ROOT}/common/nw/lib:${LD_LIBRARY_PATH}
+${SWLAB_ROOT}/common/ut/bin/utNW

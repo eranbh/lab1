@@ -51,12 +51,15 @@ void nwUT::test_nwmsg()
   nw::Acceptor acc(LOC_HOST.c_str());
   
   int pid=nwUT::run_client();
-  acc.listen_2_events(); /* bring srv up */
-
+  
   nwUT::run_client(); /* bring clnt up */
   
   int status=0;
   pid=waitpid(pid, &status, 0);
+  
+
+  acc.listen_2_events(); /* bring srv up */
+
   
   CPPUNIT_ASSERT_MESSAGE("waitpid terminated abnormally",
 		         (pid != -1));

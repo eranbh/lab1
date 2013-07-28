@@ -19,15 +19,15 @@ Acceptor::Acceptor(const char* const p_ip)
 {
   assert(0 < p_ip);
 
-  sockaddr_in addr_in;
+  struct sockaddr_in addr_in;
   
   
   __SYS_CALL_TEST_NM1_EXIT((m_listen_fd=socket(AF_INET, SOCK_STREAM, 0)));
   
-  memset(&addr_in, 0, sizeof(sockaddr_in));
+  memset(&addr_in, 0, sizeof(struct sockaddr_in));
 
   addr_in.sin_family = AF_INET;
-  addr_in.sin_port = 9000;
+  addr_in.sin_port = 9999;
   addr_in.sin_addr.s_addr = INADDR_ANY;
 
   int reuse=1;
@@ -42,7 +42,7 @@ Acceptor::Acceptor(const char* const p_ip)
   
   __SYS_CALL_TEST_NM1_EXIT((bind(m_listen_fd,
                                    (struct sockaddr*) &addr_in,
-                                   sizeof(addr_in) )));
+				 sizeof(struct sockaddr_in) )));
 
   __SYS_CALL_TEST_NM1_EXIT(listen(m_listen_fd, 10));
 
