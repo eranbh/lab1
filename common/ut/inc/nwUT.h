@@ -38,6 +38,7 @@ class nwUT : public CppUnit::TestFixture
  private:
 
 	static int run_client();
+	static int run_srv();
 
 	/*
 	* simple tcp client to test the robustness 
@@ -61,6 +62,25 @@ class nwUT : public CppUnit::TestFixture
 	  std::string& m_clntMsg;
 	  	 
 	};
+
+	template <typename T>
+        int run_task(void* pargs)
+	{
+	    pid_t pid=0;
+
+	    if(0 > (pid=fork())) // TODO indicate the failure somehow
+	      return -1;
+
+	    /* go ahead son. show me what you've got */
+	    if(0 == pid)
+	    {
+	      T impl(pargs);
+	      impl.run();
+	      exit(0);
+	    }
+	    
+	    return pid;
+	}
 };
 
   } // namespace ut

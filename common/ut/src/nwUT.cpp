@@ -67,6 +67,8 @@ void nwUT::test_nwmsg()
 }
 
 
+
+
 /*
 * this func forks a new thread for the client code.
 * this would be easily replaced by either boost/ace tasks
@@ -87,6 +89,12 @@ int nwUT::run_client()
   }
 
   return pid;
+}
+
+
+int nwUT::run_srv(nw::Acceptor* i_pacp)
+{
+  
 }
 
 
