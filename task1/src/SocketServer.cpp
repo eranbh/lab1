@@ -5,8 +5,8 @@
 #include "xThread.h"
 #include "JException.h"
 #include "LocalBuffer.h"
-// #include "Jethro.h"
-// #include "JethroMessages.pb.h"
+#include "Jethro.h"
+#include "JethroMessages.pb.h"
 #include "SocketServer.h"
 
 using namespace std;
@@ -19,7 +19,7 @@ typedef struct {
 
 void executeThread(void *xi_argv);
 
-// JethroDataMessage::Column::ColumnType translateColumnType(JethroData::JethroResultSetMetaData::ColumnType_E xi_jethroColumnType);
+JethroDataMessage::Column::ColumnType translateColumnType(JethroData::JethroResultSetMetaData::ColumnType_E xi_jethroColumnType);
 
 SocketServer::SocketServer(void)
 {
@@ -33,7 +33,7 @@ SocketServer::~SocketServer(void)
 void SocketServer::Listen(int xi_port)
 {
 	try {
-		int port = (xi_port ? xi_port : 12345 /*JETHRO_SOCKET_SERVER_DEFAULT_PORT*/);
+		int port = (xi_port ? xi_port : JETHRO_SOCKET_SERVER_DEFAULT_PORT);
 		TCPServerSocket servSock(port);   // Socket descriptor for server  
   
 		cout << "Listening on port: " << port << endl;
@@ -50,11 +50,11 @@ void SocketServer::Listen(int xi_port)
 			xThread::Begin(&executeThread, (void *) &threadParams, 0);
 		}
 	} catch (SocketException &e) {
-		// TODO THROW_JEXCEPTION(0, "SocketServer::Listen - failure", e.what(), &e);
+		THROW_JEXCEPTION(0, "SocketServer::Listen - failure", e.what(), &e);
 	} catch (exception &e) {
-		// TODO THROW_JEXCEPTION(0, "SocketServer::Listen - failure", e.what(), &e);
+		THROW_JEXCEPTION(0, "SocketServer::Listen - failure", e.what(), &e);
 	} catch (...) {
-		// TODO THROW_JEXCEPTION(0,"SocketServer::Listen - failure", "unknow error", NULL);
+		THROW_JEXCEPTION(0,"SocketServer::Listen - failure", "unknow error", NULL);
 	}
 }
 
@@ -126,7 +126,8 @@ void SocketServer::executeTask(TCPSocket *xi_socket)
 
 		// unwarp recived buffer using protobufs
 		// ----------------
-
+		
+		
 		JethroDataMessage::Request ProtobufRequest;
 	
 		if (!ProtobufRequest.ParseFromArray(recvBuffer, totalRecvied)) {
@@ -174,10 +175,10 @@ void SocketServer::executeTask(TCPSocket *xi_socket)
 
 		// Get the query
 
-		// const string SqlQuery = ProtobufRequest.query().sqlquery();
+		const string SqlQuery = ProtobufRequest.query().sqlquery();
 
-		// TODO get the time cout << xxGeneral::getLocalTime() << endl;
-		// cout << "Recived: " << SqlQuery << endl;
+		cout << xxGeneral::getLocalTime() << endl;
+		cout << "Recived: " << SqlQuery << endl;
 
 		// execute query
 		// -------------
@@ -187,8 +188,7 @@ void SocketServer::executeTask(TCPSocket *xi_socket)
 
 		try {
 
-			// find a way to produce data !!!
-                        // resultSet = Jethro::getInstance()->executeQuery(SqlQuery);
+			resultSet = Jethro::getInstance()->executeQuery(SqlQuery);
 			if (resultSet == NULL) { // TODO : temp - change to handle instruction by recive instruciton request
 				protobufRespond.set_type(JethroDataMessage::Respond::STATUS);
 				protobufRespond.set_serialno(1); //TODO: expend this

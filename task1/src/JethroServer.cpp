@@ -2,13 +2,12 @@
 //
 #include <iostream>
 #include <string>
-#include <stdlib.h>
 #include "general.h"
 #include "SocketServer.h"
-//#include "Jethro.h"
+#include "Jethro.h"
 
 using namespace std;
-// using namespace JethroData;
+using namespace JethroData;
 
 int main(int argc, char* argv[])
 {
@@ -24,9 +23,9 @@ int main(int argc, char* argv[])
 
 	try {
 
-		//Jethro *JethroObj = Jethro::getInstance(schemeFilePath, paramsFilePath);
+		Jethro *JethroObj = Jethro::getInstance(schemeFilePath, paramsFilePath);
 
-		// cout << "Ready - " << xxGeneral::getLocalTime() << endl;
+		cout << "Ready - " << xxGeneral::getLocalTime() << endl;
 
 		SocketServer socketServer;
 

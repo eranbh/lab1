@@ -17,8 +17,7 @@ public:
 		if (m_buffer == NULL) {
 			std::stringstream msg;
 			msg << "failed to allocate buffer. size: " << xi_bufferSize << std::endl;
-			// THROW_JEXCEPTION(0, msg.str(), "", NULL);
-                        // TODO throw excception
+			THROW_JEXCEPTION(0, msg.str(), "", NULL);
 		}
 	}
 
