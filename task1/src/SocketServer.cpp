@@ -185,9 +185,9 @@ void SocketServer::executeTask(TCPSocket *xi_socket)
 		/*             stream handler start                        *
 		/***********************************************************/
 
-		// execute query
-		// -------------
-	
+		DataOutStreamArgs outArgs(SqlQuery);
+		m_datOutStrmHndlr.init(&outArgs);
+		m_datOutStrmHndlr.handleProtoBuffSend();
 	
 		  
 	} catch (exception &e) {

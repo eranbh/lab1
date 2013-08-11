@@ -59,8 +59,17 @@ int
 BulkDataOutStreamMngr::handleProtoBuffSend()
 {
 
+  // execute query
+  // -------------
+
+
   JethroDataMessage::Respond protobufRespond;
   JethroResultSet const *resultSet = NULL;
+
+  
+  assert(m_args || "per bulk args not set");
+  const std::string& SqlQuery = (static_cast<DataOutStreamArgs*>(m_args))->m_query;
+  
   
   try {
     
@@ -185,8 +194,13 @@ BulkDataOutStreamMngr::finalizeStream()
 
 /*Inits data that is built per request */
 void
-BulkDataOutStreamMngr::init(char* i_recvBuff)
-{}
+BulkDataOutStreamMngr::init(DataStreamArgs* i_args)
+{
+  AbstractDataStreamMngr::init(i_args);
+
+  /* do specific init  */
+  
+}
 
 
 void 

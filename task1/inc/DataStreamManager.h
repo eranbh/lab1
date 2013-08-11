@@ -8,6 +8,27 @@ namespace JethroData{
   namespace DataStreamManager{
 
 
+/*
+* Interface for arg storage
+*/
+typedef struct tDataStreamArgs
+{}DataStreamArgs;
+
+ 
+typedef struct tDataInStreamArgs : public DataStreamArgs 
+{}DataInStreamArgs;
+
+
+typedef struct tDataOutStreamArgs : DataStreamArgs
+{
+  
+ tDataOutStreamArgs(const std::string& i_query):
+                                m_query(i_query){}
+  /**/
+  const std::string& m_query; 
+}DataOutStreamArgs;
+
+
 
 class AbstractDataStreamMngr
 {
@@ -15,9 +36,13 @@ class AbstractDataStreamMngr
  AbstractDataStreamMngr(TCPSocket* i_socket):m_socket(i_socket)
   {}
 
-  virtual void init() {/*perform some default init*/}
+  virtual void init(DataStreamArgs* i_args) 
+  {
+    /*perform some default init*/
+    m_args = i_args;
+  }
 
-  virtual void reset {/* perform some default reset */}
+  virtual void reset() {/* perform some default reset */}
 
   virtual int finalizeStream() {/*perform some default cleanup*/}
 
@@ -25,6 +50,8 @@ class AbstractDataStreamMngr
   /* common members */
  private:
   TcpSocket* m_socket;
+
+  DataStreamArgs* m_args;
 }
 
 
@@ -53,7 +80,7 @@ class BulkDataInStreanMngr : public DataInStreamMngr
   BulkDataInStreamMngr(TCPSocket * i_socket);
 
   /*Inits data that is built per request */
-  virtual void init(char* i_recvBuff);
+  virtual void init(DataStreamArgs*);
   
   /*                                                          
   * main entry point for the receive logic                                      
