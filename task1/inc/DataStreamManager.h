@@ -15,9 +15,11 @@ class AbstractDataStreamMngr
  AbstractDataStreamMngr(TCPSocket* i_socket):m_socket(i_socket)
   {}
 
-  virtual init() {/*perform some default init*/}
+  virtual void init() {/*perform some default init*/}
 
-  virtual reset {/* perform some default reset */}
+  virtual void reset {/* perform some default reset */}
+
+  virtual int finalizeStream() {/*perform some default cleanup*/}
 
 
   /* common members */
@@ -48,32 +50,23 @@ class BulkDataInStreanMngr : public DataInStreamMngr
   * C'tor
   * Data that is built once per socket
   */
-  BulkDataInStreamMngr(TCPSocket * i_socket):m_socket(i_socket)
-  {
-    assert(m_socket);
-  }
+  BulkDataInStreamMngr(TCPSocket * i_socket);
 
   /*Inits data that is built per request */
- void init(char* i_recvBuff)
-  {
-  }
+  virtual void init(char* i_recvBuff);
   
-
   /*                                                          
   * main entry point for the receive logic                                      
   * TODO add algorithm
   */
-  handleProtoBuffRecv();
-
-  /*reseting state*/
-  reset();
-
-
+  virtual int handleProtoBuffRecv();
 
  private:
 
-  handleFinalizeReceive();
+  /*reseting state*/
+  virtual void reset();
 
+  virtual int finalizeStream();
   
 };
 
@@ -87,27 +80,23 @@ class BulkDataOutStreamMngr : public DataOutStreamMngr
   * C'tor
   * Data that is built once per socket
   */
- BulkDataOutStreamMngr(TCPSocket * i_socket):AbstractDataStreamMngr(i_socket)
-  {
-    assert(m_socket);
-  }
+  BulkDataOutStreamMngr(TCPSocket * i_socket);
 
   /*Inits data that is built per request */
-  void init(char* i_recvBuff)
-  {
-    
-  }
+  virtual void init(char* i_recvBuff);
 
-  void reset();
-  
   /*
   * main entry point for the send logic
   * TODO add algorithm
   */
-  handleProtoBuffSend();
+  virtual int handleProtoBuffSend();
 
  private:
-}
+  
+  virtual void reset();
+
+  virtual int finalizeStream();
+};
 
 
 } // namespace JethroData
