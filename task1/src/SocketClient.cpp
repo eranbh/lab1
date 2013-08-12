@@ -66,110 +66,58 @@ void SocketClient::sendQuery(const std::string xi_SqlQuery)
 
 		// recv answer
 		// ===========
+		
 
-		// First - read package header
+		/***********************************************************/
+		/*             stream handler start                        *
+		/***********************************************************/
 
-		UDWordType recvBufferSize;
-		SocketServer::PackageHeader_St header;
+		DataInStreamContext inCtx(/*add a pointer to a func for buffer consumption*/);
+		m_datInStrmHndlr.init(&InCtx);
+		m_datInStrmHndlr.handleProtoBuffSend();
+		m_datInStrmHndlr.reset();
 
-		UDWordType leftToRecv = sizeof(header);
-		UDWordType totalRecvied = 0;
-		while (leftToRecv!=0) {
-			if ((recvBufferSize = sock.recv((char *) (&header)+totalRecvied, leftToRecv))<=0) {
-				cout << "Error - recv failed or connection disconnected" << endl;
-				// TODO: error: return error - terminate thread 
-				return;
-			}
-			totalRecvied += recvBufferSize;
-			leftToRecv -= recvBufferSize;
-			// TODO: what happens in package too small? it hangs. Take care of this case
-		}
-		//cout << "Header read. Package size: " << header.PackageSize << endl;
-		// Convert from network endian to host endian
-		header.PackageSize = TCPSocket::convNtohl(header.PackageSize);
-		header.PackageFlags = TCPSocket::convNtohl(header.PackageFlags);
-
-		// Next -read result
-
-		//cout << "Header read. Package size: " << header.PackageSize << endl;
-
-		// Allocate memory for expected buffer size:
-		LocalBuffer<char> recvBufferObj(header.PackageSize);
-		char *recvBuffer = recvBufferObj.getBuffer();
-		//char *recvBuffer = new char[header.PackageSize];
-
-		// Next - read package data
-
-		leftToRecv = header.PackageSize;
-		totalRecvied = 0;
-		while (leftToRecv!=0) {
-
-			UDWordType maxPackageBufferSize = SocketServer::MAXIMUM_PACKAGE_BUFFER_SIZE; // move const to variable to avoid compailer error at min
-			UDWordType bufRecvSize = min(leftToRecv, maxPackageBufferSize);
-			//cout << "leftToRecv: " << leftToRecv << " totalRecvied: " << totalRecvied << endl;
-			if ((recvBufferSize = sock.recv(recvBuffer+totalRecvied, bufRecvSize))<=0) {
-				cout << "Error - recv failed or connection disconnected" << endl;
-				// TODO: error: return error - terminate thread 
-				return;
-			}
-			totalRecvied += recvBufferSize;
-			leftToRecv -= recvBufferSize;
-			// TODO: what happens in package too small? it hangs. Take care of this case
-		}
-		/*
-		if (totalRecvBufferSize < header.PackageSize) {
-			// TODO: error: return error - terminate thread 
-			cout << "Error - package size (" << totalRecvBufferSize << ") mismatch expected buffer size (" << header.PackageSize << ")." << endl;
-			return;
-		}
-		*/
-		//cout << "package recived. Size: " << totalRecvied << endl;
-
-		// Unwarp response protobuf package
-		// ================================
-
-		JethroDataMessage::Respond protobufRespond;
-	
-		if (!protobufRespond.ParseFromArray(recvBuffer, totalRecvied)) {
-			// TODO: error: return error - terminate thread 
-			cout << "Error - protobug parse respond failure" << endl;
-			return;
-		}
+		/***********************************************************/
+		/*             stream handler end                          *
+		/***********************************************************/
 
 		switch(protobufRespond.type()) {
 		case (JethroDataMessage::Respond::STATUS) :
-			if (protobufRespond.status() == JethroDataMessage::Respond::FAILURE) {
-				cerr << protobufRespond.error().errormessage() << endl;
-			}
-			return;
-			break;
+		  if (protobufRespond.status() == JethroDataMessage::Respond::FAILURE) {
+		    cerr << protobufRespond.error().errormessage() << endl;
+		  }
+		  return;
+		  break;
 		case (JethroDataMessage::Respond::RESULT) :
 
-			UQWordType rowsCount = protobufRespond.metadata().rowscount();
+		  // we can access metadata here, as we are sending an intermediate
+		  // sum on every bulk AS WELL as the grand total
+		  UQWordType rowsCount = protobufRespond.metadata().rowscount();
 
-			// show rows
-			UQWordType count = 0;
-			cout << endl;
-			while (count < protobufRespond.rows().size()) {
-				cout << protobufRespond.rows().csvrow(count++) << endl;
-			}
+		  // show rows
+		  UQWordType count = 0;
+		  cout << endl;
+		  while (count < protobufRespond.rows().size()) {
+		    cout << protobufRespond.rows().csvrow(count++) << endl;
+		  }
 
-			//TODO: support output format parameters. If output is CSV don't print this:
-			cout << endl << "Rows count: " << rowsCount << endl;
+		  //TODO: support output format parameters. If output is CSV don't print this:
+		  cout << endl << "Rows count: " << rowsCount << endl;
 
-			if (protobufRespond.metadata().has_querytime()) {
+		  
+		  if (protobufRespond.metadata().has_querytime()) {
+		    
+		    cout << endl << "Total query time: " << fixed << setprecision(3) << "[" << protobufRespond.metadata().querytime().total() << "]";
+		    cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().totalcpu() << ")";
+		    cout << " - execute: " << setprecision(3) << protobufRespond.metadata().querytime().query();
+		    cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().querycpu() << ")";
+		    cout << " show data: " << setprecision(3) << protobufRespond.metadata().querytime().getdata();
+		    cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().getdatacpu() << ")";
+		    cout << endl << endl;					
 
-				cout << endl << "Total query time: " << fixed << setprecision(3) << "[" << protobufRespond.metadata().querytime().total() << "]";
-				cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().totalcpu() << ")";
-				cout << " - execute: " << setprecision(3) << protobufRespond.metadata().querytime().query();
-				cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().querycpu() << ")";
-				cout << " show data: " << setprecision(3) << protobufRespond.metadata().querytime().getdata();
-				cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().getdatacpu() << ")";
-				cout << endl << endl;					
+		  }
 
-			}
-
-			break;
+		  break;
 		}
 
 

@@ -22,7 +22,78 @@ BulkDataInStreamMngr(TCPSocket * i_socket):AbstractDataStreamMngr(i_socket)
 */
 int
 BulkDataInStreanMngr::handleProtoBuffRecv()
-{}
+{
+  // First - read package header
+  
+  UDWordType recvBufferSize;
+  SocketServer::PackageHeader_St header;
+
+  UDWordType leftToRecv = sizeof(header);
+  UDWordType totalRecvied = 0;
+  while (leftToRecv!=0) {
+    if ((recvBufferSize = m_sock.recv((char *) (&header)+totalRecvied, leftToRecv))<=0) {
+      cout << "Error - recv failed or connection disconnected" << endl;
+      // TODO: error: return error - terminate thread 
+      return;
+    }
+    totalRecvied += recvBufferSize;
+    leftToRecv -= recvBufferSize;
+    // TODO: what happens in package too small? it hangs. Take care of this case
+  }
+  //cout << "Header read. Package size: " << header.PackageSize << endl;
+  // Convert from network endian to host endian
+  header.PackageSize = TCPSocket::convNtohl(header.PackageSize);
+  header.PackageFlags = TCPSocket::convNtohl(header.PackageFlags);
+
+  // Next -read result
+
+  //cout << "Header read. Package size: " << header.PackageSize << endl;
+
+  // Allocate memory for expected buffer size:
+  LocalBuffer<char> recvBufferObj(header.PackageSize);
+  char *recvBuffer = recvBufferObj.getBuffer();
+  //char *recvBuffer = new char[header.PackageSize];
+
+  // Next - read package data
+
+  leftToRecv = header.PackageSize;
+  totalRecvied = 0;
+  while (leftToRecv!=0) {
+
+    UDWordType maxPackageBufferSize = SocketServer::MAXIMUM_PACKAGE_BUFFER_SIZE; // move const to variable to avoid compailer error at min
+    UDWordType bufRecvSize = min(leftToRecv, maxPackageBufferSize);
+    //cout << "leftToRecv: " << leftToRecv << " totalRecvied: " << totalRecvied << endl;
+    if ((recvBufferSize = m_sock.recv(recvBuffer+totalRecvied, bufRecvSize))<=0) {
+      cout << "Error - recv failed or connection disconnected" << endl;
+      // TODO: error: return error - terminate thread 
+      return;
+    }
+    totalRecvied += recvBufferSize;
+    leftToRecv -= recvBufferSize;
+    // TODO: what happens in package too small? it hangs. Take care of this case
+  }
+  /*
+    if (totalRecvBufferSize < header.PackageSize) {
+    // TODO: error: return error - terminate thread 
+    cout << "Error - package size (" << totalRecvBufferSize << ") mismatch expected buffer size (" << header.PackageSize << ")." << endl;
+    return;
+    }
+  */
+  //cout << "package recived. Size: " << totalRecvied << endl;
+
+  // Unwarp response protobuf package
+  // ================================
+
+  JethroDataMessage::Respond protobufRespond;
+	
+  if (!protobufRespond.ParseFromArray(recvBuffer, totalRecvied)) {
+    // TODO: error: return error - terminate thread 
+    cout << "Error - protobug parse respond failure" << endl;
+    return;
+  }
+
+ 
+}
 
 int
 BulkDataInStreanMngr::finalizeStream(){}
@@ -83,7 +154,7 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
     } else {
 
       // add the resultSet to our context
-      static_cast<DataOutStreamContext*>(m_args)->m_rs=resultSet;
+      static_cast<DataOutStreamContext*>(m_args)->m_rs = resultSet;
       resultSet
       
       cout << "Rows count: " << resultSet->getResultsSetSize() << endl;
@@ -115,7 +186,9 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
 	// add the metadata to payload of last message
 	finalizeStream(&protobufRespond, count);
 	sendBulk(protobufRespond, SocketServer::PROTOCOL_PROTOBUF);
-	//protobufRespond.mutable_rows()->set_size(++count);
+	// this is done here as well as in the finalize, as this is taken by
+        // the client code on EVERY bulk, and not just at the end [total]
+	protobufRespond.mutable_rows()->set_size(++count);
       }
     }
   } catch (exception &e) {
