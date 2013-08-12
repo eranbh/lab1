@@ -81,6 +81,10 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
       protobufRespond.set_serialno(1); //TODO: expend this
 
     } else {
+
+      // add the resultSet to our context
+      static_cast<DataOutStreamContext*>(m_args)->m_rs=resultSet;
+      resultSet
       
       cout << "Rows count: " << resultSet->getResultsSetSize() << endl;
       
@@ -100,16 +104,17 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
 	string *CSVRow = resultSet->getNextCSVRow();
 	protobufRespond.mutable_rows()->add_csvrow(CSVRow->c_str(), CSVRow->length());
 	totalBulkSz += CSVRow->length();
+	delete CSVRow;
+	count++;
 	if(totalBulkSz >=  MAX_TRX_BUFFER_SZ) // 
 	{
 	  // time to send bulk
-	  sendBulk()
+	  sendBulk(protobufRespond, SocketServer::PROTOCOL_PROTOBUF|MSG_CONT);
 	  totalBulkSz=0;
 	}
-	finalizeStream(&protobufRespond);
-	
-	delete CSVRow;
-	count++;
+	// add the metadata to payload of last message
+	finalizeStream(&protobufRespond, count);
+	sendBulk(protobufRespond, SocketServer::PROTOCOL_PROTOBUF);
 	//protobufRespond.mutable_rows()->set_size(++count);
       }
     }
@@ -137,9 +142,9 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
 
 
 int
-BulkDataOutStreamMngr::finalizeStream(JethroMessage& i_protobufRespond)
+BulkDataOutStreamMngr::finalizeStream(JethroMessage& i_protobufRespond, UDWordType i_count)
 {
-    protobufRespond.mutable_rows()->set_size(count);
+    protobufRespond.mutable_rows()->set_size(i_count);
 
     protobufRespond.mutable_metadata()->mutable_querytime()->set_query(resultSet->getQueryTimeAbs());
     protobufRespond.mutable_metadata()->mutable_querytime()->set_querycpu(resultSet->getQueryCpuTime());
@@ -169,7 +174,8 @@ BulkDataOutStreamMngr::finalizeStream(JethroMessage& i_protobufRespond)
 }
 
 
-int BulkDataOutStreamMngr::sendBulk(JethroMessage& i_protobufRespond)
+int BulkDataOutStreamMngr::sendBulk(JethroMessage& i_protobufRespond,
+				    SocketServer::PACKAGE_FLAGS_E i_flags)
 {
     // send
 
@@ -185,7 +191,7 @@ int BulkDataOutStreamMngr::sendBulk(JethroMessage& i_protobufRespond)
   // pack the protobuf message in jethro package:
   SocketServer::PackageHeader_St *headerSend = (SocketServer::PackageHeader_St *) sentBuffer;
 
-  headerSend->PackageFlags = SocketServer::PROTOCOL_PROTOBUF;
+  headerSend->PackageFlags = i_flags; // added the new options here
   headerSend->PackageSize = protobufRespond.ByteSize();
   if (m_queryDebugLevel >= BASE_DEBUG) cout << "sending total of " << totalSentBufferSize << " bytes. Package size: " << headerSend->PackageSize << endl;
 

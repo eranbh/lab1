@@ -22,22 +22,24 @@ const UDWordType MAX_TRX_BUFFER_SZ= 2 * 0x100000; // 2Mb. should be from conf
 /*
 * Interface for arg storage
 */
-typedef struct tDataStreamArgs
+typedef struct tDataStreamContext
 {}DataStreamArgs;
 
  
-typedef struct tDataInStreamArgs : public DataStreamArgs 
-{}DataInStreamArgs;
+typedef struct tDataInStreamContext : public DataStreamContext 
+{}DataInStreamContext;
 
 
-typedef struct tDataOutStreamArgs : DataStreamArgs
+typedef struct tDataOutStreamContext : DataStreamContext
 {
   
- tDataOutStreamArgs(const std::string& i_query):
-                                m_query(i_query){}
+ tDataOutStreamContext(const std::string& i_query):
+                            m_query(i_query), 
+			    m_rs(0){}
   /**/
-  const std::string& m_query; 
-}DataOutStreamArgs;
+  const std::string& m_query;
+  JethroResultSet const * m_rs;
+}DataOutStreamContext;
 
 
 
@@ -62,7 +64,7 @@ class AbstractDataStreamMngr
  private:
   TcpSocket* m_socket;
 
-  DataStreamArgs* m_args;
+  DataStreamContext* m_args;
 }
 
 
@@ -133,7 +135,8 @@ class BulkDataOutStreamMngr : public DataOutStreamMngr
 
  private:
 
-  int sendBulk();
+  int sendBulk(JethroMessage& i_protobufRespond,
+	       SocketServer::PACKAGE_FLAGS_E i_flags);
   
   virtual void reset();
 

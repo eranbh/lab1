@@ -24,7 +24,7 @@ private:
 		DWordType PackageFlags;
 	} PackageHeader_St;
 
-	enum PackageFlags_E {PROTOCOL_PROTOBUF = 0x00000001};
+	enum PackageFlags_E {PROTOCOL_PROTOBUF = 0x00000001, MSG_CONT};
 
 	static const DWordType MAXIMUM_PACKAGE_BUFFER_SIZE = 1024;
 
