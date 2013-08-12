@@ -67,13 +67,15 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
   JethroResultSet const *resultSet = NULL;
 
   
-  assert(m_args || "per bulk args not set");
-  const std::string& SqlQuery = (static_cast<DataOutStreamArgs*>(m_args))->m_query;
-  
+  assert(m_args && "per bulk args not set");
+  assert(false == static_cast<DataOutStreamArgs*>(m_args))->m_query.empty() &&
+         "query not supplied");
+  const std::string& sqlQuery = 
+              (static_cast<DataOutStreamArgs*>(m_args))->m_query;
   
   try {
     
-    resultSet = Jethro::getInstance()->executeQuery(SqlQuery);
+    resultSet = Jethro::getInstance()->executeQuery(sqlQuery);
     if (resultSet == NULL) { // TODO : temp - change to handle instruction by recive instruciton request
       protobufRespond.set_type(JethroDataMessage::Respond::STATUS);
       protobufRespond.set_serialno(1); //TODO: expend this
@@ -92,40 +94,24 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
 
       protobufRespond.mutable_rows()->set_type(JethroDataMessage::RowSet::CSV);// RowSetType::RowSet_RowSetType_CSV);
       UDWordType count=0;
+      UDWordType totalBulkSz=0;
+
       while (!resultSet->isEndOfSet()) { //TODO: stop when reached limit, send the buf and create a new buf for next rows
 	string *CSVRow = resultSet->getNextCSVRow();
 	protobufRespond.mutable_rows()->add_csvrow(CSVRow->c_str(), CSVRow->length());
+	totalBulkSz += CSVRow->length();
+	if(totalBulkSz >=  MAX_TRX_BUFFER_SZ) // 
+	{
+	  // time to send bulk
+	  sendBulk()
+	  totalBulkSz=0;
+	}
+	finalizeStream(&protobufRespond);
+	
 	delete CSVRow;
 	count++;
 	//protobufRespond.mutable_rows()->set_size(++count);
       }
-      protobufRespond.mutable_rows()->set_size(count);
-
-      protobufRespond.mutable_metadata()->mutable_querytime()->set_query(resultSet->getQueryTimeAbs());
-      protobufRespond.mutable_metadata()->mutable_querytime()->set_querycpu(resultSet->getQueryCpuTime());
-      protobufRespond.mutable_metadata()->mutable_querytime()->set_getdata(resultSet->getGetDataTimeAbs());
-      protobufRespond.mutable_metadata()->mutable_querytime()->set_getdatacpu(resultSet->getGetDataCpuTime());
-
-      protobufRespond.mutable_metadata()->mutable_querytime()->set_total(resultSet->getQueryTimeAbs() + resultSet->getGetDataTimeAbs());
-      protobufRespond.mutable_metadata()->mutable_querytime()->set_totalcpu(resultSet->getQueryCpuTime() + resultSet->getGetDataCpuTime());
-
-      if (m_queryDebugLevel >= BASE_DEBUG) cout << "resultSet->getMetaData().size(): " << resultSet->getMetaData().size() << endl;
-      for(int i=0; i < resultSet->getMetaData().size(); i++) {
-	JethroDataMessage::Column *columnMetaData = protobufRespond.mutable_metadata()->add_columns();
-	columnMetaData->set_label(resultSet->getMetaData().getColumnLabel(i));					
-	columnMetaData->set_name(resultSet->getMetaData().getColumnName(i));					
-	columnMetaData->set_type(translateColumnType(resultSet->getMetaData().getColumnType(i)));
-	columnMetaData->set_tablename(resultSet->getMetaData().getTableName(i));					
-      }
-
-      // Print query time to output 
-      cout << endl << "Total query time: " << fixed << setprecision(3) << "[" << protobufRespond.metadata().querytime().total() << "]";
-      cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().totalcpu() << ")";
-      cout << " - execute: " << setprecision(3) << protobufRespond.metadata().querytime().query();
-      cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().querycpu() << ")";
-      cout << " show data: " << setprecision(3) << protobufRespond.metadata().querytime().getdata();
-      cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().getdatacpu() << ")";
-      cout << endl << endl;
     }
   } catch (exception &e) {
 
@@ -146,9 +132,46 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
 
   }
 
-  if (resultSet) delete resultSet;
+  if (resultSet) delete resultSet;	
+}
 
-  // send
+
+int
+BulkDataOutStreamMngr::finalizeStream(JethroMessage& i_protobufRespond)
+{
+    protobufRespond.mutable_rows()->set_size(count);
+
+    protobufRespond.mutable_metadata()->mutable_querytime()->set_query(resultSet->getQueryTimeAbs());
+    protobufRespond.mutable_metadata()->mutable_querytime()->set_querycpu(resultSet->getQueryCpuTime());
+    protobufRespond.mutable_metadata()->mutable_querytime()->set_getdata(resultSet->getGetDataTimeAbs());
+    protobufRespond.mutable_metadata()->mutable_querytime()->set_getdatacpu(resultSet->getGetDataCpuTime());
+
+    protobufRespond.mutable_metadata()->mutable_querytime()->set_total(resultSet->getQueryTimeAbs() + resultSet->getGetDataTimeAbs());
+    protobufRespond.mutable_metadata()->mutable_querytime()->set_totalcpu(resultSet->getQueryCpuTime() + resultSet->getGetDataCpuTime());
+
+    if (m_queryDebugLevel >= BASE_DEBUG) cout << "resultSet->getMetaData().size(): " << resultSet->getMetaData().size() << endl;
+    for(int i=0; i < resultSet->getMetaData().size(); i++) {
+      JethroDataMessage::Column *columnMetaData = protobufRespond.mutable_metadata()->add_columns();
+      columnMetaData->set_label(resultSet->getMetaData().getColumnLabel(i));					
+      columnMetaData->set_name(resultSet->getMetaData().getColumnName(i));					
+      columnMetaData->set_type(translateColumnType(resultSet->getMetaData().getColumnType(i)));
+      columnMetaData->set_tablename(resultSet->getMetaData().getTableName(i));					
+    }
+
+    // Print query time to output 
+    cout << endl << "Total query time: " << fixed << setprecision(3) << "[" << protobufRespond.metadata().querytime().total() << "]";
+    cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().totalcpu() << ")";
+    cout << " - execute: " << setprecision(3) << protobufRespond.metadata().querytime().query();
+    cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().querycpu() << ")";
+    cout << " show data: " << setprecision(3) << protobufRespond.metadata().querytime().getdata();
+    cout << " (" << setprecision(3) << protobufRespond.metadata().querytime().getdatacpu() << ")";
+    cout << endl << endl;
+}
+
+
+int BulkDataOutStreamMngr::sendBulk(JethroMessage& i_protobufRespond)
+{
+    // send
 
   UDWordType totalSentBufferSize = sizeof(SocketServer::PackageHeader_St) + protobufRespond.ByteSize();
 
@@ -183,13 +206,9 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
   }
 
   if (m_queryDebugLevel >= BASE_DEBUG) cout << "Send completed" << endl; // DEBUG
-	
+
 }
 
-
-int
-BulkDataOutStreamMngr::finalizeStream()
-{}
 
 
 /*Inits data that is built per request */

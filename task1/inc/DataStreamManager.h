@@ -8,6 +8,17 @@ namespace JethroData{
   namespace DataStreamManager{
 
 
+class JethroMessage
+{};
+
+class JethroDataMessage::Request : public  JethroMessage
+{};
+
+ class JethroDataMessage::Respond : public JethroMessage
+{};
+
+const UDWordType MAX_TRX_BUFFER_SZ= 2 * 0x100000; // 2Mb. should be from conf
+
 /*
 * Interface for arg storage
 */
@@ -44,7 +55,7 @@ class AbstractDataStreamMngr
 
   virtual void reset() {/* perform some default reset */}
 
-  virtual int finalizeStream() {/*perform some default cleanup*/}
+  virtual int finalizeStream(JethroMessage&) {/*perform some default cleanup*/}
 
 
   /* common members */
@@ -90,10 +101,12 @@ class BulkDataInStreanMngr : public DataInStreamMngr
 
  private:
 
+  int recvBulk();
+
   /*reseting state*/
   virtual void reset();
 
-  virtual int finalizeStream();
+  virtual int finalizeStream(JethroMessage&);
   
 };
 
@@ -110,7 +123,7 @@ class BulkDataOutStreamMngr : public DataOutStreamMngr
   BulkDataOutStreamMngr(TCPSocket * i_socket);
 
   /*Inits data that is built per request */
-  virtual void init(char* i_recvBuff);
+  virtual void init(DataStreamArgs*);
 
   /*
   * main entry point for the send logic
@@ -119,10 +132,12 @@ class BulkDataOutStreamMngr : public DataOutStreamMngr
   virtual int handleProtoBuffSend();
 
  private:
+
+  int sendBulk();
   
   virtual void reset();
 
-  virtual int finalizeStream();
+  virtual int finalizeStream(JethroMessage&);
 };
 
 
