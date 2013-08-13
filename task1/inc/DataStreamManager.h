@@ -162,9 +162,6 @@ class BulkDataInStreanMngr : public DataInStreamMngr
 
  private:
 
-  /* perform data receiving */
-  int recvBulk();
-
   /*reseting state*/
   virtual void reset();
 

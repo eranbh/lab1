@@ -79,11 +79,15 @@ void SocketClient::sendQuery(const std::string xi_SqlQuery)
 	  /***********************************************************/
 	  /*             stream handler start                        *
 	  /***********************************************************/
+         
+          /* assumption: this class will not be shared among threads
+             if that is false, the below code might cause undefined 
+             behavior, as the ctx is added to the manager by every thread */
 
 	  DataInStreamContext inCtx(/* init buffer level params */);
 	  m_datInStrmHndlr->init(&InCtx); /* not thread safe */
 	  m_datInStrmHndlr->handleProtoBuffSend();
-
+	  m_datInStrmHndlr->reset();
 	  /***********************************************************/
 	  /*             stream handler end                          *
 	  /***********************************************************/
@@ -99,6 +103,13 @@ void SocketClient::sendQuery(const std::string xi_SqlQuery)
 }
 
 
+
+/*
+* this func's purpose is to consume the buffer.
+* as the dataStreamManager is allowed to consume the
+* data during the stream handling, this func is bound
+* to a functure that is also "visible" to the manager.
+*/
 int
 SocketClient::consume(JethroDataMessage::Respond& protobufRespond)
 {

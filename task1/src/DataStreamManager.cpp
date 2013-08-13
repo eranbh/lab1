@@ -4,6 +4,14 @@
 
 namespace JethroData{
   namespace DataStreamManager{
+
+
+
+
+/**********************/
+/*BulkDataInStreamMngr*/
+/**********************/
+
 /*
 * C'tor
 */
@@ -94,7 +102,7 @@ BulkDataInStreanMngr::handleProtoBuffRecv()
       return;
     }
     
-    /* consume the buffer in the SocketClient's ctx */
+    /* consume the intermediate buffer */
     m_pConsum(protobufRespond);
 
   }while(header.PackageFlags & SocketServer::MSG_CONT); // maybe this a dependancy we dont want
@@ -105,10 +113,11 @@ BulkDataInStreanMngr::handleProtoBuffRecv()
 }
 
 int
-BulkDataInStreanMngr::finalizeStream(JethroMessage& i_protobufRespond, UDWordType i_count)
+BulkDataInStreanMngr::finalizeStream(JethroMessage& i_protobufRespond, 
+				     UDWordType i_count)
 {
-  
   /* extract metadata and consume it */
+  m_pConsum(protobufRespond);
 }
 
 
@@ -129,6 +138,11 @@ BulkDataInStreanMngr::reset()
   /* perform specific reset */
 }
 
+
+
+/***********************/
+/*BulkDataOutStreamMngr*/
+/***********************/
 
 
 /*
@@ -176,10 +190,6 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
   JethroDataMessage::Respond protobufRespond;
   JethroResultSet const *resultSet = NULL;
 
-  
-  assert(m_args && "per bulk args not set");
-  assert(false == static_cast<DataOutStreamArgs*>(m_args))->m_query.empty() &&
-         "query not supplied");
   const std::string& sqlQuery = 
               (static_cast<DataOutStreamArgs*>(m_args))->m_query;
   
@@ -192,7 +202,7 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
 
     } else {
 
-      // add the resultSet to our context
+      // add the resultSet to our context - we will need it later
       static_cast<DataOutStreamContext*>(m_args)->m_rs = resultSet;
       resultSet
       
