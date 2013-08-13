@@ -10,12 +10,10 @@ namespace JethroData{
   */
 BulkDataInStreamMngr::
 BulkDataInStreamMngr(TCPSocket * i_socket,
-		     p_consume_func i_consFunc = s_pShowRows,
-		     SocketClient&  i_consumCtx):
+		     SocketClient*  i_consumCtx,
                      AbstractDataStreamMngr(i_socket),
-		     m_pConsum(i_consFunc)
+                     m_pConsum(i_consFunc)
 {
-  boost::bind(&SocketClient::consumBuff, &i_consumCtx, _1);
 }
 
 
@@ -96,6 +94,9 @@ BulkDataInStreanMngr::handleProtoBuffRecv()
       cout << "Error - protobug parse respond failure" << endl;
       return;
     }
+    
+    /* consume the buffer in the SocketClient's ctx */
+    m_pConsum(protobufRespond);
 
   }while(header.PackageFlags & SocketServer:: MSG_CONT); // maybe this a dependancy we dont want
                                                          // consider moving the enum to a mutual header

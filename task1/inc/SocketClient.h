@@ -14,6 +14,10 @@ public:
 	void sendQuery(const std::string xi_SqlQuery);
 
 private:
+	
+
+
+	int consumFunc(JethroDataMessage::Respond&);
 
 	std::string m_serverAddress;
 

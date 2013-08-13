@@ -185,10 +185,12 @@ void SocketServer::executeTask(TCPSocket *xi_socket)
 		/*             stream handler start                        *
 		/***********************************************************/
 
+		/* it is not thread safe to save the stream manager as a member
+                   as this obj is shared among all threads.*/
 		DataOutStreamContext outCtx(SqlQuery);
-		m_datOutStrmHndlr.init(&outCtx);
-		m_datOutStrmHndlr.handleProtoBuffSend();
-		m_datOutStrmHndlr.reset();
+		BulkDataOutStreamMngr outStrMngr(xi_socket);
+		outStrMngr.init(&outCtx);
+		outStrMngr.handleProtoBuffSend();
 
 		/***********************************************************/
 		/*             stream handler end                          *
