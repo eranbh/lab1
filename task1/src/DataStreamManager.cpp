@@ -4,15 +4,18 @@
 
 namespace JethroData{
 
-
 /*
-* C'tor
-* Data that is built once per socket
-*/
-BulkDataInStreanMngr::
-BulkDataInStreamMngr(TCPSocket * i_socket):AbstractDataStreamMngr(i_socket)
+  * C'tor
+  * Data that is built once per socket
+  */
+BulkDataInStreamMngr::
+BulkDataInStreamMngr(TCPSocket * i_socket,
+		     p_consume_func i_consFunc = s_pShowRows,
+		     SocketClient&  i_consumCtx):
+                     AbstractDataStreamMngr(i_socket),
+		     m_pConsum(i_consFunc)
 {
-  assert(m_socket);
+  boost::bind(&SocketClient::consumBuff, &i_consumCtx, _1);
 }
 
 
@@ -23,85 +26,94 @@ BulkDataInStreamMngr(TCPSocket * i_socket):AbstractDataStreamMngr(i_socket)
 int
 BulkDataInStreanMngr::handleProtoBuffRecv()
 {
-  // First - read package header
   
-  UDWordType recvBufferSize;
-  SocketServer::PackageHeader_St header;
+  do
+  {
 
-  UDWordType leftToRecv = sizeof(header);
-  UDWordType totalRecvied = 0;
-  while (leftToRecv!=0) {
-    if ((recvBufferSize = m_sock.recv((char *) (&header)+totalRecvied, leftToRecv))<=0) {
-      cout << "Error - recv failed or connection disconnected" << endl;
+    UDWordType recvBufferSize;
+    SocketServer::PackageHeader_St header;
+
+    UDWordType leftToRecv = sizeof(header);
+    UDWordType totalRecvied = 0;
+    while (leftToRecv!=0) {
+      if ((recvBufferSize = m_sock.recv((char *) (&header)+totalRecvied, leftToRecv))<=0) {
+	cout << "Error - recv failed or connection disconnected" << endl;
+	// TODO: error: return error - terminate thread 
+	return;
+      }
+      totalRecvied += recvBufferSize;
+      leftToRecv -= recvBufferSize;
+      // TODO: what happens in package too small? it hangs. Take care of this case
+    }
+    //cout << "Header read. Package size: " << header.PackageSize << endl;
+    // Convert from network endian to host endian
+    header.PackageSize = TCPSocket::convNtohl(header.PackageSize);
+    header.PackageFlags = TCPSocket::convNtohl(header.PackageFlags);
+
+    // Next -read result
+
+    //cout << "Header read. Package size: " << header.PackageSize << endl;
+
+    // Allocate memory for expected buffer size:
+    LocalBuffer<char> recvBufferObj(header.PackageSize);
+    char *recvBuffer = recvBufferObj.getBuffer();
+    //char *recvBuffer = new char[header.PackageSize];
+
+    // Next - read package data
+
+    leftToRecv = header.PackageSize;
+    totalRecvied = 0;
+    while (leftToRecv!=0) {
+
+      UDWordType maxPackageBufferSize = SocketServer::MAXIMUM_PACKAGE_BUFFER_SIZE; // move const to variable to avoid compailer error at min
+      UDWordType bufRecvSize = min(leftToRecv, maxPackageBufferSize);
+      //cout << "leftToRecv: " << leftToRecv << " totalRecvied: " << totalRecvied << endl;
+      if ((recvBufferSize = m_sock.recv(recvBuffer+totalRecvied, bufRecvSize))<=0) {
+	cout << "Error - recv failed or connection disconnected" << endl;
+	// TODO: error: return error - terminate thread 
+	return;
+      }
+      totalRecvied += recvBufferSize;
+      leftToRecv -= recvBufferSize;
+      // TODO: what happens in package too small? it hangs. Take care of this case
+    }
+    /*
+      if (totalRecvBufferSize < header.PackageSize) {
       // TODO: error: return error - terminate thread 
+      cout << "Error - package size (" << totalRecvBufferSize << ") mismatch expected buffer size (" << header.PackageSize << ")." << endl;
       return;
-    }
-    totalRecvied += recvBufferSize;
-    leftToRecv -= recvBufferSize;
-    // TODO: what happens in package too small? it hangs. Take care of this case
-  }
-  //cout << "Header read. Package size: " << header.PackageSize << endl;
-  // Convert from network endian to host endian
-  header.PackageSize = TCPSocket::convNtohl(header.PackageSize);
-  header.PackageFlags = TCPSocket::convNtohl(header.PackageFlags);
+      }
+    */
+    //cout << "package recived. Size: " << totalRecvied << endl;
 
-  // Next -read result
+    // Unwarp response protobuf package
+    // ================================
 
-  //cout << "Header read. Package size: " << header.PackageSize << endl;
-
-  // Allocate memory for expected buffer size:
-  LocalBuffer<char> recvBufferObj(header.PackageSize);
-  char *recvBuffer = recvBufferObj.getBuffer();
-  //char *recvBuffer = new char[header.PackageSize];
-
-  // Next - read package data
-
-  leftToRecv = header.PackageSize;
-  totalRecvied = 0;
-  while (leftToRecv!=0) {
-
-    UDWordType maxPackageBufferSize = SocketServer::MAXIMUM_PACKAGE_BUFFER_SIZE; // move const to variable to avoid compailer error at min
-    UDWordType bufRecvSize = min(leftToRecv, maxPackageBufferSize);
-    //cout << "leftToRecv: " << leftToRecv << " totalRecvied: " << totalRecvied << endl;
-    if ((recvBufferSize = m_sock.recv(recvBuffer+totalRecvied, bufRecvSize))<=0) {
-      cout << "Error - recv failed or connection disconnected" << endl;
-      // TODO: error: return error - terminate thread 
-      return;
-    }
-    totalRecvied += recvBufferSize;
-    leftToRecv -= recvBufferSize;
-    // TODO: what happens in package too small? it hangs. Take care of this case
-  }
-  /*
-    if (totalRecvBufferSize < header.PackageSize) {
-    // TODO: error: return error - terminate thread 
-    cout << "Error - package size (" << totalRecvBufferSize << ") mismatch expected buffer size (" << header.PackageSize << ")." << endl;
-    return;
-    }
-  */
-  //cout << "package recived. Size: " << totalRecvied << endl;
-
-  // Unwarp response protobuf package
-  // ================================
-
-  JethroDataMessage::Respond protobufRespond;
+    JethroDataMessage::Respond protobufRespond;
 	
-  if (!protobufRespond.ParseFromArray(recvBuffer, totalRecvied)) {
-    // TODO: error: return error - terminate thread 
-    cout << "Error - protobug parse respond failure" << endl;
-    return;
-  }
+    if (!protobufRespond.ParseFromArray(recvBuffer, totalRecvied)) {
+      // TODO: error: return error - terminate thread 
+      cout << "Error - protobug parse respond failure" << endl;
+      return;
+    }
 
+  }while(header.PackageFlags & SocketServer:: MSG_CONT); // maybe this a dependancy we dont want
+                                                         // consider moving the enum to a mutual header
+
+  finalizeStream(&protobufRespond, i_count); // last buffer contains per resultSet data
  
 }
 
 int
-BulkDataInStreanMngr::finalizeStream(){}
+BulkDataInStreanMngr::finalizeStream(JethroMessage& i_protobufRespond, UDWordType i_count)
+{
+  /* extract metadata and consume it */
+}
 
 
 /*Inits data that is built per request */
 void 
-BulkDataInStreanMngr::init(char* i_recvBuff)
+BulkDataInStreanMngr::init(DataStreamArgs* i_args)
 {}
 
 

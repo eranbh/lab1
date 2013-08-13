@@ -86,14 +86,21 @@ class BulkDataInStreanMngr : public DataInStreamMngr
 {
  public:
 
+  typedef int (SocketClient::*p_consume_func)(JethroMessage&);
+
   /*
   * C'tor
   * Data that is built once per socket
   */
-  BulkDataInStreamMngr(TCPSocket * i_socket);
+  BulkDataInStreamMngr(TCPSocket * i_socket,
+		       p_consume_func i_consFunc = s_pShowRows): 
+                              AbstractDataStreamMngr(i_socket),
+			      m_pConsum(i_consFunc)
+			      {}
+                                            
 
   /*Inits data that is built per request */
-  virtual void init(DataStreamArgs*);
+  virtual void init(DataStreamArgs*){}
   
   /*                                                          
   * main entry point for the receive logic                                      
@@ -108,7 +115,10 @@ class BulkDataInStreanMngr : public DataInStreamMngr
   /*reseting state*/
   virtual void reset();
 
-  virtual int finalizeStream(JethroMessage&);
+  virtual int finalizeStream(JethroMessage& i_protobufRespond, 
+			     UDWordType i_count);
+
+  p_consume_func m_pConsum;
   
 };
 
@@ -118,11 +128,13 @@ class BulkDataOutStreamMngr : public DataOutStreamMngr
 
  public:
 
+
    /*
   * C'tor
   * Data that is built once per socket
   */
-  BulkDataOutStreamMngr(TCPSocket * i_socket);
+  BulkDataOutStreamMngr(TCPSocket * i_socket,
+			);
 
   /*Inits data that is built per request */
   virtual void init(DataStreamArgs*);
@@ -140,7 +152,8 @@ class BulkDataOutStreamMngr : public DataOutStreamMngr
   
   virtual void reset();
 
-  virtual int finalizeStream(JethroMessage&);
+  virtual int finalizeStream(JethroMessage& i_protobufRespond, 
+			     UDWordType i_count);
 };
 
 
