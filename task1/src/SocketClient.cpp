@@ -11,12 +11,17 @@ using namespace std;
 
 SocketClient::SocketClient(string xi_serverAddress, short xi_port) : m_serverAddress(xi_serverAddress), m_port(xi_port)
 {
- 
+  m_consFunc = new ConsumFunc(boost::bind(&SocketClient::consume, this, _1);
+  m_datInStrmHndlr = new BulkDataInStreamMngr(sock, *m_consumFunc);
 }
 
 
 SocketClient::~SocketClient(void)
 {
+  delete m_datInStrmHndl;
+  m_datInStrmHndl = 0;
+  delete m_consFunc;
+  m_consFunc = 0;
 }
 
 void SocketClient::sendQuery(const std::string xi_SqlQuery)
@@ -76,9 +81,8 @@ void SocketClient::sendQuery(const std::string xi_SqlQuery)
 	  /***********************************************************/
 
 	  DataInStreamContext inCtx(/* init buffer level params */);
-	  BulkDataInStreamMngr inStrMngr(sock, this, &SocketClient::consumFunc);
-	  m_datInStrmHndlr.init(&InCtx);
-	  m_datInStrmHndlr.handleProtoBuffSend();
+	  m_datInStrmHndlr->init(&InCtx); /* not thread safe */
+	  m_datInStrmHndlr->handleProtoBuffSend();
 
 	  /***********************************************************/
 	  /*             stream handler end                          *
@@ -96,7 +100,7 @@ void SocketClient::sendQuery(const std::string xi_SqlQuery)
 
 
 int
-SocketClient::consumFunc(JethroDataMessage::Respond& protobufRespond)
+SocketClient::consume(JethroDataMessage::Respond& protobufRespond)
 {
   switch(protobufRespond.type()) {
   case (JethroDataMessage::Respond::STATUS) :

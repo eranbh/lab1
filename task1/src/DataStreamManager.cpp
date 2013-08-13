@@ -3,14 +3,13 @@
 
 
 namespace JethroData{
-
+  namespace DataStreamManager{
 /*
-  * C'tor
-  * Data that is built once per socket
-  */
+* C'tor
+*/
 BulkDataInStreamMngr::
 BulkDataInStreamMngr(TCPSocket * i_socket,
-		     SocketClient*  i_consumCtx,
+		     ConsumeFunc& i_consFunc,
                      AbstractDataStreamMngr(i_socket),
                      m_pConsum(i_consFunc)
 {
@@ -25,7 +24,7 @@ int
 BulkDataInStreanMngr::handleProtoBuffRecv()
 {
   
-  do
+  do /* at least one bulk to read */
   {
 
     UDWordType recvBufferSize;
@@ -98,7 +97,7 @@ BulkDataInStreanMngr::handleProtoBuffRecv()
     /* consume the buffer in the SocketClient's ctx */
     m_pConsum(protobufRespond);
 
-  }while(header.PackageFlags & SocketServer:: MSG_CONT); // maybe this a dependancy we dont want
+  }while(header.PackageFlags & SocketServer::MSG_CONT); // maybe this a dependancy we dont want
                                                          // consider moving the enum to a mutual header
 
   finalizeStream(&protobufRespond, i_count); // last buffer contains per resultSet data
@@ -108,19 +107,27 @@ BulkDataInStreanMngr::handleProtoBuffRecv()
 int
 BulkDataInStreanMngr::finalizeStream(JethroMessage& i_protobufRespond, UDWordType i_count)
 {
+  
   /* extract metadata and consume it */
 }
 
 
-/*Inits data that is built per request */
-void 
-BulkDataInStreanMngr::init(DataStreamArgs* i_args)
-{}
+
+ /*Inits data that is built per request */
+void BulkDataInStreanMngr::init(DataStreamContext* i_ctx)
+{ 
+   AbstractDataStreamMngr::init(i_ctx);
+   /* perform specific init */ 
+}
 
 
 /*reseting state*/
 void 
-BulkDataInStreanMngr::reset(){}
+BulkDataInStreanMngr::reset()
+{
+  AbstractDataStreamMngr::reset();
+  /* perform specific reset */
+}
 
 
 
@@ -129,10 +136,29 @@ BulkDataInStreanMngr::reset(){}
 * Data that is built once per socket
 */
 BulkDataOutStreamMngr::
-BulkDataOutStreamMngr(TCPSocket * i_socket):AbstractDataStreamMngr(i_socket)
+BulkDataOutStreamMngr(TCPSocket * i_socket):
+                                  AbstractDataStreamMngr(i_socket)
+{}
+
+
+
+/*Inits data that is built per request */
+void
+BulkDataOutStreamMngr::init(DataStreamContext* i_ctx)
 {
-  assert(m_socket);
+  AbstractDataStreamMngr::init(i_ctx);
+  /* perform  specific init  */
+  
 }
+
+/*reseting state*/
+void 
+BulkDataOutStreamMngr::reset()
+{
+  AbstractDataStreamMngr::reset();
+  /* perform  specific reset */
+}
+
 
 
 /*
@@ -230,6 +256,7 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
 int
 BulkDataOutStreamMngr::finalizeStream(JethroMessage& i_protobufRespond, UDWordType i_count)
 {
+    AbstractDataStreamMngr::finalizeStream();
     protobufRespond.mutable_rows()->set_size(i_count);
 
     protobufRespond.mutable_metadata()->mutable_querytime()->set_query(resultSet->getQueryTimeAbs());
@@ -303,20 +330,5 @@ int BulkDataOutStreamMngr::sendBulk(JethroMessage& i_protobufRespond,
 
 
 
-/*Inits data that is built per request */
-void
-BulkDataOutStreamMngr::init(DataStreamArgs* i_args)
-{
-  AbstractDataStreamMngr::init(i_args);
-
-  /* do specific init  */
-  
-}
-
-
-void 
-BulkDataOutStreamMngr::reset()
-{}
-  
-
+   } // namespace DataStreamManager
 } // namespace JethroData

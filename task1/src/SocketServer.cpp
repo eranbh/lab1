@@ -23,11 +23,14 @@ JethroDataMessage::Column::ColumnType translateColumnType(JethroData::JethroResu
 
 SocketServer::SocketServer(void)
 {
+  m_datOutStrmHndl = new BulkDataOutStreamMngr(xi_socket);
 }
 
 
 SocketServer::~SocketServer(void)
 {
+  delete m_datOutStrmHndl;
+  m_datOutStrmHndl = 0;
 }
 
 void SocketServer::Listen(int xi_port)
@@ -188,9 +191,8 @@ void SocketServer::executeTask(TCPSocket *xi_socket)
 		/* it is not thread safe to save the stream manager as a member
                    as this obj is shared among all threads.*/
 		DataOutStreamContext outCtx(SqlQuery);
-		BulkDataOutStreamMngr outStrMngr(xi_socket);
-		outStrMngr.init(&outCtx);
-		outStrMngr.handleProtoBuffSend();
+		m_datOutStrmHndl->init(&outCtx);
+		m_datOutStrmHndl->handleProtoBuffSend();
 
 		/***********************************************************/
 		/*             stream handler end                          *

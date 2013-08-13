@@ -29,6 +29,9 @@ private:
 	static const DWordType MAXIMUM_PACKAGE_BUFFER_SIZE = 1024;
 
 	friend class SocketClient;
+
+
+	DataOutStreamMngr* m_datOutStrmHndl;
 };
 
 
