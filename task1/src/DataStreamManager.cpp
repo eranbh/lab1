@@ -191,6 +191,7 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
     if (resultSet == NULL) { // TODO : temp - change to handle instruction by recive instruciton request
       protobufRespond.set_type(JethroDataMessage::Respond::STATUS);
       protobufRespond.set_serialno(1); //TODO: expend this
+      sendBulk(protobufRespond,SocketServer::PROTOCOL_PROTOBUF); /* send out the error */
 
     } else {
 
