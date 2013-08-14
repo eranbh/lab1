@@ -229,9 +229,12 @@ BulkDataOutStreamMngr::handleProtoBuffSend()
 	// this is ugly, but prevents the need for a special tcp message
         // with only the metadata. 
 	if(resultSet->isEndOfSet()) /* TODO put branch prediction hint [not likely] */
+	{
 	  finalizeStream(protobufRespond, count);
+	  flags = SocketServer::PROTOCOL_PROTOBUF; /* indicating last message */
+	}
 	
-	sendBulk(protobufRespond, flags);
+	sendBulk(protobufRespond, flags); /* this is the _only_ sending point */
 	totalBulkSz=0;
 	protobufRespond.clear(); // im assuming such a func exists
       } // while 1
