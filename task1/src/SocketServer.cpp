@@ -149,30 +149,6 @@ void SocketServer::executeTask(TCPSocket *xi_socket)
 			return;
 		}
 	
-		// set the default output format:
-		/* -- 
-		// TODO: temporary removed to allow control of the format from global params. 
-		//       To be changes when format control is done from client
-
-		g_trimOutput = false;
-		g_outputAsCSV = true;			
-		// change output format is request has output format:
-		if (ProtobufRequest.query().has_outputformat()) {
-			switch (ProtobufRequest.query().outputformat()) {
-			case JethroDataMessage::Query::CSV :
-				g_trimOutput = false;
-				g_outputAsCSV = true;				
-				break;
-			case JethroDataMessage::Query::FORMATED :
-				g_trimOutput = true;
-				g_outputAsCSV = false;				
-				break;
-			}
-		} 
-		*/
-		// some settings for output:
-
-
 		// Get the query
 
 		const string SqlQuery = ProtobufRequest.query().sqlquery();

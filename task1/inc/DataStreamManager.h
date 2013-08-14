@@ -55,8 +55,8 @@ typedef struct tDataOutStreamContext : DataStreamContext
 {
   
  tDataOutStreamContext(const std::string& i_query):
-                            m_query(i_query), 
-			    m_rs(0){}
+                       m_query(i_query), 
+		       m_rs(0){}
   /*query for which data is to be retreived */
   const std::string& m_query;
   
@@ -64,6 +64,10 @@ typedef struct tDataOutStreamContext : DataStreamContext
   JethroResultSet const * m_rs;
 }DataOutStreamContext;
 
+
+/**************/
+/* INTERFACES *  
+/**************/
 
 
 /*
@@ -79,18 +83,18 @@ class AbstractDataStreamMngr
  AbstractDataStreamMngr(TCPSocket* i_socket):m_socket(i_socket)
   {}
 
-  virtual void init(DataStreamArgs* i_args) 
+  virtual void init(DataStreamContext* i_ctx) 
   {
-    /*perform some default init*/
-    m_args = i_args;
+    /*perform some common init*/
+    m_ctx = i_ctx;
   }
 
-  virtual void reset() {/* perform some default reset */}
+  virtual void reset() {/* perform some common reset */}
 
   /* perform stream finalization 
      in different strategies - this 
       will have different meaning*/
-  virtual int finalizeStream(JethroMessage&) {/*perform some default cleanup*/}
+  virtual int finalizeStream(JethroMessage&, UDWordType) {/*perform some common finalization */}
 
 
   /* common members */
@@ -98,7 +102,7 @@ class AbstractDataStreamMngr
 
   TcpSocket* m_socket;
 
-  DataStreamContext* m_args;
+  DataStreamContext* m_ctx;
 }
 
 
@@ -125,9 +129,9 @@ class DataOutStreamMngr : public AbstractDataStreamMngr
 /* SPECIFIC IMPL'S */
 /*******************/
 
-/********************************/
-/* THE BULK DATA STREAM MANAGER */
-/********************************/
+/*********************************/
+/* THE BULK DATA STREAM STRATEGY */
+/*********************************/
 
 
 /*
@@ -146,6 +150,8 @@ class BulkDataInStreanMngr : public DataInStreamMngr
   *                buffer consumption IN THE CONTEXT
   *                of the client code [SocketClient in
   *                this specific example]
+  *                the default is a static pointer to a
+  *                simple func that outputs the data received
   */
   BulkDataInStreamMngr(TCPSocket * i_socket,
 		       ConsumeFunc& i_consumFunc = s_pShowRows);
@@ -169,8 +175,7 @@ class BulkDataInStreanMngr : public DataInStreamMngr
   * handles bulk finalization.
   * this is where metadata could be read  
   */
-  virtual int finalizeStream(JethroMessage& i_protobufRespond, 
-			     UDWordType i_count);
+  virtual int finalizeStream(JethroMessage&, UDWordType);
 
   /* a pointer to a member function and an obj instance
      this func is registered by the class using the streamMngr
@@ -192,7 +197,6 @@ class BulkDataOutStreamMngr : public DataOutStreamMngr
 
  public:
 
-
   /*
   * C'tor
   */
@@ -210,13 +214,12 @@ class BulkDataOutStreamMngr : public DataOutStreamMngr
  private:
 
   /* performs data sending */
-  int sendBulk(JethroMessage& i_protobufRespond,
+  int sendBulk(JethroDataMessage::Respond& i_protobufRespond,
 	       SocketServer::PACKAGE_FLAGS_E i_flags);
   
   virtual void reset();
 
-  virtual int finalizeStream(JethroMessage& i_protobufRespond, 
-			     UDWordType i_count);
+  virtual int finalizeStream(JethroMessage&, UDWordType);
 };
 
 
