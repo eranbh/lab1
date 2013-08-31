@@ -68,36 +68,6 @@ void nwUT::test_nwmsg()
 
 
 
-
-/*
-* this func forks a new thread for the client code.
-* this would be easily replaced by either boost/ace tasks
-*/
-int nwUT::run_client()
-{
-  pid_t pid=0;
-
-  if(0 > (pid=fork())) // TODO indicate the failure somehow
-    return -1;
-
-  /* go ahead son. show me what you've got */
-  if(0 == pid)
-  {
-    ClientImpl impl("localhost");
-    impl.startTrsm();
-    exit(0);
-  }
-
-  return pid;
-}
-
-
-int nwUT::run_srv(nw::Acceptor* i_pacp)
-{
-  
-}
-
-
 nwUT::ClientImpl::
 ClientImpl(const char* const i_pIp,
            unsigned int i_numEvntToSnd,
