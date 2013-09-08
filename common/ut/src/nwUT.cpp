@@ -12,8 +12,15 @@
 #include <netdb.h> // for gethostbyname(3)
 #include <sys/wait.h> // for wait(2)
 #include "nwUT.h" // for nw test suite
-#include "acceptor.h" // class to be tested
+#include "Acceptor.h" // class to be tested
 #include "nw_message.h"
+
+
+#define __FILL_ARRAY_BYTE_SZ(ARR,SZ)    \
+do{                                     \
+  char j='A';                           \
+  for(int i=0;i<SZ;++i) ARR[i]=j;	\
+}while(0)
 
 namespace nw{
 
@@ -50,19 +57,24 @@ void nwUT::test_init_localhost()
 void nwUT::test_nwmsg()
 {
   nw::Acceptor acc(LOC_HOST.c_str());
-  int status=0;
-  int pid=nwUT::run_client();
-
-  acc.listen_2_events(); /* bring srv up */
-
-  if(pid != 0)
-    pid=waitpid(pid, &status, 0);
   
-  CPPUNIT_ASSERT_MESSAGE("waitpid terminated abnormally",
-		         (pid != -1));
+  class ClientImplBuff_1024 : public ClientImpl
+  {
+    ClientImplBuff_1024(): ClientImpl("localhost"){}
 
-  CPPUNIT_ASSERT_MESSAGE("client code terminated abnormally",
-		         (status != -1));
+    virtual int run()
+    {
+      __FILL_ARRAY_BYTE_SZ(m_buff,1024);
+      nw::nw_message msg(m_buff, 1024, nw_message::REG);
+      
+      return 0;
+    }
+    
+    /* buff containing data to send */
+    char m_buff[1024];
+  };
+
+  ClientImplBuff_1024 impl;
   
 }
 
@@ -102,45 +114,6 @@ ClientImpl(const char* const i_pIp,
 
 
 }
-
-int 
-nwUT::ClientImpl::startTrsm()
-{
-
-  //buffer = "Hello World!! Lets have fun\n";
-  //memset(buffer, 0 , sizeof(buffer));
-  std::string buff("yalla work already");
-
-  nw::nw_message msg(buff.c_str(), buff.size(), nw::nw_message::REG);
- 
-  
-  for(unsigned int i=0;i<m_numEvntToSnd;++i)
-  {
-    //fgets(buffer,MAXSIZE-1,stdin);
-    if (write(m_socket_fd, &msg, sizeof(nw_message))== -1) 
-    {
-      fprintf(stderr, "Failure Sending Message\n");
-      close(m_socket_fd);
-      exit(1); 
-    }
-    else {
-      printf("client|Message sent: %s\n",m_clntMsg.c_str());
-    }
-  }   
-
-   /*if ((num = recv(socket_fd, buff, 1024,0))== -1) {
-   //fprintf(stderr,"Error in receiving message!!\n");
-   perror("recv");
-   exit(1);
-   }   
-   //  num = recv(client_fd, buffer, sizeof(buffer),0);
-   buff[num] = '\0';
-   printf("Message received: %s\nNumber of bytes received: %d\n", buff,num);*/
- close(m_socket_fd); 
-  return 0;
-}
-
-
 
   } // namespace ut
 }// namespace nw

@@ -1,2 +1,2 @@
 all:
-	g++ -Wall -shared -fPIC -I ../shr -I inc src/acceptor.cpp -o lib/libnw.so 
+	g++ -Wall -shared -fPIC -I ../shr -I inc src/Acceptor.cpp -o lib/libnw.so 

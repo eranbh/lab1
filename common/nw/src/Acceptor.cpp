@@ -9,13 +9,13 @@
 #include <unistd.h> // for read(2)
 #include <stdlib.h> // for exit(3)
 #include "macros.h" // my macros
-#include "acceptor.h"
+#include "Acceptor.h"
 #include "nw_message.h" // network message stuff
 
 
 namespace nw {
 
-Acceptor::Acceptor(const char* const p_ip)
+Acceptor::Acceptor(const char* const p_ip, int i_backlog)
 {
   assert(0 < p_ip);
 
