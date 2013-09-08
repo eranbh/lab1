@@ -41,15 +41,24 @@ class nw_message
     m_header.m_msg_type=INV;
   }
 
+  void init(const char* const i_pMsg, 
+	     unsigned int i_len,
+	     tMsgTypes i_type)
+  {
+    memcpy(m_body, i_pMsg, i_len);
+    m_header.m_msg_sz=i_len;
+    m_header.m_msg_type=i_type;
+  }
+
 
   nw_message(const char* const i_pMsg, 
 	     tMsgTypes i_type)
   {
     assert(i_pMsg);
     unsigned int len=strlen(i_pMsg);
-    memcpy(m_body, "yalla why not go home", len);
-    m_header.m_msg_sz=strlen(i_pMsg);
-    m_header.m_msg_type=i_type;
+    assert(len);
+    init(i_pMsg, len, i_type);
+   
   }
   
   nw_message(const char* const i_pMsg, 
@@ -57,9 +66,7 @@ class nw_message
 	     tMsgTypes i_type)
   {
     assert(i_pMsg);
-    memcpy(m_body, "yalla why not go home", i_len);
-    m_header.m_msg_sz=i_len;
-    m_header.m_msg_type=i_type;
+    init(i_pMsg, i_len, i_type);
   }
 
   struct header
