@@ -49,11 +49,13 @@ class nwUT : public CppUnit::TestFixture
 	class ClientImpl
 	{
 	public:
+	  /* we need the friendhip so we can access private members of kids*/
+	  friend class nw::ut::nwUT;
 	  ClientImpl(const char* const i_pIp,
 		     unsigned int i_numEvntToSnd = 10,
 		     const std::string& m_clntMsg = s_defMsg);
 
-	  int startTrsm();
+	  virtual int run(){return 0;} /* default impl */
 	  
 	private:
 	  static const std::string s_defMsg;
@@ -64,7 +66,7 @@ class nwUT : public CppUnit::TestFixture
 	};
 
 	template <typename T>
-        int run_task(void* pargs)
+        static int run_task(void* pargs)
 	{
 	    pid_t pid=0;
 

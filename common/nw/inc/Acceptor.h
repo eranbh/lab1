@@ -24,7 +24,7 @@ public:
   * C'tor
   */
 
-  Acceptor(const char* const );
+  Acceptor(const char* const, int i_backlog = 10);
 
   /*
   * D'tor
