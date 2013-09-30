@@ -27,7 +27,7 @@ Acceptor::Acceptor(const char* const p_ip, int i_backlog)
   memset(&addr_in, 0, sizeof(struct sockaddr_in));
 
   addr_in.sin_family = AF_INET;
-  addr_in.sin_port = htons(8001);
+  addr_in.sin_port = htons(8002);
   addr_in.sin_addr.s_addr = INADDR_ANY;
 
   int reuse=1;

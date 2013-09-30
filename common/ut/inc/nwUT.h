@@ -10,6 +10,7 @@
 
 #include "cppunit/TestFixture.h"
 #include "cppunit/extensions/HelperMacros.h"
+#include "Acceptor.h"
 
 
 namespace nw {
@@ -52,21 +53,25 @@ class nwUT : public CppUnit::TestFixture
 	  /* we need the friendhip so we can access private members of kids*/
 	  friend class nw::ut::nwUT;
 	  ClientImpl(const char* const i_pIp,
-		     unsigned int i_numEvntToSnd = 10,
-		     const std::string& m_clntMsg = s_defMsg);
+		         unsigned int i_numEvntToSnd = 10,
+		         const std::string& m_clntMsg = s_defMsg);
 
 	  virtual int run(){return 0;} /* default impl */
 	  
+	  virtual void init(void* ) {} /*only to allow an init with void arg in case its not needed */
+
 	private:
 	  static const std::string s_defMsg;
-	  int m_socket_fd;
-	  unsigned int m_numEvntToSnd;
-	  std::string& m_clntMsg;
+	  int                      m_socket_fd;
+	  unsigned int             m_numEvntToSnd;
+	  std::string&             m_clntMsg ;
 	  	 
 	};
 
-	template <typename T>
-        static int run_task(void* pargs)
+	template <typename T = nw::Acceptor,
+			  int (T::* pFunc) () = &nw::Acceptor::listen_2_events,
+			  typename CAST_ARGS = char* >
+    static int run_task(void* pobj, void* pargs)
 	{
 	    pid_t pid=0;
 
@@ -76,8 +81,8 @@ class nwUT : public CppUnit::TestFixture
 	    /* go ahead son. show me what you've got */
 	    if(0 == pid)
 	    {
-	      T impl(pargs);
-	      impl.run();
+	      T* pimpl = static_cast<T*>(pobj);
+	      (pimpl->*pFunc)();
 	      exit(0);
 	    }
 	    

@@ -60,22 +60,29 @@ void nwUT::test_nwmsg()
   
   class ClientImplBuff_1024 : public ClientImpl
   {
-    ClientImplBuff_1024(): ClientImpl("localhost"){}
+  	  public:
+		ClientImplBuff_1024(): ClientImpl("localhost"){}
 
-    virtual int run()
-    {
-      __FILL_ARRAY_BYTE_SZ(m_buff,1024);
-      nw::nw_message msg(m_buff, 1024, nw_message::REG);
-      
-      return 0;
-    }
-    
-    /* buff containing data to send */
-    char m_buff[1024];
+		virtual int run()
+		{
+		  __FILL_ARRAY_BYTE_SZ(m_buff,1024);
+		  nw::nw_message msg(m_buff, 1024, nw_message::REG);
+
+		  return 0;
+		}
+
+  	  private:
+		/* buff containing data to send */
+		char m_buff[1024];
   };
 
-  ClientImplBuff_1024 impl;
+  run_task((void*)&acc, 0);
   
+  ClientImplBuff_1024 impl();
+  int clntPid =
+		run_task<ClientImplBuff_1024, &ClientImplBuff_1024::run,void*>((void*)0, (void*)0);
+  int sts=0;
+  waitpid(clntPid, &sts, -1);
 }
 
 
