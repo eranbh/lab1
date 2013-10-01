@@ -15,6 +15,11 @@
 
 namespace nw {
 
+#ifdef __TESTING_MODE
+  nw_message g_msg;
+#endif // __TESTING_MODE
+
+
 Acceptor::Acceptor(const char* const p_ip, int i_backlog)
 {
   assert(0 < p_ip);
@@ -163,11 +168,15 @@ Acceptor::handle_request(int fd)
   		  		  nmsg.m_header.m_msg_sz);
 
   		  // Testing only!!!
-  		  printf("handling request of type [%u].\n", nmsg.m_header.m_msg_type);
-  		  printf("msg body:\n");
-  		  for(uint32 i=0;i<nmsg.m_header.m_msg_sz;++i)
-  		    printf("%c",nmsg.m_body[i]);
-  		  break;
+#ifdef __TESTING_MODE
+  		  memcpy(&g_msg, &nmsg, sizeof(nw_message));
+#else // handle msg
+  		printf("handling request of type [%u].\n", nmsg.m_header.m_msg_type);
+  		printf("msg body:\n");
+  		for(uint32 i=0;i<nmsg.m_header.m_msg_sz;++i)
+  			printf("%c",nmsg.m_body[i]);
+  		break;
+#endif // __TESTING_MODE
   	  }
   	  default: printf("Invalid message type accepted\n");
   		  ret = 0;

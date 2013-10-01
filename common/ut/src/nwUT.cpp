@@ -40,6 +40,9 @@ static const unsigned short MAXSIZE=1024;
 const std::string 
 nwUT::ClientImpl::s_defMsg="Client Default Msg";
 
+extern
+nw_message g_msg;
+
 /*
 * 1. creating an acceptor
 * 2. initializing the acceptor
@@ -61,17 +64,20 @@ void nwUT::test_nwmsg()
   
   class ClientImplBuff_1024 : public ClientImpl
   {
+
   	  public:
+	  friend class nw::ut::nwUT;
+
 		ClientImplBuff_1024(): ClientImpl("localhost"){}
 
 		virtual int run()
 		{
 		  __FILL_ARRAY_BYTE_SZ(m_buff,1024);
-		  nw::nw_message msg(m_buff, 1024, nw_message::TRM);
+		  m_msg.init(m_buff, 1024, nw_message::TRM);
 
 		  // client is suppose to be constructed by now
 		  // write the entire content of the buff to the socket
-		  __WRITE_FD_DRAIN(&msg, m_socket_fd, sizeof(nw::nw_message));
+		  __WRITE_FD_DRAIN(&m_msg, m_socket_fd, sizeof(nw::nw_message));
 
 		  close(m_socket_fd);
 
@@ -81,6 +87,7 @@ void nwUT::test_nwmsg()
   	  private:
 		/* buff containing data to send */
 		char m_buff[1024];
+		nw::nw_message m_msg;
   };
 
   run_task((void*)&acc, 0);
@@ -93,6 +100,9 @@ void nwUT::test_nwmsg()
 
   for(int chNm=2;chNm>0;--chNm)
   	  wait(&sts);
+
+  CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg",
+  		         ( memcmp(g_msg, impl.m_msg) != -1));
 }
 
 

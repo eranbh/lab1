@@ -7,7 +7,6 @@
 * communication of several clients to one comm handler using epoll(7)
 */
 
-
 namespace nw{
 
   namespace ut{
