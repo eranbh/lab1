@@ -13,7 +13,8 @@
 #include <sys/wait.h> // for wait(2)
 #include "nwUT.h" // for nw test suite
 #include "Acceptor.h" // class to be tested
-#include "nw_message.h"
+#include "nw_message.h" // for msg structure
+#include "macros.h" // for my macros
 
 
 #define __FILL_ARRAY_BYTE_SZ(ARR,SZ)    \
@@ -33,7 +34,7 @@ void nwUT::tearDown(){}
 
 
 static const std::string LOC_HOST("localhost");
-static const unsigned short PORT=8001;
+static const unsigned short PORT=8002;
 static const unsigned short MAXSIZE=1024;
 
 const std::string 
@@ -66,7 +67,13 @@ void nwUT::test_nwmsg()
 		virtual int run()
 		{
 		  __FILL_ARRAY_BYTE_SZ(m_buff,1024);
-		  nw::nw_message msg(m_buff, 1024, nw_message::REG);
+		  nw::nw_message msg(m_buff, 1024, nw_message::TRM);
+
+		  // client is suppose to be constructed by now
+		  // write the entire content of the buff to the socket
+		  __WRITE_FD_DRAIN(&msg, m_socket_fd, sizeof(nw::nw_message));
+
+		  close(m_socket_fd);
 
 		  return 0;
 		}
@@ -78,11 +85,14 @@ void nwUT::test_nwmsg()
 
   run_task((void*)&acc, 0);
   
-  ClientImplBuff_1024 impl();
-  int clntPid =
-		run_task<ClientImplBuff_1024, &ClientImplBuff_1024::run,void*>((void*)0, (void*)0);
+  ClientImplBuff_1024 impl;
+  run_task<ClientImplBuff_1024, &ClientImplBuff_1024::run,void*>((void*)(&impl), 0);
+
   int sts=0;
-  waitpid(clntPid, &sts, -1);
+  /* TODO cleanup macro ?? */
+
+  for(int chNm=2;chNm>0;--chNm)
+  	  wait(&sts);
 }
 
 
