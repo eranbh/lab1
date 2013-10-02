@@ -15,6 +15,11 @@
 
 namespace nw {
 
+#ifdef __TESTING_MODE
+  nw_message g_msg;
+#endif // __TESTING_MODE
+
+
 Acceptor::Acceptor(const char* const p_ip, int i_backlog)
 {
   assert(0 < p_ip);
@@ -79,17 +84,20 @@ Acceptor::listen_2_events()
                                        &event));
 
   int fds=0;
+  int handleSts=1;
 
   /* may you live forever*/
-  while(1)
+  do
   {
+	  errno=0;
     // TODO num of events, timeout
-    if(0 > (fds=epoll_wait(m_epoll_fd, &event, 10, -1)))
+    if(0 > (fds=epoll_wait(m_epoll_fd, events, 10, -1)))
     {
-      /* this is the only case I could think of that we might be interested*/
-      if(EINTR != errno) 
-	return -2;
-      printf("interrupt happened - maybe we care?");      
+
+    	/* this is the only case I could think of that we might be interested*/
+    	if(EINTR != errno)
+    		return -2;
+    	printf("interrupt happened - maybe we care?");
     }
 
     /* knock knock ... who's there?*/
@@ -99,32 +107,35 @@ Acceptor::listen_2_events()
       /* new connection*/
       if (events[i].data.fd == m_listen_fd) 
       {
-	printf("looking into fd: %d\n", events[i].data.fd);
-	int acc_fd;
-	sockaddr_in addr_in;
-	socklen_t addrlen=sizeof(sockaddr_in);
-	
-	/* TODO accept remarks above*/
-	__SYS_CALL_TEST_NM1_RETURN((acc_fd=accept(m_listen_fd,
-				                  (struct sockaddr *) &addr_in, 
-		 				   &addrlen)));
-	// not deciding if to block here. the worker will do that
-	event.events = EPOLLIN;
-	event.data.fd = acc_fd;
-	// pass it to a thread here. its epoll will do completion
-	__SYS_CALL_TEST_NM1_RETURN( epoll_ctl(m_epoll_fd, 
-                                              EPOLL_CTL_ADD,
-                                              event.data.fd,
-					      &event) );
+    	  printf("looking into fd: %d\n", events[i].data.fd);
+    	  int acc_fd;
+    	  sockaddr_in addr_in;
+    	  socklen_t addrlen=sizeof(sockaddr_in);
+
+    	  /* TODO accept remarks above*/
+    	  __SYS_CALL_TEST_NM1_RETURN((acc_fd=accept(m_listen_fd,
+    			  (struct sockaddr *) &addr_in,
+    			  &addrlen)));
+    	  // not deciding if to block here. the worker will do that
+    	  event.events = EPOLLIN;
+    	  event.data.fd = acc_fd;
+
+    	  // pass it to a thread here. its epoll will do completion
+    	  __SYS_CALL_TEST_NM1_RETURN( epoll_ctl(m_epoll_fd,
+    			  	  	  	  	  	  EPOLL_CTL_ADD,
+    			  	  	  	  	  	  event.data.fd,
+    			  	  	  	  	  	  &event) );
       }
       else /* this is only here till we setup pthreads*/
       {
-	printf("event happened\n");
-	if(events[i].events & EPOLLIN)
-	  handle_request(events[i].data.fd);
+    	  printf("event happened\n");
+    	  if(events[i].events & EPOLLIN)
+    		  handleSts = handle_request(events[i].data.fd);
       }
-    }
-  }
+    }// for
+  } while(handleSts);
+
+  return 0; /* stopped by user */
 }
 
 /*
@@ -141,20 +152,38 @@ Acceptor::handle_request(int fd)
   __READ_FD_DRAIN(reinterpret_cast<char*>(&nmsg.m_header),
                   fd,
                   sizeof(nw_message::header));
+  int ret=1;
 
-  /* The decision whether to drain the body has to be made while taking other
-     tasks that might need to be executed, in consideration*/
+  switch(nmsg.m_header.m_msg_type)
+  {
+  	  case nw_message::TRM:
+  		ret=0;
+  	  case nw_message::REG:
+  	  {
+  		/* The decision whether to drain the body has to be made while taking other
+  		     tasks that might need to be executed, in consideration*/
 
-  //__READ_FD_DRAIN(nmsg.m_body, 
-  //                fd, 
-  //		  nmsg.m_header.m_msg_sz);
+  		  __READ_FD_DRAIN(nmsg.m_body,
+  		                  fd,
+  		  		  nmsg.m_header.m_msg_sz);
 
-  // Testing only!!!
-  printf("handling request of type [%u].\n", nmsg.m_header.m_msg_type);
-  printf("msg body:\n");
-  for(uint32 i=0;i<nmsg.m_header.m_msg_sz;++i)
-    putchar(nmsg.m_body[i]);
-  return 0;
+  		  // Testing only!!!
+#ifdef __TESTING_MODE
+  		  memcpy(&g_msg, &nmsg, sizeof(nw_message));
+#else // handle msg
+  		printf("handling request of type [%u].\n", nmsg.m_header.m_msg_type);
+  		printf("msg body:\n");
+  		for(uint32 i=0;i<nmsg.m_header.m_msg_sz;++i)
+  			printf("%c",nmsg.m_body[i]);
+  		break;
+#endif // __TESTING_MODE
+  	  }
+  	  default: printf("Invalid message type accepted\n");
+  		  ret = 0;
+  		  break;
+  }
+
+  return ret;
 }
 
 } // namespace nw

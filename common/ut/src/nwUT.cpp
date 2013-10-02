@@ -13,7 +13,8 @@
 #include <sys/wait.h> // for wait(2)
 #include "nwUT.h" // for nw test suite
 #include "Acceptor.h" // class to be tested
-#include "nw_message.h"
+#include "nw_message.h" // for msg structure
+#include "macros.h" // for my macros
 
 
 #define __FILL_ARRAY_BYTE_SZ(ARR,SZ)    \
@@ -24,6 +25,9 @@ do{                                     \
 
 namespace nw{
 
+extern
+nw_message g_msg;
+
   namespace ut {
 
 CPPUNIT_TEST_SUITE_REGISTRATION(nwUT);
@@ -33,11 +37,12 @@ void nwUT::tearDown(){}
 
 
 static const std::string LOC_HOST("localhost");
-static const unsigned short PORT=8001;
+static const unsigned short PORT=8002;
 static const unsigned short MAXSIZE=1024;
 
 const std::string 
 nwUT::ClientImpl::s_defMsg="Client Default Msg";
+
 
 /*
 * 1. creating an acceptor
@@ -60,32 +65,45 @@ void nwUT::test_nwmsg()
   
   class ClientImplBuff_1024 : public ClientImpl
   {
+
   	  public:
+	  friend class nw::ut::nwUT;
+
 		ClientImplBuff_1024(): ClientImpl("localhost"){}
 
 		virtual int run()
 		{
-		  __FILL_ARRAY_BYTE_SZ(m_buff,1024);
-		  nw::nw_message msg(m_buff, 1024, nw_message::REG);
-
-		  return 0;
+			ClientImpl
+			return 0;
 		}
-
-  	  private:
-		/* buff containing data to send */
-		char m_buff[1024];
   };
 
   run_task((void*)&acc, 0);
   
-  ClientImplBuff_1024 impl();
-  int clntPid =
-		run_task<ClientImplBuff_1024, &ClientImplBuff_1024::run,void*>((void*)0, (void*)0);
+  ClientImplBuff_1024 impl;
+  run_task<ClientImplBuff_1024, &ClientImplBuff_1024::run,void*>((void*)(&impl), 0);
+
   int sts=0;
-  waitpid(clntPid, &sts, -1);
+  /* TODO cleanup macro ?? */
+
+  for(int chNm=2;chNm>0;--chNm)
+  	  wait(&sts);
+
+  /* as the nw msg is static in sz, we can do this safely ... */
+  CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg",
+  		         ( memcmp(&g_msg, &impl.m_msg, sizeof(nw::nw_message)) != 0));
 }
 
 
+void nwUT::test_2_clnts()
+{
+
+}
+
+
+
+
+/* Generic nw client impl code */
 
 nwUT::ClientImpl::
 ClientImpl(const char* const i_pIp,

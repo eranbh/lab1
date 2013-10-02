@@ -10,7 +10,8 @@
 
 #include "cppunit/TestFixture.h"
 #include "cppunit/extensions/HelperMacros.h"
-#include "Acceptor.h"
+#include "Acceptor.h" // the class in question
+#include
 
 
 namespace nw {
@@ -23,6 +24,7 @@ class nwUT : public CppUnit::TestFixture
 
 	CPPUNIT_TEST(test_init_localhost);
 	CPPUNIT_TEST(test_nwmsg);
+	CPPUNIT_TEST(test_2_clnts);
 
 	CPPUNIT_TEST_SUITE_END();
 
@@ -35,6 +37,7 @@ class nwUT : public CppUnit::TestFixture
 	
 	void test_init_localhost();
 	void test_nwmsg();
+	void test_2_clnts();
 
  private:
 
@@ -53,10 +56,23 @@ class nwUT : public CppUnit::TestFixture
 	  /* we need the friendhip so we can access private members of kids*/
 	  friend class nw::ut::nwUT;
 	  ClientImpl(const char* const i_pIp,
-		         unsigned int i_numEvntToSnd = 10,
-		         const std::string& m_clntMsg = s_defMsg);
+		         unsigned int i_numEvntToSnd = 1,
+		         const char* const m_clntMsg = s_defMsg.c_str());
 
-	  virtual int run(){return 0;} /* default impl */
+	  /* default impl */
+	  virtual int run()
+	  {
+		  char buff[1024];
+		  __FILL_ARRAY_BYTE_SZ(buff,1024);
+		  m_msg.init(buff, 1024, nw_message::TRM);
+
+		  // client is suppose to be constructed by now
+		  // write the entire content of the buff to the socket
+		  __WRITE_FD_DRAIN(&m_msg, m_socket_fd, sizeof(nw::nw_message));
+
+		  close(m_socket_fd);
+		  return 0;
+	  }
 	  
 	  virtual void init(void* ) {} /*only to allow an init with void arg in case its not needed */
 
@@ -64,7 +80,7 @@ class nwUT : public CppUnit::TestFixture
 	  static const std::string s_defMsg;
 	  int                      m_socket_fd;
 	  unsigned int             m_numEvntToSnd;
-	  std::string&             m_clntMsg ;
+	  nw::nw_message           m_msg;
 	  	 
 	};
 

@@ -32,7 +32,7 @@ class nw_message
 
  public:
 
-  typedef enum {REG=0, INV}tMsgTypes;
+  typedef enum {REG=0, TRM, INV}tMsgTypes;
 
   
   nw_message()
