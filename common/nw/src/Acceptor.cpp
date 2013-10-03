@@ -180,7 +180,7 @@ Acceptor::handle_request(int fd)
   	  }
   	  default: printf("Invalid message type accepted\n");
   		  ret = 0;
-
+  		  break;
   }
 
   return ret;

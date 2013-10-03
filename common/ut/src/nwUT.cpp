@@ -25,6 +25,9 @@ do{                                     \
 
 namespace nw{
 
+extern
+nw_message g_msg;
+
   namespace ut {
 
 CPPUNIT_TEST_SUITE_REGISTRATION(nwUT);
@@ -40,8 +43,6 @@ static const unsigned short MAXSIZE=1024;
 const std::string 
 nwUT::ClientImpl::s_defMsg="Client Default Msg";
 
-extern
-nw_message g_msg;
 
 /*
 * 1. creating an acceptor
@@ -72,22 +73,9 @@ void nwUT::test_nwmsg()
 
 		virtual int run()
 		{
-		  __FILL_ARRAY_BYTE_SZ(m_buff,1024);
-		  m_msg.init(m_buff, 1024, nw_message::TRM);
-
-		  // client is suppose to be constructed by now
-		  // write the entire content of the buff to the socket
-		  __WRITE_FD_DRAIN(&m_msg, m_socket_fd, sizeof(nw::nw_message));
-
-		  close(m_socket_fd);
-
-		  return 0;
+			ClientImpl
+			return 0;
 		}
-
-  	  private:
-		/* buff containing data to send */
-		char m_buff[1024];
-		nw::nw_message m_msg;
   };
 
   run_task((void*)&acc, 0);
@@ -101,11 +89,21 @@ void nwUT::test_nwmsg()
   for(int chNm=2;chNm>0;--chNm)
   	  wait(&sts);
 
+  /* as the nw msg is static in sz, we can do this safely ... */
   CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg",
-  		         ( memcmp(g_msg, impl.m_msg) != -1));
+  		         ( memcmp(&g_msg, &impl.m_msg, sizeof(nw::nw_message)) != 0));
 }
 
 
+void nwUT::test_2_clnts()
+{
+
+}
+
+
+
+
+/* Generic nw client impl code */
 
 nwUT::ClientImpl::
 ClientImpl(const char* const i_pIp,
