@@ -7,32 +7,32 @@
 * class Saver
 * used to save the locked machine
 */
-#include<>
+#include "Task.h"
+#include "Acceptor.h"
 
-
-class Saver 
-{
-private:
-
-  /*
-  * listening socket
-  */
-  int m_socket;
-
-public:
-
-/*   we allow 2 forms of construction:
-     1. using a valid ip(7) address
-     2. using a hostname in a valid format. this form requires that the
-        server be registered in one of the way acceptable by gethostbyname(3)
+/*
+* This class is a simple task that runs to infinity and performs:
+* 1. listen on an agreed upon port for a message
+* 2. is msg type
+*    2.1 smart shell - open a _very_ basic shell that ignores preloading
+*        [this might not be possible on all platforms]
+*    2.2 run an arbitrary exec
+*    2.3 perform a "save" operation. this is impl specific:
+*        2.3.1 on linux [give further details]
+*        2.3.2 on bsd [give further details]
+*        2.3.3 on ibm [give further details]
+*        2.3.4 on hp [give further details]
 */
+class Saver : public MultiCore_Task
+{
+public:
 
   /*
   * C'tor
   */
-  Saver(const char* const ip_hostNm)
+  Saver()
   {
-    
+
   }
 
   /*
@@ -40,9 +40,11 @@ public:
   */
   ~Saver();
 
-  /*
-  * listens to events
-  */
-  listen2Events();
-  
+private:
+
+  /**/
+  nw::Acceptor m_acc;
 };
+
+
+

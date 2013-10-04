@@ -17,6 +17,8 @@
 #include <stdio.h>
 #include <pthread.h> // For threading
 
+namespace fw{
+
 class MultiCore_Task
 {
  public:
@@ -49,3 +51,5 @@ class MultiCore_Task
   pthread_t m_pthHandleArr[10];
   //pthread_t m_pthHndl;
 };
+
+} // namespace fw
