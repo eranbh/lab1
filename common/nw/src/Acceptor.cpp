@@ -175,8 +175,8 @@ Acceptor::handle_request(int fd)
   		printf("msg body:\n");
   		for(uint32 i=0;i<nmsg.m_header.m_msg_sz;++i)
   			printf("%c",nmsg.m_body[i]);
-  		break;
 #endif // __TESTING_MODE
+  		break;
   	  }
   	  default: printf("Invalid message type accepted\n");
   		  ret = 0;
