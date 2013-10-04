@@ -11,8 +11,17 @@
 #include "cppunit/TestFixture.h"
 #include "cppunit/extensions/HelperMacros.h"
 #include "Acceptor.h" // the class in question
-#include
+#include "types.h" // for BufferSz
+#include "nw_message.h" // for msg structure
+#include "macros.h" // for my macros
 
+
+#define __FILL_BUFF_SZ(BUFF,SZ)         \
+do{                                     \
+  char j='A';                           \
+  for(int i=0;i<SZ;++i) BUFF.buff[i]=j; \
+  BUFF.sz=SZ;                           \
+}while(0)
 
 namespace nw {
 
@@ -39,10 +48,6 @@ class nwUT : public CppUnit::TestFixture
 	void test_nwmsg();
 	void test_2_clnts();
 
- private:
-
-	static int run_client();
-	static int run_srv();
 
 	/*
 	* simple tcp client to test the robustness 
@@ -55,16 +60,14 @@ class nwUT : public CppUnit::TestFixture
 	public:
 	  /* we need the friendhip so we can access private members of kids*/
 	  friend class nw::ut::nwUT;
-	  ClientImpl(const char* const i_pIp,
-		         unsigned int i_numEvntToSnd = 1,
-		         const char* const m_clntMsg = s_defMsg.c_str());
+	  ClientImpl(nw_message::tMsgTypes i_msgTyp,
+			     const char* const i_pIp = "localhost",
+		         unsigned int i_numEvntToSnd = 1);
 
 	  /* default impl */
 	  virtual int run()
 	  {
-		  char buff[1024];
-		  __FILL_ARRAY_BYTE_SZ(buff,1024);
-		  m_msg.init(buff, 1024, nw_message::TRM);
+		  m_msg.init(m_buff.buff, m_buff.sz, m_msg.get_header().m_msg_type);
 
 		  // client is suppose to be constructed by now
 		  // write the entire content of the buff to the socket
@@ -76,13 +79,19 @@ class nwUT : public CppUnit::TestFixture
 	  
 	  virtual void init(void* ) {} /*only to allow an init with void arg in case its not needed */
 
-	private:
-	  static const std::string s_defMsg;
+	protected:
+	  fw::BufferSz&            m_buff;
 	  int                      m_socket_fd;
 	  unsigned int             m_numEvntToSnd;
 	  nw::nw_message           m_msg;
 	  	 
 	};
+
+
+ private:
+
+	static int run_client();
+	static int run_srv();
 
 	template <typename T = nw::Acceptor,
 			  int (T::* pFunc) () = &nw::Acceptor::listen_2_events,
