@@ -13,15 +13,10 @@
 #include <sys/wait.h> // for wait(2)
 #include "nwUT.h" // for nw test suite
 #include "Acceptor.h" // class to be tested
-#include "nw_message.h" // for msg structure
-#include "macros.h" // for my macros
 
 
-#define __FILL_ARRAY_BYTE_SZ(ARR,SZ)    \
-do{                                     \
-  char j='A';                           \
-  for(int i=0;i<SZ;++i) ARR[i]=j;	\
-}while(0)
+
+
 
 namespace nw{
 
@@ -40,10 +35,6 @@ static const std::string LOC_HOST("localhost");
 static const unsigned short PORT=8002;
 static const unsigned short MAXSIZE=1024;
 
-const std::string 
-nwUT::ClientImpl::s_defMsg="Client Default Msg";
-
-
 /*
 * 1. creating an acceptor
 * 2. initializing the acceptor
@@ -59,24 +50,35 @@ void nwUT::test_init_localhost()
   
 }
 
+
+/*
+* this class is a default behavior blue print of a nw client
+* its run method is very basic: fill a buffer with a page
+* worth of data, and send it immediately to acceptor
+**/
+class ClientImplBuff_1024 : public nwUT::ClientImpl
+{
+
+	  public:
+	  friend class nw::ut::nwUT;
+
+		ClientImplBuff_1024(): ClientImpl(){}
+
+		// 1. builds a 1024 sz buffer
+		// 2, send it to acceptor
+		virtual int run()
+		{
+			fw::BufferSz buff;
+			__FILL_BUFF_SZ(buff,1024);
+			m_buff=buff;
+			nwUT::ClientImpl::run();
+			return 0;
+		}
+};
+
 void nwUT::test_nwmsg()
 {
   nw::Acceptor acc(LOC_HOST.c_str());
-  
-  class ClientImplBuff_1024 : public ClientImpl
-  {
-
-  	  public:
-	  friend class nw::ut::nwUT;
-
-		ClientImplBuff_1024(): ClientImpl("localhost"){}
-
-		virtual int run()
-		{
-			ClientImpl
-			return 0;
-		}
-  };
 
   run_task((void*)&acc, 0);
   
@@ -102,14 +104,17 @@ void nwUT::test_2_clnts()
 
 
 
+/* make the clever compilers happy */
+static fw::BufferSz dummyBfSz;
+
 
 /* Generic nw client impl code */
 
 nwUT::ClientImpl::
 ClientImpl(const char* const i_pIp,
-           unsigned int i_numEvntToSnd,
-	   const std::string& i_msg):m_numEvntToSnd(i_numEvntToSnd),
-				     m_clntMsg(const_cast<std::string&>(i_msg))
+           unsigned int i_numEvntToSnd):
+            					m_buff(dummyBfSz),
+            					m_numEvntToSnd(i_numEvntToSnd)
 {
    struct sockaddr_in server_info;
    struct hostent *he;
