@@ -13,15 +13,10 @@
 #include <sys/wait.h> // for wait(2)
 #include "nwUT.h" // for nw test suite
 #include "Acceptor.h" // class to be tested
-#include "nw_message.h" // for msg structure
-#include "macros.h" // for my macros
 
 
-#define __FILL_ARRAY_BYTE_SZ(ARR,SZ)    \
-do{                                     \
-  char j='A';                           \
-  for(int i=0;i<SZ;++i) ARR[i]=j;	\
-}while(0)
+
+
 
 namespace nw{
 
@@ -40,10 +35,6 @@ static const std::string LOC_HOST("localhost");
 static const unsigned short PORT=8002;
 static const unsigned short MAXSIZE=1024;
 
-const std::string 
-nwUT::ClientImpl::s_defMsg="Client Default Msg";
-
-
 /*
 * 1. creating an acceptor
 * 2. initializing the acceptor
@@ -59,24 +50,36 @@ void nwUT::test_init_localhost()
   
 }
 
+
+/*
+* this class is a default behavior blue print of a nw client
+* its run method is very basic: fill a buffer with a page
+* worth of data, and send it immediately to acceptor
+**/
+class ClientImplBuff_1024 : public nwUT::ClientImpl
+{
+
+	  public:
+	  friend class nw::ut::nwUT;
+
+		ClientImplBuff_1024(nw_message::tMsgTypes i_msgTyp = nw_message::TRM):
+			                                              ClientImpl(i_msgTyp){}
+
+		// 1. builds a 1024 sz buffer
+		// 2, send it to acceptor
+		virtual int run()
+		{
+			fw::BufferSz buff;
+			__FILL_BUFF_SZ(buff,1024);
+			m_buff=buff;
+			nwUT::ClientImpl::run();
+			return 0;
+		}
+};
+
 void nwUT::test_nwmsg()
 {
   nw::Acceptor acc(LOC_HOST.c_str());
-  
-  class ClientImplBuff_1024 : public ClientImpl
-  {
-
-  	  public:
-	  friend class nw::ut::nwUT;
-
-		ClientImplBuff_1024(): ClientImpl("localhost"){}
-
-		virtual int run()
-		{
-			ClientImpl
-			return 0;
-		}
-  };
 
   run_task((void*)&acc, 0);
   
@@ -97,19 +100,41 @@ void nwUT::test_nwmsg()
 
 void nwUT::test_2_clnts()
 {
+	 nw::Acceptor acc(LOC_HOST.c_str());
 
+	  run_task((void*)&acc, 0);
+
+	  ClientImplBuff_1024 impl1(nw_message::REG);
+	  run_task<ClientImplBuff_1024, &ClientImplBuff_1024::run,void*>((void*)(&impl1), 0);
+
+	  ClientImplBuff_1024 impl2;
+	  	  run_task<ClientImplBuff_1024, &ClientImplBuff_1024::run,void*>((void*)(&impl2), 0);
+
+	  int sts=0;
+	  /* TODO cleanup macro ?? */
+
+	  for(int chNm=3;chNm>0;--chNm)
+	  	  wait(&sts);
+
+	  /* as the nw msg is static in sz, we can do this safely ... */
+	  CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg",
+	  		         ( memcmp(&g_msg, &impl1.m_msg, sizeof(nw::nw_message)) != 0));
 }
 
 
+
+/* make the clever compilers happy */
+static fw::BufferSz dummyBfSz;
 
 
 /* Generic nw client impl code */
 
 nwUT::ClientImpl::
-ClientImpl(const char* const i_pIp,
-           unsigned int i_numEvntToSnd,
-	   const std::string& i_msg):m_numEvntToSnd(i_numEvntToSnd),
-				     m_clntMsg(const_cast<std::string&>(i_msg))
+ClientImpl(nw_message::tMsgTypes i_msgTyp,
+		   const char* const i_pIp,
+           unsigned int i_numEvntToSnd):
+            					m_buff(dummyBfSz),
+            					m_numEvntToSnd(i_numEvntToSnd)
 {
    struct sockaddr_in server_info;
    struct hostent *he;
@@ -137,7 +162,8 @@ ClientImpl(const char* const i_pIp,
     exit(1);
   }
 
-
+  /* looks like we are all set. */
+  m_msg.set_msgTyp(nw_message::TRM); /* one time msg */
 }
 
   } // namespace ut

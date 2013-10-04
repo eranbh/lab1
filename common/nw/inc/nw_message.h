@@ -11,6 +11,7 @@
 // TODO create a set of typedefs for primitives according to platforms
 #include<assert.h> // for assert(3)
 
+
 namespace nw {
 
 // signed quantities
@@ -71,12 +72,13 @@ class nw_message
 
   struct header
   {
-    uint32 m_msg_type;
+	tMsgTypes m_msg_type;
     uint32 m_msg_sz;
   };
 
   const header& get_header()const {return m_header;}
   const char* get_body()const {return m_body;}
+  void set_msgTyp(tMsgTypes i_type){m_header.m_msg_sz=i_type;}
 
   
 
