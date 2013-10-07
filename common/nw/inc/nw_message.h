@@ -80,7 +80,7 @@ class nw_message
 	  tMsgTypes m_msg_type;
   };
 
-  const header& get_header()const {return m_header;}
+  header& get_header() {return m_header;}
   const char* get_body()const {return m_body;}
   void set_msgTyp(tMsgTypes i_type){m_header.m_msg_sz=i_type;}
 

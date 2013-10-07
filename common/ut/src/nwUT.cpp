@@ -36,7 +36,6 @@ static const std::string LOC_HOST("localhost");
 static const unsigned short PORT=8002;
 static const unsigned short MAXSIZE=1024;
 
-unsigned int nwUT::ClientImpl::m_msgId = 0;
 
 /*
 * 1. creating an acceptor
@@ -124,6 +123,7 @@ void nwUT::test_2_clnts()
 
 	  for(int chNm=3;chNm>0;--chNm)
 	  	  wait(&sts);
+
 
 }
 

@@ -94,10 +94,10 @@ class nwUT : public CppUnit::TestFixture
 	  	*/
 	  	inline unsigned int getNxtMsgId()
 	  	{
-
+	  		unsigned int newId=0, oldId = 0;
 	  		do
 	  		{
-	  			unsigned int newId = oldId = m_msgId;
+	  			newId = oldId = m_msgId;
 	  			newId += 1; /* there's probably an incr operator ...*/
 	  		} while(oldId != __sync_val_compare_and_swap(&m_msgId, oldId, newId));
 
