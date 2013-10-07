@@ -11,6 +11,7 @@
 #include <netinet/in.h> // for struct sockaddr_in
 #include <netdb.h> // for gethostbyname(3)
 #include <sys/wait.h> // for wait(2)
+#include <map> // for our special result container g_msgMap
 #include "nwUT.h" // for nw test suite
 #include "Acceptor.h" // class to be tested
 
@@ -21,19 +22,21 @@
 namespace nw{
 
 extern
-nw_message g_msg;
+std::multimap<uint32, nw_message> g_msgMap;
 
   namespace ut {
 
 CPPUNIT_TEST_SUITE_REGISTRATION(nwUT);
 
 void nwUT::setUp(){}
-void nwUT::tearDown(){}
+void nwUT::tearDown(){g_msgMap.clear();}
 
 
 static const std::string LOC_HOST("localhost");
 static const unsigned short PORT=8002;
 static const unsigned short MAXSIZE=1024;
+
+unsigned int nwUT::ClientImpl::m_msgId = 0;
 
 /*
 * 1. creating an acceptor
@@ -92,9 +95,15 @@ void nwUT::test_nwmsg()
   for(int chNm=2;chNm>0;--chNm)
   	  wait(&sts);
 
+  std::multimap<uint32, nw_message>::iterator iter =
+		  g_msgMap.find(impl.m_msg.get_header().m_msgSeq);
+
+  CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg iter",
+		                 iter != g_msgMap.end());
+
   /* as the nw msg is static in sz, we can do this safely ... */
   CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg",
-  		         ( memcmp(&g_msg, &impl.m_msg, sizeof(nw::nw_message)) != 0));
+  		         ( memcmp(&(*iter), &impl.m_msg, sizeof(nw::nw_message)) != 0));
 }
 
 
@@ -116,9 +125,6 @@ void nwUT::test_2_clnts()
 	  for(int chNm=3;chNm>0;--chNm)
 	  	  wait(&sts);
 
-	  /* as the nw msg is static in sz, we can do this safely ... */
-	  CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg",
-	  		         ( memcmp(&g_msg, &impl1.m_msg, sizeof(nw::nw_message)) != 0));
 }
 
 
@@ -132,9 +138,11 @@ static fw::BufferSz dummyBfSz;
 nwUT::ClientImpl::
 ClientImpl(nw_message::tMsgTypes i_msgTyp,
 		   const char* const i_pIp,
+		   unsigned int i_msgId,
            unsigned int i_numEvntToSnd):
             					m_buff(dummyBfSz),
-            					m_numEvntToSnd(i_numEvntToSnd)
+            					m_numEvntToSnd(i_numEvntToSnd),
+            					m_msgId(i_msgId)
 {
    struct sockaddr_in server_info;
    struct hostent *he;

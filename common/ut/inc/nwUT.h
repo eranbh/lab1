@@ -62,16 +62,23 @@ class nwUT : public CppUnit::TestFixture
 	  friend class nw::ut::nwUT;
 	  ClientImpl(nw_message::tMsgTypes i_msgTyp,
 			     const char* const i_pIp = "localhost",
+			     unsigned int i_msgId = 1,
 		         unsigned int i_numEvntToSnd = 1);
 
 	  /* default impl */
 	  virtual int run()
 	  {
-		  m_msg.init(m_buff.buff, m_buff.sz, m_msg.get_header().m_msg_type);
+		  nw::nw_message::header& head = m_msg.get_header();
+		  m_msg.init(m_buff.buff, m_buff.sz, head.m_msg_type);
 
-		  // client is suppose to be constructed by now
-		  // write the entire content of the buff to the socket
-		  __WRITE_FD_DRAIN(&m_msg, m_socket_fd, sizeof(nw::nw_message));
+		  for(unsigned int i=0;i<m_numEvntToSnd;++i)
+		  {
+			  head.m_msgSeq = getNxtMsgId();
+			  // client is suppose to be constructed by now
+			  // write the entire content of the buff to the socket
+			  __WRITE_FD_DRAIN(&m_msg, m_socket_fd, sizeof(nw::nw_message));
+
+		  }
 
 		  close(m_socket_fd);
 		  return 0;
@@ -79,12 +86,30 @@ class nwUT : public CppUnit::TestFixture
 	  
 	  virtual void init(void* ) {} /*only to allow an init with void arg in case its not needed */
 
+
 	protected:
+
+	  /*
+	  	* gets the next network message atomically
+	  	*/
+	  	inline unsigned int getNxtMsgId()
+	  	{
+
+	  		do
+	  		{
+	  			unsigned int newId = oldId = m_msgId;
+	  			newId += 1; /* there's probably an incr operator ...*/
+	  		} while(oldId != __sync_val_compare_and_swap(&m_msgId, oldId, newId));
+
+	  		return newId; /* send back the copy, as here the member can change _again_*/
+	  	}
+
+
 	  fw::BufferSz&            m_buff;
 	  int                      m_socket_fd;
 	  unsigned int             m_numEvntToSnd;
 	  nw::nw_message           m_msg;
-	  	 
+	  unsigned int             m_msgId;
 	};
 
 

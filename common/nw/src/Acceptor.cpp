@@ -8,6 +8,9 @@
 #include <errno.h> // for errno (3)
 #include <unistd.h> // for read(2)
 #include <stdlib.h> // for exit(3)
+#ifdef __TESTING_MODE
+#include <map> // for testing purposes only !!!
+#endif // __TESTING_MODE
 #include "macros.h" // my macros
 #include "Acceptor.h"
 #include "nw_message.h" // network message stuff
@@ -15,8 +18,11 @@
 
 namespace nw {
 
+/*
+* for UT purposes only !!!
+*/
 #ifdef __TESTING_MODE
-  nw_message g_msg;
+  std::multimap<uint32, nw_message> g_msgMap;
 #endif // __TESTING_MODE
 
 
@@ -169,7 +175,8 @@ Acceptor::handle_request(int fd)
 
   		  // Testing only!!!
 #ifdef __TESTING_MODE
-  		  memcpy(&g_msg, &nmsg, sizeof(nw_message));
+  		g_msgMap.insert(std::make_pair(nmsg.m_header.m_msgSeq, nmsg));
+  		  //memcpy(&g_msg, &nmsg, sizeof(nw_message));
 #else // handle msg
   		printf("handling request of type [%u].\n", nmsg.m_header.m_msg_type);
   		printf("msg body:\n");

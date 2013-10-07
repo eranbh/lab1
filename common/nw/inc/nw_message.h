@@ -40,6 +40,7 @@ class nw_message
   {
     m_header.m_msg_sz=0;
     m_header.m_msg_type=INV;
+    m_header.m_msgSeq = 0;
   }
 
   void init(const char* const i_pMsg, 
@@ -72,8 +73,11 @@ class nw_message
 
   struct header
   {
-	tMsgTypes m_msg_type;
-    uint32 m_msg_sz;
+	  uint32 m_msg_sz;
+#ifdef __TESTING_MODE
+	  uint32 m_msgSeq; // should be used to map msg's to results
+#endif // __TESTING_MODE
+	  tMsgTypes m_msg_type;
   };
 
   const header& get_header()const {return m_header;}
