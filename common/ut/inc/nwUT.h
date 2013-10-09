@@ -62,7 +62,6 @@ class nwUT : public CppUnit::TestFixture
 	  friend class nw::ut::nwUT;
 	  ClientImpl(nw_message::tMsgTypes i_msgTyp,
 			     const char* const i_pIp = "localhost",
-			     unsigned int i_msgId = 1,
 		         unsigned int i_numEvntToSnd = 1);
 
 	  /* default impl */
@@ -92,7 +91,7 @@ class nwUT : public CppUnit::TestFixture
 	  /*
 	  	* gets the next network message atomically
 	  	*/
-	  	inline unsigned int getNxtMsgId()
+	  	inline static unsigned int getNxtMsgId()
 	  	{
 	  		unsigned int newId=0, oldId = 0;
 	  		do
@@ -109,7 +108,7 @@ class nwUT : public CppUnit::TestFixture
 	  int                      m_socket_fd;
 	  unsigned int             m_numEvntToSnd;
 	  nw::nw_message           m_msg;
-	  unsigned int             m_msgId;
+	  static unsigned int      m_msgId;
 	};
 
 
@@ -117,6 +116,8 @@ class nwUT : public CppUnit::TestFixture
 
 	static int run_client();
 	static int run_srv();
+	static void assert_clnt_result(ClientImpl& i_clnt,
+							       const char* const);
 
 	template <typename T = nw::Acceptor,
 			  int (T::* pFunc) () = &nw::Acceptor::listen_2_events,

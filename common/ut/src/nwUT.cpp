@@ -16,9 +16,6 @@
 #include "Acceptor.h" // class to be tested
 
 
-
-
-
 namespace nw{
 
 extern
@@ -36,6 +33,7 @@ static const std::string LOC_HOST("localhost");
 static const unsigned short PORT=8002;
 static const unsigned short MAXSIZE=1024;
 
+unsigned int nwUT::ClientImpl::m_msgId=0;
 
 /*
 * 1. creating an acceptor
@@ -51,7 +49,6 @@ void nwUT::test_init_localhost()
 			 (acc.m_epoll_fd != -1));
   
 }
-
 
 /*
 * this class is a default behavior blue print of a nw client
@@ -91,6 +88,7 @@ void nwUT::test_nwmsg()
   int sts=0;
   /* TODO cleanup macro ?? */
 
+  /* MACRO THIS */
   for(int chNm=2;chNm>0;--chNm)
   	  wait(&sts);
 
@@ -100,9 +98,10 @@ void nwUT::test_nwmsg()
   CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg iter",
 		                 iter != g_msgMap.end());
 
-  /* as the nw msg is static in sz, we can do this safely ... */
+  std::pair<uint32, nw_message> entry = *iter;
+
   CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg",
-  		         ( memcmp(&(*iter), &impl.m_msg, sizeof(nw::nw_message)) != 0));
+  		         ( memcmp(&(entry.second), &impl.m_msg, sizeof(nw::nw_message)) != 0));
 }
 
 
@@ -125,6 +124,18 @@ void nwUT::test_2_clnts()
 	  	  wait(&sts);
 
 
+	 // assert_clnt_result(impl1, "nwUT::test_2_clnts impl1");
+	  //assert_clnt_result(impl2, "nwUT::test_2_clnts impl2");
+
+	  /*std::multimap<uint32, nw_message>::iterator iter =
+	  		  g_msgMap.find(impl1.m_msg.get_header().m_msgSeq);
+
+	  CPPUNIT_ASSERT_MESSAGE("nwUT::test_2_clnts iter",
+	     	                 iter != g_msgMap.end());
+
+	   CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg",
+	   		         ( memcmp(&(*iter), &impl.m_msg, sizeof(nw::nw_message)) != 0));*/
+
 }
 
 
@@ -138,11 +149,9 @@ static fw::BufferSz dummyBfSz;
 nwUT::ClientImpl::
 ClientImpl(nw_message::tMsgTypes i_msgTyp,
 		   const char* const i_pIp,
-		   unsigned int i_msgId,
            unsigned int i_numEvntToSnd):
             					m_buff(dummyBfSz),
-            					m_numEvntToSnd(i_numEvntToSnd),
-            					m_msgId(i_msgId)
+            					m_numEvntToSnd(i_numEvntToSnd)
 {
    struct sockaddr_in server_info;
    struct hostent *he;
@@ -171,7 +180,23 @@ ClientImpl(nw_message::tMsgTypes i_msgTyp,
   }
 
   /* looks like we are all set. */
-  m_msg.set_msgTyp(nw_message::TRM); /* one time msg */
+  m_msg.set_msgTyp(i_msgTyp); /* one time msg */
+}
+
+
+void
+nwUT::assert_clnt_result(ClientImpl& i_clnt,
+					     const char* const i_msg)
+{
+	std::multimap<uint32, nw_message>::iterator iter =
+		  		  g_msgMap.find(i_clnt.m_msg.get_header().m_msgSeq);
+
+	CPPUNIT_ASSERT_MESSAGE(i_msg,
+		     	           iter != g_msgMap.end());
+
+	/* as the nw msg is static in sz, we can do this safely ... */
+	CPPUNIT_ASSERT_MESSAGE(i_msg,
+	    		         ( memcmp(&(*iter), &i_clnt.m_msg, sizeof(nw::nw_message)) != 0));
 }
 
   } // namespace ut
