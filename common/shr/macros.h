@@ -24,7 +24,7 @@
 #include <stdio.h>
 #define __DRAIN_LOOP(FD,BUFF,ACT)  			              \
   while( ((tot_tmp+=tmp)<len) &&				      \
-         (tmp=ACT(FD, BUFF+tot_tmp, len - tot_tmp)))                  \
+         (0<(tmp=ACT(FD, BUFF+tot_tmp, len - tot_tmp))))                  \
     {printf("looping\n");};					      \
   if(0 > tmp) { perror(__STRINGIFY(ACT)); exit(3);}                           
 

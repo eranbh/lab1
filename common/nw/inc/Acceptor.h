@@ -57,6 +57,10 @@ private:
   int m_epoll_fd;
 };
 
+#ifdef __TESTING_MODE
+static const char* const ACC_LOG_NM = "acc.log";
+#endif // __TESTING_MODE
+
 } // namespace nw
 
 

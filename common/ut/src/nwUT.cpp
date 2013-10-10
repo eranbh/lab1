@@ -11,29 +11,28 @@
 #include <netinet/in.h> // for struct sockaddr_in
 #include <netdb.h> // for gethostbyname(3)
 #include <sys/wait.h> // for wait(2)
-#include <map> // for our special result container g_msgMap
+#include <fcntl.h> // for open(2)
 #include "nwUT.h" // for nw test suite
 #include "Acceptor.h" // class to be tested
 
 
 namespace nw{
 
-extern
-std::multimap<uint32, nw_message> g_msgMap;
-
   namespace ut {
 
 CPPUNIT_TEST_SUITE_REGISTRATION(nwUT);
 
 void nwUT::setUp(){}
-void nwUT::tearDown(){g_msgMap.clear();}
+/*this is global so I can close it on tear-down */
+int g_logFd=0;
+void nwUT::tearDown(){__SYS_CALL_TEST_NM1_EXIT(close(g_logFd));}
 
 
 static const std::string LOC_HOST("localhost");
 static const unsigned short PORT=8002;
-static const unsigned short MAXSIZE=1024;
 
 unsigned int nwUT::ClientImpl::m_msgId=0;
+
 
 /*
 * 1. creating an acceptor
@@ -92,16 +91,7 @@ void nwUT::test_nwmsg()
   for(int chNm=2;chNm>0;--chNm)
   	  wait(&sts);
 
-  std::multimap<uint32, nw_message>::iterator iter =
-		  g_msgMap.find(impl.m_msg.get_header().m_msgSeq);
-
-  CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg iter",
-		                 iter != g_msgMap.end());
-
-  std::pair<uint32, nw_message> entry = *iter;
-
-  CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg",
-  		         ( memcmp(&(entry.second), &impl.m_msg, sizeof(nw::nw_message)) != 0));
+  assert_clnt_result(impl, "nwUT::test_nwmsg");
 }
 
 
@@ -124,18 +114,8 @@ void nwUT::test_2_clnts()
 	  	  wait(&sts);
 
 
-	 // assert_clnt_result(impl1, "nwUT::test_2_clnts impl1");
-	  //assert_clnt_result(impl2, "nwUT::test_2_clnts impl2");
-
-	  /*std::multimap<uint32, nw_message>::iterator iter =
-	  		  g_msgMap.find(impl1.m_msg.get_header().m_msgSeq);
-
-	  CPPUNIT_ASSERT_MESSAGE("nwUT::test_2_clnts iter",
-	     	                 iter != g_msgMap.end());
-
-	   CPPUNIT_ASSERT_MESSAGE("nwUT::test_nwmsg",
-	   		         ( memcmp(&(*iter), &impl.m_msg, sizeof(nw::nw_message)) != 0));*/
-
+	  assert_clnt_result(impl1, "nwUT::test_2_clnts impl1");
+	  assert_clnt_result(impl2, "nwUT::test_2_clnts impl2");
 }
 
 
@@ -188,15 +168,18 @@ void
 nwUT::assert_clnt_result(ClientImpl& i_clnt,
 					     const char* const i_msg)
 {
-	std::multimap<uint32, nw_message>::iterator iter =
-		  		  g_msgMap.find(i_clnt.m_msg.get_header().m_msgSeq);
+	 __SYS_CALL_TEST_NM1_EXIT((g_logFd=open(ACC_LOG_NM, O_WRONLY, 0)));
 
-	CPPUNIT_ASSERT_MESSAGE(i_msg,
-		     	           iter != g_msgMap.end());
+	  nw::nw_message nmsg;
 
-	/* as the nw msg is static in sz, we can do this safely ... */
-	CPPUNIT_ASSERT_MESSAGE(i_msg,
-	    		         ( memcmp(&(*iter), &i_clnt.m_msg, sizeof(nw::nw_message)) != 0));
+	  __READ_FD_DRAIN(reinterpret_cast<char*>(&nmsg),
+			          g_logFd,
+	                 sizeof(nw::nw_message));
+
+	  CPPUNIT_ASSERT_MESSAGE(i_msg,
+	  		         ( memcmp(&nmsg, &i_clnt.m_msg, sizeof(nw::nw_message)) != 0));
+	  // Don't close the file here, as this func
+	  // might be called for multiple messages
 }
 
   } // namespace ut

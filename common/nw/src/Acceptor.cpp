@@ -8,9 +8,7 @@
 #include <errno.h> // for errno (3)
 #include <unistd.h> // for read(2)
 #include <stdlib.h> // for exit(3)
-#ifdef __TESTING_MODE
-#include <map> // for testing purposes only !!!
-#endif // __TESTING_MODE
+#include <fcntl.h> // for open(2)
 #include "macros.h" // my macros
 #include "Acceptor.h"
 #include "nw_message.h" // network message stuff
@@ -18,13 +16,9 @@
 
 namespace nw {
 
-/*
-* for UT purposes only !!!
-*/
 #ifdef __TESTING_MODE
-  std::multimap<uint32, nw_message> g_msgMap;
+	int g_logFd=0;
 #endif // __TESTING_MODE
-
 
 Acceptor::Acceptor(const char* const p_ip, int i_backlog)
 {
@@ -59,6 +53,13 @@ Acceptor::Acceptor(const char* const p_ip, int i_backlog)
 
   /* socket is now listenable*/
   __SYS_CALL_TEST_NM1_EXIT( (m_epoll_fd=epoll_create(10/*not used*/)));
+
+
+/* i don't want to be bothered with sending the data back
+ * to the tester in a sophisticated way. just write to disk */
+#ifdef __TESTING_MODE
+  __SYS_CALL_TEST_NM1_EXIT((g_logFd=open(ACC_LOG_NM, O_CREAT|O_TRUNC, S_IRWXU|S_IRWXG)));
+#endif // __TESTING_MODE
 }
 
 // this might need to go in consts header 
@@ -141,6 +142,10 @@ Acceptor::listen_2_events()
     }// for
   } while(handleSts);
 
+#ifdef __TESTING_MODE
+  __SYS_CALL_TEST_NM1_RETURN(close(g_logFd));
+#endif // __TESTING_MODE
+
   return 0; /* stopped by user */
 }
 
@@ -175,8 +180,9 @@ Acceptor::handle_request(int fd)
 
   		  // Testing only!!!
 #ifdef __TESTING_MODE
-  		g_msgMap.insert(std::make_pair(nmsg.m_header.m_msgSeq, nmsg));
-  		  //memcpy(&g_msg, &nmsg, sizeof(nw_message));
+  		__WRITE_FD_DRAIN(reinterpret_cast<char*>(&nmsg),
+  				         g_logFd,
+  				         sizeof(nw_message));
 #else // handle msg
   		printf("handling request of type [%u].\n", nmsg.m_header.m_msg_type);
   		printf("msg body:\n");
