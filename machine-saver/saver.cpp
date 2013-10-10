@@ -35,16 +35,36 @@ public:
 
   }
 
+protected:
+
+  virtual int init();
+  virtual int run();
+  virtual int fini();
+
   /*
   * D'tor
   */
-  ~Saver();
+  virtual ~Saver(){}
 
 private:
 
   /**/
   nw::Acceptor m_acc;
 };
+
+
+int Saver::init()
+{
+	return 0;
+}
+
+int Saver::run()
+{
+	return 0;
+}
+
+int Saver::fini()
+{return 0;}
 
 
 
