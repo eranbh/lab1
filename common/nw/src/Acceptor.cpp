@@ -58,7 +58,7 @@ Acceptor::Acceptor(const char* const p_ip, int i_backlog)
 /* i don't want to be bothered with sending the data back
  * to the tester in a sophisticated way. just write to disk */
 #ifdef __TESTING_MODE
-  __SYS_CALL_TEST_NM1_EXIT((g_logFd=open(ACC_LOG_NM, O_CREAT|O_TRUNC, S_IRWXU|S_IRWXG)));
+  __SYS_CALL_TEST_NM1_EXIT((g_logFd=open(ACC_LOG_NM, O_CREAT|O_TRUNC|O_RDWR, S_IRWXU)));
 #endif // __TESTING_MODE
 }
 

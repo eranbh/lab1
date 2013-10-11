@@ -3,3 +3,5 @@ all:
         ../../ut-fw/src/main_ut.cpp  src/nwUT.cpp -lnw -lcppunit  -o \
            bin/utNW 
 
+pl:
+	g++ -g -Wall -Iinc -I/usr/include/ ../../ut-fw/src/main_ut.cpp src/plUT.cpp -lcppunit -o bin/utPL

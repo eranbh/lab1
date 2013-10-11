@@ -9,7 +9,6 @@
 */
 #include "Task.h"
 #include "Acceptor.h"
-
 /*
 * This class is a simple task that runs to infinity and performs:
 * 1. listen on an agreed upon port for a message

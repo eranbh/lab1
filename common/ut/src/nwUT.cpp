@@ -168,7 +168,7 @@ void
 nwUT::assert_clnt_result(ClientImpl& i_clnt,
 					     const char* const i_msg)
 {
-	 __SYS_CALL_TEST_NM1_EXIT((g_logFd=open(ACC_LOG_NM, O_WRONLY, 0)));
+	 __SYS_CALL_TEST_NM1_EXIT((g_logFd=open(ACC_LOG_NM, O_RDONLY, 0)));
 
 	  nw::nw_message nmsg;
 
