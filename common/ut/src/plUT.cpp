@@ -15,8 +15,13 @@ CPPUNIT_TEST_SUITE_REGISTRATION(plUT);
 void plUT::setUp(){}
 void plUT::tearDown(){}
 
-void plUT::test_stam()
+/*
+* linux employs a system-wide strategy for pre-loading.
+*
+*/
+void plUT::test_linux()
 {
+
 }
 
 	} // namespace ut

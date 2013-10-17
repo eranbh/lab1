@@ -17,7 +17,7 @@ class plUT : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(plUT);
 
-	CPPUNIT_TEST(test_stam);
+	CPPUNIT_TEST(test_linux);
 
 	CPPUNIT_TEST_SUITE_END();
 
@@ -29,7 +29,7 @@ public:
 	virtual void setUp();
 	virtual void tearDown();
 
-	void test_stam();
+	void test_linux();
 };
 
 	}// namespace ut
