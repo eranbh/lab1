@@ -19,12 +19,29 @@
  *     	This also means that any make that cooks this tester, *has* to
  *     	build the liboit_stubs.so module, for the _forbidden_ symbols
  */
+#include <string.h>
+#include <fcntl.h> // no need for this !!!
+#include "dlfcn.h"
 #include "cppunit/extensions/HelperMacros.h"
 #include "plUT.h" // my test cases
+
 
 namespace pl{
 	namespace ut{
 
+#define __GET_DL_ERROR(STM,MSG,RET)                        \
+do{                                                        \
+	dlerror();                                             \
+	if(RET) CPPUNIT_ASSERT_MESSAGE(MSG " RET",(0 != STM)); \
+	STM;                                                   \
+	const char* err=dlerror();                             \
+	err= (0 != err)?err:"";                                \
+	printf("%s\n", err);                                   \
+	char buff[1024]={0};                                   \
+    memcpy(buff, MSG, strlen(MSG));                        \
+	memcpy(buff+strlen(MSG)+1,err , strlen(err));          \
+	CPPUNIT_ASSERT_MESSAGE(buff,(0 == strcmp(err,"")));    \
+}while(0)
 
 CPPUNIT_TEST_SUITE_REGISTRATION(plUT);
 
@@ -38,7 +55,13 @@ void plUT::tearDown(){}
 */
 void plUT::test_linux()
 {
+	void* pfirstOpen = 0;
+	__GET_DL_ERROR((pfirstOpen=dlsym(RTLD_DEFAULT, "open")),"plUT::test_linux",0);
+	Dl_info dlInfo;
+	open("stam", O_CREAT|O_WRONLY, S_IRUSR|S_IWUSR);
+	__GET_DL_ERROR((dladdr(pfirstOpen, &dlInfo)),"plUT::test_linux",1);
 
+	printf("%s\n", dlInfo.dli_fname);
 }
 
 	} // namespace ut

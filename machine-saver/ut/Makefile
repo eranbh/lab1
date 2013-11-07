@@ -1,5 +1,5 @@
 pl: stub
-	g++ -g -Wall -Iinc -I/usr/include/ ../../ut-fw/src/main_ut.cpp src/plUT.cpp -lcppunit -o bin/utPL
+	g++ -g -Wall -fpic -O0 -Iinc  -I/usr/include/ ../../ut-fw/src/main_ut.cpp src/plUT.cpp -m64 -lcppunit -o bin/utPL
 
 stub:
-	g++ -g -Wall -fPIC -I/usr/include/ src/liboit_stubs.cpp -shared -o lib/liboit_stubs.so
+	gcc -g -Wall -z defs -z interpose -O0  -fpic -I/usr/include/ src/liboit_stubs.cpp -shared -m64 -o lib/liboit_stubs.so

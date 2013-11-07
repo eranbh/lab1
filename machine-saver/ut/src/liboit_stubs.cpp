@@ -20,7 +20,7 @@
 /* code inter-position starts here */
 
 int
-open(const char *pathname, int flags)
+open(const char *pathname, int flags, ...)
 {
 	printf("<<< open >>> \n");
 
