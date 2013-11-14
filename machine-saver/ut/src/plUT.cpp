@@ -25,6 +25,8 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include "plUT.h" // my test cases
 
+//extern int stamFunc();
+
 
 namespace pl{
 	namespace ut{
@@ -43,6 +45,7 @@ do{                                                        \
 	CPPUNIT_ASSERT_MESSAGE(buff,(0 == strcmp(err,"")));    \
 }while(0)
 
+
 CPPUNIT_TEST_SUITE_REGISTRATION(plUT);
 
 void plUT::setUp(){}
@@ -56,6 +59,7 @@ void plUT::tearDown(){}
 void plUT::test_linux()
 {
 	void* pfirstOpen = 0;
+	__GET_DL_ERROR((pfirstOpen=dlsym(RTLD_DEFAULT, "stamFunc")),"plUT::test_linux",0);
 	__GET_DL_ERROR((pfirstOpen=dlsym(RTLD_DEFAULT, "open")),"plUT::test_linux",0);
 	Dl_info dlInfo;
 	open("stam", O_CREAT|O_WRONLY, S_IRUSR|S_IWUSR);

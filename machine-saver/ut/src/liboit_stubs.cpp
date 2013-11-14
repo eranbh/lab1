@@ -19,12 +19,31 @@
 
 /* code inter-position starts here */
 
+int stamFunc(){printf("YESH !!!");return 0;}
+
 int
 open(const char *pathname, int flags, ...)
 {
 	printf("<<< open >>> \n");
 
 	return 0;
+}
+
+int
+open64(const char *path, int oflag, ...)
+{
+	printf("<<< open64 >>> \n");
+
+	return 0;
+}
+
+int
+openat(int fildes, const char *path, int oflag, ...)
+{
+	printf("<<< open64 >>> \n");
+
+	return 0;
+
 }
 
 

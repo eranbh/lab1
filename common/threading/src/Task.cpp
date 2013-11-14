@@ -1,7 +1,7 @@
 
 #include "Task.h"
 
-
+namespace fw {
 MultiCore_Task::
 MultiCore_Task(unsigned int i_thNm):m_thNm(i_thNm)
 {
@@ -48,6 +48,8 @@ int MultiCore_Task::deActivate()
 {
   // Cancel threads
 }
+
+} // namespace fw
 
 /*int
 main(int argc, char* argv[])
