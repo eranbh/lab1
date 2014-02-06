@@ -14,6 +14,7 @@ void* launcher(void* arg)
   task->init();
   task->run();
   task->fini();
+  return task;
 }
 
 int MultiCore_Task::activate()
@@ -34,19 +35,19 @@ int MultiCore_Task::activate()
 /*Waits for ALL threads on task*/
 int MultiCore_Task::waitForAll()
 {
-  void* ret[m_thNm]; // ONLY ON GCC!!
+  //void* ret[m_thNm]; // ONLY ON GCC!!
   for(unsigned int i=0 ; i<m_thNm ; ++i)
-    {
-          printf("join handle %lu\n", m_pthHandleArr[i]);
-     // check sts
-   pthread_join(m_pthHandleArr[i], ret /*void **retval for now*/);
-    }
-   return 0;
+  {
+	  printf("join handle %lu\n", m_pthHandleArr[i]);
+	  // check sts
+	  pthread_join(m_pthHandleArr[i], 0 /*void **retval for now*/);
+  }
+  return 0;
 }
 
 int MultiCore_Task::deActivate()
 {
-  // Cancel threads
+	return 0;// Cancel threads
 }
 
 } // namespace fw
