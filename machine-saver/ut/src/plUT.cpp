@@ -59,6 +59,11 @@ void plUT::tearDown(){}
 void plUT::test_linux()
 {
 	void* pfirstOpen = 0;
+
+	__GET_DL_ERROR((dlopen("/home/eran/work/sw_lab/machine-saver/ut/lib/liboit_stubs.so",
+			              RTLD_NOW)),
+			       "plUT::test_linux",0);
+
 	__GET_DL_ERROR((pfirstOpen=dlsym(RTLD_DEFAULT, "stamFunc")),"plUT::test_linux",0);
 	__GET_DL_ERROR((pfirstOpen=dlsym(RTLD_DEFAULT, "open")),"plUT::test_linux",0);
 	Dl_info dlInfo;
