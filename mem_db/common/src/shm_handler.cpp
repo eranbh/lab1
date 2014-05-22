@@ -13,22 +13,35 @@
 const mem_db::Uint32 mem_allocator::NULL_POINTER=0;
 
 
-mem_allocator::mem_allocator(): m_dbStart(1)
+const mem_db::Uint32 MEGA = 1024*1024;
+const char* const ROOT_FILE_NM = "id";
+/*
+* this c'tor allocates a blank chunk of mem to
+* get the ball rolling. any error here is fatal
+*/
+mem_allocator::mem_allocator()
 {
 
    int id=0;
-  id=shmget(m_dbStart,
-            sizeof(unsigned int),
-	    IPC_CREAT|0666|IPC_EXCL);
+   __SYS_CALL_TEST_NM1_EXIT((id=shmget(1,
+				       MEGA,
+				       IPC_CREAT|0666|IPC_EXCL)));
   assert(-1 != id);
   void* pshm=0;
-  pshm=shmat(id, 
-             0, 
-             0666);
+  __SYS_CALL_TEST_NM1_EXIT((pshm=shmat(id, 
+                            0, 
+			    0666)));
   assert((void*)-1 != pshm);
   
-
-   (*(__RE_INTPRT_SHM_TO_TYPE(unsigned int,pshm)))=0;
+  // so far so good. now lets place the new id in the
+  // root file. this is the entry point for this chunk
+  // root file should not exist [recovery], and we can
+  // not progress unless we know the data reached the disk
+  int fd=0;
+  __SYS_CALL_TEST_NM1_EXIT((fd=open(ROOT_FILE_NM,
+				    O_CREATE|O_EXCL|O_SYNC)));
+  
+  __WRITE_FD_DRAIN(fd, (char*)&fd, sizeof(int));
 }
 
 int mem_allocator::initAllocator()
