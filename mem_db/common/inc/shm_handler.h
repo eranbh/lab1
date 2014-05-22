@@ -20,11 +20,12 @@ private:
   static const unsigned int SMALL_CHUNK_SZ = 1024;
   static const unsigned int HUGE_CHUNK_SZ  = 4096;
 
+  mem_allocator();
 
 public:
 
-  mem_allocator();
 
+  /*TODO: sync the access to the alloc*/
   static mem_allocator& get_alloc()
   {static mem_allocator s_alloc;return s_alloc;}
 
