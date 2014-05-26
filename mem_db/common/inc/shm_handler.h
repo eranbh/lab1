@@ -2,7 +2,7 @@
 #define __MEM_DB_COMMON_INC_SHM_HANDLER_H_
 #include <sys/shm.h> // for shm defs
 #include "types.h" // For my types
-#include "macros.h"
+#include "shr/macros.h" // my beloved macros
 
 
 class mem_allocator
@@ -34,7 +34,7 @@ public:
   getSz(void* pshm)
   {
     ChunkHeader* phead = 
-    __RE_INTPRT_SHM_TO_TYPE(ChunkHeader, pshm);
+    __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, pshm);
     phead--;
     __PRINT_ADDR(phead);
     return phead->sz;
@@ -44,7 +44,7 @@ public:
   getActSz(void* pshm)
   {
     ChunkHeader* phead = 
-    __RE_INTPRT_SHM_TO_TYPE(ChunkHeader, pshm);
+    __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, pshm);
     phead--;
     return phead->actSz;
   }
@@ -52,7 +52,7 @@ public:
   inline static void updateActSz(unsigned int i_sz, void* pshm)
   {
     ChunkHeader* phead =
-    __RE_INTPRT_SHM_TO_TYPE(ChunkHeader, pshm);
+    __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, pshm);
     phead--;
     phead->actSz+=i_sz;
   } 
@@ -60,7 +60,7 @@ public:
   inline static void updateSz(unsigned int i_sz, void* pshm)
   {
     ChunkHeader* phead =
-    __RE_INTPRT_SHM_TO_TYPE(ChunkHeader, pshm);
+    __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, pshm);
     phead--;
     phead->sz+=i_sz;
   } 
@@ -82,7 +82,7 @@ public:
   void* allocHugeChunk(Pointer& o_pointer)
   {return allocChunk(HUGE_CHUNK_SZ, o_pointer);}
 
-  static void* pointerToLocalPointer(const Pointer& pointer);
+  void* pointerToLocalPointer(const Pointer& pointer);
 
   // This actually:
   // 1. creates a new SHM key
@@ -94,8 +94,18 @@ public:
 
    void* allocChunk(const unsigned int i_Sz, Pointer& o_pointer);
  private:
-  // DB start key.
-  key_t m_dbStart;
+  
+   /*
+   * the shm chunk's id 
+   */
+   int m_id;
+
+   /*
+   * the vmem pointer for root
+   * caution: NEVER save this on shm
+   */
+   void* mp_vmem;
+  
 };
 
 

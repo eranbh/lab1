@@ -1,22 +1,40 @@
-#ifndef __APP_SRV_COMMON_INC_MACROS_H_
-#define __APP_SRV_COMMON_INC_MACROS_H__
+#ifndef __COMMON_SHR_MACROS_H_
+#define __COMMON_SHR_MACROS_H__
 
+#include <errno.h> // for errno(3)
+#include <stdlib.h> // for exit(3)
+#include <unistd.h> // for write(2)
 
-#define __SYS_CALL_TEST_NM1_RETURN(EXP) \
-  do \
-  { \
-     if(0 > EXP)	\
-     { perror(#EXP); return -1;  } \
+#define __SYS_CALL_TEST_NM1_RETURN(EXP)   \
+  do                                      \
+  {                                       \
+     errno=0;                             \
+     if(0 > EXP)	                  \
+     { perror(#EXP); return -1;  }        \
   }while(0)
 
 
-#define __SYS_CALL_TEST_NM1_EXIT(EXP) \
-  do \
-  { \
-     if(0 > EXP)	\
-       { perror(#EXP); exit(1);  }		\
+#define __SYS_CALL_TEST_NM1_EXIT(EXP)     \
+  do                                      \
+  {                                       \
+     errno=0;                             \
+     if(0 > EXP)	                  \
+       { perror(#EXP); exit(1);  }	  \
   }while(0)
 
+
+
+#define __SYS_CALL_TEST_RETURN_NULL(EXP) \
+  if(0 > (EXP))                          \
+    {                                    \
+  perror(__func__);                      \
+  return (void*)0;                       \
+    }
+
+
+
+#define __RE_INTPRT_MEM_TO_PTYPE(TYP,MEM) \
+  reinterpret_cast<TYP*>(MEM)
 
 
 #define __STRINGIFY(W) #W
@@ -24,7 +42,7 @@
 #include <stdio.h>
 #define __DRAIN_LOOP(FD,BUFF,ACT)  			              \
   while( ((tot_tmp+=tmp)<len) &&				      \
-         (0<(tmp=ACT(FD, BUFF+tot_tmp, len - tot_tmp))))                  \
+         (0<(tmp=ACT(FD, BUFF+tot_tmp, len - tot_tmp))))              \
     {printf("looping\n");};					      \
   if(0 > tmp) { perror(__STRINGIFY(ACT)); exit(3);}                           
 
@@ -46,4 +64,19 @@ do                                                                    \
 
 
 
-#endif // __APP_SRV_COMMON_INC_MACROS_H_
+#define __START_BLIND_PRINT static unsigned int _count=0;
+#define _P printf("print [%u]\n", _count++);
+
+#ifdef __DEBUG
+#define __CHECK_ERRNO(ERR,MSG)		\
+  if(ERR == errno) printf("%s\n", MSG);
+#else
+#define __CHECK_ERRNO(ERR,MSG)
+#endif // __DEBUG                                                                                                                                                                                        
+
+#define __PRINT_ADDR(PNT) \
+  printf("pointer addr is [%p] in func [%s]\n", PNT, __func__);
+
+
+
+#endif // __COMMON_SHR_MACROS_H_

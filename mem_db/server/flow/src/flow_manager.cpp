@@ -232,7 +232,7 @@ handle_select(mem_db::NetworkMsg& i_msg)
   showLayout(i_msg.buff, i_msg.layNmSz, *lay->getHead());
 
   for(unsigned int i=0;i<resNm;++i)
-    showObj(*lay->getHead(), res[i].buff);
+    showObj(*lay->getHead/(), res[i].buff);
   
   return 0;
 }
