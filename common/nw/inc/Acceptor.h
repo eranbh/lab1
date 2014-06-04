@@ -51,7 +51,7 @@ private:
   /*
   * handles requests on incoming conn's  
   */
-  int handle_request(int fd);
+  virtual int handle_request(int fd);
 
   int m_listen_fd; 
   int m_epoll_fd;

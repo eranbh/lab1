@@ -1,7 +1,7 @@
 #ifndef __COMMON_SHR_TYPES_H
 #define __COMMON_SHR_TYPES_H
 #include <assert.h>
-
+#include <string.h>
 namespace fw{ 
 
 
@@ -14,7 +14,7 @@ static void
 raw_copy_bytes(T* op_dest, const T* const ip_src, unsigned int sz=1)
 {
   assert(op_dest &&  ip_src && sz);
-  assert(::memcpy(op_dest, ip_src, sizeof(T)*sz));
+  assert(memcpy(op_dest, ip_src, sizeof(T)*sz));
 }
 
 
@@ -24,7 +24,6 @@ typedef struct tBufferSz
   {
 	public:
 
-                friend struct tBufferSz;
 		tBufferSz(){}
 
 		tBufferSz(char* i_buff, 
@@ -70,8 +69,6 @@ typedef struct tBufferSz
   }BufferSz;
 
 
-<<<<<<< HEAD
-=======
 /*FAIR WARNING - copies raw bytes.                                                                                                
 * if you want some fancy copy c'tor activated
 * write your own
@@ -83,7 +80,6 @@ raw_copy_bytes(T* op_dest, const T* const ip_src)
   assert(op_dest &&  ip_src);
   assert(::memcpy(op_dest, ip_src, sizeof(T)));
 }
->>>>>>> 5b5e7a7... common
 
 
 /*
@@ -97,8 +93,6 @@ raw_copy_bytes(T* op_dest, const T* const ip_src)
 class GenContainer
 {
  public:
-  /*need to access my privates when copying*/
-  friend class GenContainer;
 
  GenContainer():m_sz(SZ){} // empty container
 
@@ -106,11 +100,11 @@ class GenContainer
       m_sz(SZ), m_datum(a_datum){}
 
  GenContainer(const GenContainer& a_other):
-  m_sz(a_count.m_sz)
+  m_sz(a_other.m_sz)
  {
    assert(a_other.m_sz && a_other.m_datum);
 
-   for(size_t i=0;i<a_sz;++i)
+   for(size_t i=0;i<m_sz;++i)
    {
      // it is assumed that the obj is copy'able/assignable
      m_datum[i] = a_other.m_datum[i];
