@@ -70,8 +70,6 @@ typedef struct tBufferSz
   }BufferSz;
 
 
-<<<<<<< HEAD
-=======
 /*FAIR WARNING - copies raw bytes.                                                                                                
 * if you want some fancy copy c'tor activated
 * write your own
@@ -83,7 +81,6 @@ raw_copy_bytes(T* op_dest, const T* const ip_src)
   assert(op_dest &&  ip_src);
   assert(::memcpy(op_dest, ip_src, sizeof(T)));
 }
->>>>>>> 5b5e7a7... common
 
 
 /*
