@@ -4,10 +4,27 @@
 
 namespace fw{ 
 
+
+/*FAIR WARNING - copies raw bytes.                                                                                                
+* if you want some fancy copy c'tor activated                                                                                    
+* write your own                                                                                                                 
+*/
+template <typename T>
+static void
+raw_copy_bytes(T* op_dest, const T* const ip_src, unsigned int sz=1)
+{
+  assert(op_dest &&  ip_src && sz);
+  assert(::memcpy(op_dest, ip_src, sizeof(T)*sz));
+}
+
+
+
+
 typedef struct tBufferSz
   {
 	public:
 
+                friend struct tBufferSz;
 		tBufferSz(){}
 
 		tBufferSz(char* i_buff, 
@@ -33,16 +50,65 @@ typedef struct tBufferSz
 			}
 		}
 
+                const tBufferSz& operator=(const tBufferSz& a_other)
+                {
+		  if(&a_other == this)
+		    return *this;
+		  
+		  raw_copy_bytes<char>(buff, a_other.buff, a_other.sz);
+                  sz = a_other.sz;
+		  return *this;
+		}
+
 
         /* no copy c'tor */
 		tBufferSz(const tBufferSz&){}
 
-		/* no operator=  */
-		const tBufferSz& operator=(const tBufferSz&){return *this;}
-
+		
         	unsigned int sz;
         	char buff[1024];
   }BufferSz;
+
+
+
+
+/*
+* By no means a rival to the stl. I just need it
+* when Im doing a quick impl for some other, more
+* lofty idea. *do not* rely on this for *anything*
+* that might involve MT'ing; needs effiecient handling
+* or any other harsh constraints of the sort 
+*/
+ template<typename T, unsigned int SZ=0>
+class GenContainer
+{
+ public:
+  /*need to access my privates when copying*/
+  friend class GenContainer;
+
+ GenContainer():m_sz(SZ){} // empty container
+
+ GenContainer(const T& a_datum): 
+      m_sz(SZ), m_datum(a_datum){}
+
+ GenContainer(const GenContainer& a_other):
+  m_sz(a_count.m_sz)
+ {
+   assert(a_other.m_sz && a_other.m_datum);
+
+   for(size_t i=0;i<a_sz;++i)
+   {
+     // it is assumed that the obj is copy'able/assignable
+     m_datum[i] = a_other.m_datum[i];
+     m_sz = a_other.sz;
+   }
+ }
+
+ private:
+  unsigned int m_sz;
+  T m_datum[SZ];
+};
+
 
 } // namespace fw
 
