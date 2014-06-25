@@ -10,6 +10,7 @@
 
 // TODO create a set of typedefs for primitives according to platforms
 #include<assert.h> // for assert(3)
+#include <string.h>
 
 
 namespace nw {
@@ -26,26 +27,34 @@ typedef unsigned short uint16;
 
 #define MAX_MSG_SZ 1024
 
+class AcceptorBaseMessages
+{
+ public:
+  typedef enum {REG=0, TRM, INV}tMsgTypes;
+  typedef tMsgTypes this_type;
+};
 
+
+// typedef enum {REG=0, TRM, INV}tMsgTypes;
+template<class MSG_TYPS=AcceptorBaseMessages>
 class nw_message
 {
   friend class Acceptor;
 
  public:
 
-  typedef enum {REG=0, TRM, INV}tMsgTypes;
-
+  typedef MSG_TYPS msg_types;
   
   nw_message()
   {
     m_header.m_msg_sz=0;
-    m_header.m_msg_type=INV;
+    m_header.m_msg_type=MSG_TYPS::INV;
     m_header.m_msgSeq = 0;
   }
 
   void init(const char* const i_pMsg, 
-	     unsigned int i_len,
-	     tMsgTypes i_type)
+	    unsigned int i_len,
+	    typename msg_types::this_type i_type)
   {
     memcpy(m_body, i_pMsg, i_len);
     m_header.m_msg_sz=i_len;
@@ -54,7 +63,7 @@ class nw_message
 
 
   nw_message(const char* const i_pMsg, 
-	     tMsgTypes i_type)
+	     typename msg_types::this_type i_type)
   {
     assert(i_pMsg);
     unsigned int len=strlen(i_pMsg);
@@ -65,7 +74,7 @@ class nw_message
   
   nw_message(const char* const i_pMsg, 
 	     unsigned int i_len,
-	     tMsgTypes i_type)
+	     typename msg_types::this_type i_type)
   {
     assert(i_pMsg);
     init(i_pMsg, i_len, i_type);
@@ -77,12 +86,15 @@ class nw_message
 #ifdef __TESTING_MODE
 	  uint32 m_msgSeq; // should be used to map msg's to results
 #endif // __TESTING_MODE
-	  tMsgTypes m_msg_type;
+    typename msg_types::this_type m_msg_type;
+    const header& operator=(const header& a_other)
+    {return *this;}
   };
+
 
   header& get_header() {return m_header;}
   const char* get_body()const {return m_body;}
-  void set_msgTyp(tMsgTypes i_type){m_header.m_msg_type=i_type;}
+  void set_msgTyp(typename msg_types::this_type i_type){m_header.m_msg_type=i_type;}
 
   
 

@@ -1,6 +1,6 @@
 #ifndef __NW_INC_ACCEPTOR_H_
 #define __NW_INC_ACCEPTOR_H_
-
+#include <unistd.h>
 /*
 * This module is responsible for handling all the interaction with clients
 * over the network. This is achieved by means of multiplexing the
@@ -49,9 +49,11 @@ public:
 private:
 
   /*
-  * handles requests on incoming conn's  
+  * handles requests on incoming conn's
+  * we allow customization of the entire handler
   */
   virtual int handle_request(int fd);
+
 
   int m_listen_fd; 
   int m_epoll_fd;

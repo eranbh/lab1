@@ -151,25 +151,26 @@ Acceptor::listen_2_events()
 
 /*
 * Handle request
+* simple default implementation
 */
 int
 Acceptor::handle_request(int fd)
 {
   printf("request on fd %d - draining\n", fd);
 
-  nw_message nmsg;
+  nw_message<> nmsg;
 
   // drain header
   __READ_FD_DRAIN(reinterpret_cast<char*>(&nmsg.m_header),
                   fd,
-                  sizeof(nw_message::header));
+                  sizeof(nw_message<>::header));
   int ret=1;
 
   switch(nmsg.m_header.m_msg_type)
   {
-  	  case nw_message::TRM:
+          case nw_message<>::msg_types::TRM:
   		ret=0;
-  	  case nw_message::REG:
+          case nw_message<>::msg_types::REG:
   	  {
   		/* The decision whether to drain the body has to be made while taking other
   		     tasks that might need to be executed, in consideration*/
@@ -181,8 +182,8 @@ Acceptor::handle_request(int fd)
   		  // Testing only!!!
 #ifdef __TESTING_MODE
   		__WRITE_FD_DRAIN(reinterpret_cast<char*>(&nmsg),
-  				         g_logFd,
-  				         sizeof(nw_message));
+  				  g_logFd,
+				  sizeof(nw_message<>));
 #else // handle msg
   		printf("handling request of type [%u].\n", nmsg.m_header.m_msg_type);
   		printf("msg body:\n");
