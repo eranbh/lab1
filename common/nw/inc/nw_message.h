@@ -44,17 +44,20 @@ class nw_message
  public:
 
   typedef MSG_TYPS msg_types;
-  
+  typedef typename msg_types::this_type this_type;
+
   nw_message()
   {
     m_header.m_msg_sz=0;
     m_header.m_msg_type=MSG_TYPS::INV;
+#ifdef __TESTING_MODE
     m_header.m_msgSeq = 0;
+#endif // #ifdef __TESTING_MODE
   }
 
   void init(const char* const i_pMsg, 
 	    unsigned int i_len,
-	    typename msg_types::this_type i_type)
+	    this_type i_type)
   {
     memcpy(m_body, i_pMsg, i_len);
     m_header.m_msg_sz=i_len;
@@ -63,7 +66,7 @@ class nw_message
 
 
   nw_message(const char* const i_pMsg, 
-	     typename msg_types::this_type i_type)
+	     this_type i_type)
   {
     assert(i_pMsg);
     unsigned int len=strlen(i_pMsg);
@@ -74,7 +77,7 @@ class nw_message
   
   nw_message(const char* const i_pMsg, 
 	     unsigned int i_len,
-	     typename msg_types::this_type i_type)
+	     this_type i_type)
   {
     assert(i_pMsg);
     init(i_pMsg, i_len, i_type);
@@ -86,7 +89,7 @@ class nw_message
 #ifdef __TESTING_MODE
 	  uint32 m_msgSeq; // should be used to map msg's to results
 #endif // __TESTING_MODE
-    typename msg_types::this_type m_msg_type;
+    this_type m_msg_type;
     const header& operator=(const header& a_other)
     {return *this;}
   };
@@ -94,7 +97,7 @@ class nw_message
 
   header& get_header() {return m_header;}
   const char* get_body()const {return m_body;}
-  void set_msgTyp(typename msg_types::this_type i_type){m_header.m_msg_type=i_type;}
+  void set_msgTyp(this_type i_type){m_header.m_msg_type=i_type;}
 
   
 
