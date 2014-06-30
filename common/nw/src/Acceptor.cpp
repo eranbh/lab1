@@ -163,7 +163,7 @@ Acceptor::handle_request(int fd)
   // drain header
   __READ_FD_DRAIN(reinterpret_cast<char*>(&nmsg.m_header),
                   fd,
-                  sizeof(nw_message<>::header));
+                  sizeof(header));
   int ret=1;
 
   switch(nmsg.m_header.m_msg_type)

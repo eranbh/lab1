@@ -60,14 +60,14 @@ class nwUT : public CppUnit::TestFixture
 	public:
 	  /* we need the friendhip so we can access private members of kids*/
 	  friend class nw::ut::nwUT;
-	  ClientImpl(nw_message::tMsgTypes i_msgTyp,
+	  ClientImpl(nw_message<>::this_type i_msgTyp,
 			     const char* const i_pIp = "localhost",
 		         unsigned int i_numEvntToSnd = 1);
 
 	  /* default impl */
 	  virtual int run()
 	  {
-		  nw::nw_message::header& head = m_msg.get_header();
+		  nw::header& head = m_msg.get_header();
 		  m_msg.init(m_buff.buff, m_buff.sz, head.m_msg_type);
 
 		  for(unsigned int i=0;i<m_numEvntToSnd;++i)
@@ -75,7 +75,7 @@ class nwUT : public CppUnit::TestFixture
 			  head.m_msgSeq = getNxtMsgId();
 			  // client is suppose to be constructed by now
 			  // write the entire content of the buff to the socket
-			  __WRITE_FD_DRAIN(&m_msg, m_socket_fd, sizeof(nw::nw_message));
+			  __WRITE_FD_DRAIN(&m_msg, m_socket_fd, sizeof(nw::nw_message<>));
 
 		  }
 
@@ -107,7 +107,7 @@ class nwUT : public CppUnit::TestFixture
 	  fw::BufferSz&            m_buff;
 	  int                      m_socket_fd;
 	  unsigned int             m_numEvntToSnd;
-	  nw::nw_message           m_msg;
+	  nw::nw_message<>         m_msg;
 	  static unsigned int      m_msgId;
 	};
 

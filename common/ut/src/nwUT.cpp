@@ -61,8 +61,8 @@ class ClientImplBuff_1024 : public nwUT::ClientImpl
 	  public:
 	  friend class nw::ut::nwUT;
 
-		ClientImplBuff_1024(nw_message::tMsgTypes i_msgTyp = nw_message::TRM):
-			                                              ClientImpl(i_msgTyp){}
+           ClientImplBuff_1024(nw_message<>::this_type i_msgTyp = 
+			        nw_message<>::msg_types::TRM):ClientImpl(i_msgTyp){}
 
 		// 1. builds a 1024 sz buffer
 		// 2, send it to acceptor
@@ -102,7 +102,7 @@ void nwUT::test_2_clnts()
 
 	  run_task((void*)&acc, 0);
 
-	  ClientImplBuff_1024 impl1(nw_message::REG);
+	  ClientImplBuff_1024 impl1(nw_message<>::msg_types::REG);
 	  run_task<ClientImplBuff_1024, &ClientImplBuff_1024::run,void*>((void*)(&impl1), 0);
 
 	  ClientImplBuff_1024 impl2;
@@ -128,7 +128,7 @@ static fw::BufferSz dummyBfSz;
 /* Generic nw client impl code */
 
 nwUT::ClientImpl::
-ClientImpl(nw_message::tMsgTypes i_msgTyp,
+ClientImpl(nw_message<>::this_type i_msgTyp,
 		   const char* const i_pIp,
            unsigned int i_numEvntToSnd):
             					m_buff(dummyBfSz),
@@ -171,14 +171,14 @@ nwUT::assert_clnt_result(ClientImpl& i_clnt,
 {
 	 __SYS_CALL_TEST_NM1_EXIT((g_logFd=open(ACC_LOG_NM, O_RDONLY, 0)));
 
-	  nw::nw_message nmsg;
+	 nw::nw_message<> nmsg;
 
 	  __READ_FD_DRAIN(reinterpret_cast<char*>(&nmsg),
 			          g_logFd,
-	                 sizeof(nw::nw_message));
+			  sizeof(nw::nw_message<>));
 
 	  CPPUNIT_ASSERT_MESSAGE(i_msg,
-	  		         ( memcmp(&nmsg, &i_clnt.m_msg, sizeof(nw::nw_message)) != 0));
+	  		         ( memcmp(&nmsg, &i_clnt.m_msg, sizeof(nw::nw_message<>)) != 0));
 	  // Don't close the file here, as this func
 	  // might be called for multiple messages
 }

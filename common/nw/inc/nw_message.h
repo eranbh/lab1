@@ -35,24 +35,63 @@ class AcceptorBaseMessages
 };
 
 
+template<typename MSG_TYPS=AcceptorBaseMessages>
+class Iheader
+{
+ public:
+ // friend class Acceptor;
+ friend class ut::nwUT;
+  typedef MSG_TYPS msg_types;
+  typedef typename MSG_TYPS::this_type this_type;
+ 
+protected:
+  virtual void init()
+  {    
+      m_msg_sz=0;
+      m_msg_type=msg_types::INV;
+  }
+  ~Iheader(){}
+  Iheader(){}
+   uint32 m_msg_sz;
+  this_type m_msg_type;
+private: // never allow access to this !!!
+  Iheader(const Iheader&);
+  Iheader& operator=(const Iheader&);
+};
+
+struct header : public Iheader<>
+{
+ 
+  // MANY other fields that can go here ... 
+#ifdef __TESTING_MODE
+  uint32 m_msgSeq; // should be used to map msg's to results
+#endif // __TESTING_MODE
+  const header& operator=(const header& a_other)
+     {return *this;}
+
+void init()
+    {    
+#ifdef __TESTING_MODE
+      m_msgSeq = 0;
+#endif // #ifdef __TESTING_MODE
+    }
+};
+
+
 // typedef enum {REG=0, TRM, INV}tMsgTypes;
-template<class MSG_TYPS=AcceptorBaseMessages>
+template<typename HEADER=header>
 class nw_message
 {
   friend class Acceptor;
 
  public:
 
-  typedef MSG_TYPS msg_types;
-  typedef typename msg_types::this_type this_type;
+  typedef typename HEADER::msg_types msg_types;
+  typedef typename HEADER::this_type this_type;
 
   nw_message()
   {
-    m_header.m_msg_sz=0;
-    m_header.m_msg_type=MSG_TYPS::INV;
-#ifdef __TESTING_MODE
-    m_header.m_msgSeq = 0;
-#endif // #ifdef __TESTING_MODE
+    m_header.init();
   }
 
   void init(const char* const i_pMsg, 
@@ -64,17 +103,7 @@ class nw_message
     m_header.m_msg_type=i_type;
   }
 
-
-  nw_message(const char* const i_pMsg, 
-	     this_type i_type)
-  {
-    assert(i_pMsg);
-    unsigned int len=strlen(i_pMsg);
-    assert(len);
-    init(i_pMsg, len, i_type);
-   
-  }
-  
+ 
   nw_message(const char* const i_pMsg, 
 	     unsigned int i_len,
 	     this_type i_type)
@@ -83,26 +112,16 @@ class nw_message
     init(i_pMsg, i_len, i_type);
   }
 
-  struct header
-  {
-	  uint32 m_msg_sz;
-#ifdef __TESTING_MODE
-	  uint32 m_msgSeq; // should be used to map msg's to results
-#endif // __TESTING_MODE
-    this_type m_msg_type;
-    const header& operator=(const header& a_other)
-    {return *this;}
-  };
+ 
 
-
-  header& get_header() {return m_header;}
+  HEADER& get_header() {return m_header;}
   const char* get_body()const {return m_body;}
   void set_msgTyp(this_type i_type){m_header.m_msg_type=i_type;}
 
   
 
  private:
-  header m_header;
+  HEADER m_header;
   char   m_body[MAX_MSG_SZ];
 };
 
