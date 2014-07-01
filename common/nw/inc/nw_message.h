@@ -39,20 +39,28 @@ template<typename MSG_TYPS=AcceptorBaseMessages>
 class Iheader
 {
  public:
- // friend class Acceptor;
- friend class ut::nwUT;
+ 
+ 
   typedef MSG_TYPS msg_types;
   typedef typename MSG_TYPS::this_type this_type;
+
+ uint32 getMsgSz()const{return m_msg_sz;}
+ this_type getMsgType()const{return m_msg_type;}
+ void setMsgSz(uint32 a_msg_sz){m_msg_sz=a_msg_sz;}
+ void setMsgType(this_type a_msg_type){m_msg_type=a_msg_type;}
  
-protected:
   virtual void init()
   {    
       m_msg_sz=0;
       m_msg_type=msg_types::INV;
   }
+
+protected:
+
   ~Iheader(){}
-  Iheader(){}
-   uint32 m_msg_sz;
+   Iheader(){}
+ 
+  uint32 m_msg_sz;
   this_type m_msg_type;
 private: // never allow access to this !!!
   Iheader(const Iheader&);
@@ -99,8 +107,8 @@ class nw_message
 	    this_type i_type)
   {
     memcpy(m_body, i_pMsg, i_len);
-    m_header.m_msg_sz=i_len;
-    m_header.m_msg_type=i_type;
+    m_header.setMsgSz(i_len);
+    m_header.setMsgType(i_type);
   }
 
  
@@ -116,7 +124,7 @@ class nw_message
 
   HEADER& get_header() {return m_header;}
   const char* get_body()const {return m_body;}
-  void set_msgTyp(this_type i_type){m_header.m_msg_type=i_type;}
+  void set_msgTyp(this_type i_type){m_header.setMsgType(i_type);}
 
   
 

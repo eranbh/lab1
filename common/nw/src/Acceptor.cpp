@@ -166,7 +166,9 @@ Acceptor::handle_request(int fd)
                   sizeof(header));
   int ret=1;
 
-  switch(nmsg.m_header.m_msg_type)
+  nw_message<>::this_type msgType =
+    nmsg.m_header.getMsgType();
+  switch(msgType)
   {
           case nw_message<>::msg_types::TRM:
   		ret=0;
@@ -177,7 +179,7 @@ Acceptor::handle_request(int fd)
 
   		  __READ_FD_DRAIN(nmsg.m_body,
   		                  fd,
-  		  		  nmsg.m_header.m_msg_sz);
+  		  		  nmsg.m_header.getMsgSz());
 
   		  // Testing only!!!
 #ifdef __TESTING_MODE

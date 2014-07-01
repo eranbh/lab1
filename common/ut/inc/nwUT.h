@@ -68,7 +68,7 @@ class nwUT : public CppUnit::TestFixture
 	  virtual int run()
 	  {
 		  nw::header& head = m_msg.get_header();
-		  m_msg.init(m_buff.buff, m_buff.sz, head.m_msg_type);
+		  m_msg.init(m_buff.buff, m_buff.sz, head.getMsgType());
 
 		  for(unsigned int i=0;i<m_numEvntToSnd;++i)
 		  {
