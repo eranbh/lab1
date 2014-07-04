@@ -11,19 +11,11 @@
 // TODO create a set of typedefs for primitives according to platforms
 #include<assert.h> // for assert(3)
 #include <string.h>
+#include<types.h>
 
 
 namespace nw {
 
-// signed quantities
-typedef long  int64;
-typedef int   int32;
-typedef short int16;
-
-// unsigned quantities
-typedef unsigned long  uint64;
-typedef unsigned int   uint32;
-typedef unsigned short uint16;
 
 #define MAX_MSG_SZ 1024
 
@@ -43,42 +35,50 @@ class Iheader
  
   typedef MSG_TYPS msg_types;
   typedef typename MSG_TYPS::this_type this_type;
-
- uint32 getMsgSz()const{return m_msg_sz;}
- this_type getMsgType()const{return m_msg_type;}
- void setMsgSz(uint32 a_msg_sz){m_msg_sz=a_msg_sz;}
- void setMsgType(this_type a_msg_type){m_msg_type=a_msg_type;}
  
-  virtual void init()
-  {    
-      m_msg_sz=0;
-      m_msg_type=msg_types::INV;
-  }
-
+  this_type getMsgType()const{return m_msg_type;}
+  void setMsgType(this_type a_msg_type){m_msg_type=a_msg_type;}
+ 
 protected:
 
   ~Iheader(){}
-   Iheader(){}
+ // this calls only _this_ init
+  Iheader(){init();}
+
+ // this is protected to force derived impl
+ virtual void init(){m_msg_type=msg_types::INV;}
  
-  uint32 m_msg_sz;
-  this_type m_msg_type;
+    this_type m_msg_type;
 private: // never allow access to this !!!
   Iheader(const Iheader&);
   Iheader& operator=(const Iheader&);
 };
 
+
+
 struct header : public Iheader<>
 {
  
-  // MANY other fields that can go here ... 
+ header():Iheader(),
+    m_msg_sz(0)
 #ifdef __TESTING_MODE
-  uint32 m_msgSeq; // should be used to map msg's to results
+    ,m_msgSeq(0) 
+#endif // __TESTING_MODE
+    {}
+  fw::uint32 getMsgSz()const{return m_msg_sz;}
+  void setMsgSz(fw::uint32 a_msg_sz){m_msg_sz=a_msg_sz;}
+
+  // MANY other fields that can go here ... 
+  fw::uint32 m_msg_sz;
+#ifdef __TESTING_MODE
+  fw::uint32 m_msgSeq; // should be used to map msg's to results
 #endif // __TESTING_MODE
   const header& operator=(const header& a_other)
      {return *this;}
 
-void init()
-    {    
+virtual void init()
+    { 
+      m_msg_sz=0;
 #ifdef __TESTING_MODE
       m_msgSeq = 0;
 #endif // #ifdef __TESTING_MODE
@@ -99,7 +99,7 @@ class nw_message
 
   nw_message()
   {
-    m_header.init();
+   
   }
 
   void init(const char* const i_pMsg, 

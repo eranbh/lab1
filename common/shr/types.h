@@ -117,6 +117,17 @@ class GenContainer
   T m_datum[SZ];
 };
 
+// signed quantities
+typedef long  int64;
+typedef int   int32;
+typedef short int16;
+
+// unsigned quantities
+typedef unsigned long  uint64;
+typedef unsigned int   uint32;
+typedef unsigned short uint16;
+
+
 
 } // namespace fw
 

@@ -140,7 +140,7 @@ Acceptor::listen_2_events()
     		  handleSts = handle_request(events[i].data.fd);
       }
     }// for
-  } while(handleSts);
+  } while(0 == handleSts);
 
 #ifdef __TESTING_MODE
   __SYS_CALL_TEST_NM1_RETURN(close(g_logFd));
@@ -164,14 +164,14 @@ Acceptor::handle_request(int fd)
   __READ_FD_DRAIN(reinterpret_cast<char*>(&nmsg.m_header),
                   fd,
                   sizeof(header));
-  int ret=1;
+  int ret=0;
 
   nw_message<>::this_type msgType =
     nmsg.m_header.getMsgType();
   switch(msgType)
   {
           case nw_message<>::msg_types::TRM:
-  		ret=0;
+	    ret=-1;
           case nw_message<>::msg_types::REG:
   	  {
   		/* The decision whether to drain the body has to be made while taking other
@@ -195,7 +195,7 @@ Acceptor::handle_request(int fd)
   		break;
   	  }
   	  default: printf("Invalid message type accepted\n");
-  		  ret = 0;
+  		  ret = -1;
   		  break;
   }
 
