@@ -17,7 +17,7 @@
 namespace nw {
 
 #ifdef __TESTING_MODE
-	int g_logFd=0;
+	int m_logFd=0;
 #endif // __TESTING_MODE
 
 Acceptor::Acceptor(const char* const p_ip, int i_backlog)
@@ -58,7 +58,7 @@ Acceptor::Acceptor(const char* const p_ip, int i_backlog)
 /* i don't want to be bothered with sending the data back
  * to the tester in a sophisticated way. just write to disk */
 #ifdef __TESTING_MODE
-  __SYS_CALL_TEST_NM1_EXIT((g_logFd=open(ACC_LOG_NM, O_CREAT|O_TRUNC|O_RDWR, S_IRWXU)));
+  __SYS_CALL_TEST_NM1_EXIT((m_logFd=open(ACC_LOG_NM, O_CREAT|O_TRUNC|O_RDWR, S_IRWXU)));
 #endif // __TESTING_MODE
 }
 
@@ -143,7 +143,7 @@ Acceptor::listen_2_events()
   } while(0 == handleSts);
 
 #ifdef __TESTING_MODE
-  __SYS_CALL_TEST_NM1_RETURN(close(g_logFd));
+  __SYS_CALL_TEST_NM1_RETURN(close(m_logFd));
 #endif // __TESTING_MODE
 
   return 0; /* stopped by user */
@@ -184,7 +184,7 @@ Acceptor::handle_request(int fd)
   		  // Testing only!!!
 #ifdef __TESTING_MODE
   		__WRITE_FD_DRAIN(reinterpret_cast<char*>(&nmsg),
-  				  g_logFd,
+  				  m_logFd,
 				  sizeof(nw_message<>));
 #else // handle msg
   		printf("handling request of type [%u].\n", nmsg.m_header.m_msg_type);
@@ -201,6 +201,8 @@ Acceptor::handle_request(int fd)
 
   return ret;
 }
+
+
 
 } // namespace nw
 

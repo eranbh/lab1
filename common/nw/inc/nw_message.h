@@ -102,22 +102,21 @@ class nw_message
    
   }
 
-  void init(const char* const i_pMsg, 
+  void init(const char* const i_pMsg,
 	    unsigned int i_len,
 	    this_type i_type)
   {
     memcpy(m_body, i_pMsg, i_len);
-    m_header.setMsgSz(i_len);
     m_header.setMsgType(i_type);
   }
 
  
   nw_message(const char* const i_pMsg, 
-	     unsigned int i_len,
+     	     unsigned int i_len,
 	     this_type i_type)
   {
     assert(i_pMsg);
-    init(i_pMsg, i_len, i_type);
+    init(i_pMsg, i_type);
   }
 
  

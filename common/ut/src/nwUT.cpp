@@ -24,13 +24,9 @@ namespace nw{
 CPPUNIT_TEST_SUITE_REGISTRATION(nwUT);
 
 void nwUT::setUp(){}
-/*this is global so I can close it on tear-down */
-int g_logFd=0;
-void nwUT::tearDown(){__SYS_CALL_TEST_NM1_EXIT(close(g_logFd));}
+void nwUT::tearDown(){}
 
 
-static const std::string LOC_HOST("localhost");
-static const unsigned short PORT=8002;
 
 unsigned int nwUT::ClientImpl::m_msgId=0;
 
@@ -41,7 +37,7 @@ unsigned int nwUT::ClientImpl::m_msgId=0;
 * */
 void nwUT::test_init_localhost()
 {
-  nw::Acceptor acc(LOC_HOST.c_str());
+  nw::Acceptor acc(LOC_HOST);
   CPPUNIT_ASSERT_MESSAGE("init failed for localhost",
 		         (acc.m_listen_fd != -1));
 
@@ -61,8 +57,7 @@ class ClientImplBuff_1024 : public nwUT::ClientImpl
 	  public:
 	  friend class nw::ut::nwUT;
 
-           ClientImplBuff_1024(nw_message<>::this_type i_msgTyp = 
-			        nw_message<>::msg_types::TRM):ClientImpl(i_msgTyp){}
+           ClientImplBuff_1024(){}
 
 		// 1. builds a 1024 sz buffer
 		// 2, send it to acceptor
@@ -78,7 +73,7 @@ class ClientImplBuff_1024 : public nwUT::ClientImpl
 
 void nwUT::test_nwmsg()
 {
-  nw::Acceptor acc(LOC_HOST.c_str());
+  nw::Acceptor acc(LOC_HOST);
 
   run_task((void*)&acc, 0);
   
@@ -92,17 +87,17 @@ void nwUT::test_nwmsg()
   for(int chNm=2;chNm>0;--chNm)
   	  wait(&sts);
 
-  assert_clnt_result(impl, "nwUT::test_nwmsg");
+  //assert_clnt_result(impl, "nwUT::test_nwmsg");
 }
 
 
 void nwUT::test_2_clnts()
 {
-	 nw::Acceptor acc(LOC_HOST.c_str());
+	 nw::Acceptor acc(LOC_HOST);
 
 	  run_task((void*)&acc, 0);
 
-	  ClientImplBuff_1024 impl1(nw_message<>::msg_types::REG);
+	  ClientImplBuff_1024 impl1;
 	  run_task<ClientImplBuff_1024, &ClientImplBuff_1024::run,void*>((void*)(&impl1), 0);
 
 	  ClientImplBuff_1024 impl2;
@@ -115,8 +110,8 @@ void nwUT::test_2_clnts()
 	  	  wait(&sts);
 
 
-	  assert_clnt_result(impl1, "nwUT::test_2_clnts impl1");
-	  assert_clnt_result(impl2, "nwUT::test_2_clnts impl2");
+	  //assert_clnt_result(impl1, "nwUT::test_2_clnts impl1");
+	  //assert_clnt_result(impl2, "nwUT::test_2_clnts impl2");
 }
 
 
@@ -128,8 +123,7 @@ static fw::BufferSz dummyBfSz;
 /* Generic nw client impl code */
 
 nwUT::ClientImpl::
-ClientImpl(nw_message<>::this_type i_msgTyp,
-		   const char* const i_pIp,
+ClientImpl(const char* const i_pIp,
            unsigned int i_numEvntToSnd):
             					m_buff(dummyBfSz),
             					m_numEvntToSnd(i_numEvntToSnd)
@@ -160,28 +154,28 @@ ClientImpl(nw_message<>::this_type i_msgTyp,
     exit(1);
   }
 
-  /* looks like we are all set. */
-  m_msg.set_msgTyp(i_msgTyp); /* one time msg */
 }
-
 
 void
 nwUT::assert_clnt_result(ClientImpl& i_clnt,
-					     const char* const i_msg)
+  		         const char* const i_msg)
 {
-	 __SYS_CALL_TEST_NM1_EXIT((g_logFd=open(ACC_LOG_NM, O_RDONLY, 0)));
+  int logFd;
+    __SYS_CALL_TEST_NM1_EXIT((logFd=open(ACC_LOG_NM, O_RDONLY, 0)));
 
-	 nw::nw_message<> nmsg;
+    nw::nw_message<> nmsg;
+    
+    __READ_FD_DRAIN(reinterpret_cast<char*>(&nmsg),
+		    logFd,
+		    sizeof(nw::nw_message<>));
 
-	  __READ_FD_DRAIN(reinterpret_cast<char*>(&nmsg),
-			          g_logFd,
-			  sizeof(nw::nw_message<>));
-
-	  CPPUNIT_ASSERT_MESSAGE(i_msg,
-	  		         ( memcmp(&nmsg, &i_clnt.m_msg, sizeof(nw::nw_message<>)) != 0));
+    CPPUNIT_ASSERT_MESSAGE(i_msg,
+		       ( memcmp(&nmsg, &i_clnt.m_msg, sizeof(nw::nw_message<>)) != 0));
 	  // Don't close the file here, as this func
 	  // might be called for multiple messages
 }
+
+
 
   } // namespace ut
 }// namespace nw

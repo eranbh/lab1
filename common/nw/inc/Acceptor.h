@@ -32,7 +32,16 @@ public:
   * outside of this class, instances on the stack will have to be
   * stopped by calling stopAcc directly
   */ 
-  virtual ~Acceptor(){close(m_listen_fd);close(m_epoll_fd);}
+  virtual ~Acceptor()
+    {
+      close(m_listen_fd);
+      close(m_epoll_fd);
+
+#ifdef __TESTING_MODE
+      close(m_logFd);
+#endif // __TESTING_MODE
+
+    }
 
   /*
   * sets up the multiplexing
@@ -46,6 +55,9 @@ public:
   int listen_2_events();
 
 
+
+
+
 private:
 
   /*
@@ -57,6 +69,12 @@ private:
 
   int m_listen_fd; 
   int m_epoll_fd;
+
+
+#ifdef __TESTING_MODE
+	int m_logFd;
+#endif // __TESTING_MODE
+
 };
 
 #ifdef __TESTING_MODE

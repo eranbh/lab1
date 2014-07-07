@@ -60,9 +60,8 @@ class nwUT : public CppUnit::TestFixture
 	public:
 	  /* we need the friendhip so we can access private members of kids*/
 	  friend class nw::ut::nwUT;
-	  ClientImpl(nw_message<>::this_type i_msgTyp,
-			     const char* const i_pIp = "localhost",
-		         unsigned int i_numEvntToSnd = 1);
+	  ClientImpl(const char* const i_pIp = "localhost",
+		     unsigned int i_numEvntToSnd = 1);
 
 	  /* default impl */
 	  virtual int run()
@@ -72,7 +71,7 @@ class nwUT : public CppUnit::TestFixture
 
 		  for(unsigned int i=0;i<m_numEvntToSnd;++i)
 		  {
-			  head.m_msgSeq = getNxtMsgId();
+			  
 			  // client is suppose to be constructed by now
 			  // write the entire content of the buff to the socket
 			  __WRITE_FD_DRAIN(&m_msg, m_socket_fd, sizeof(nw::nw_message<>));
@@ -112,18 +111,15 @@ class nwUT : public CppUnit::TestFixture
 	};
 
 
- private:
-
-	static int run_client();
-	static int run_srv();
-	static void assert_clnt_result(ClientImpl& i_clnt,
-							       const char* const);
-
-	template <typename T = nw::Acceptor,
-			  int (T::* pFunc) () = &nw::Acceptor::listen_2_events,
-			  typename CAST_ARGS = char* >
-    static int run_task(void* pobj, void* pargs)
-	{
+ protected:
+	  const char* const LOC_HOST = "localhost";
+	  typedef enum : unsigned short {PORT=8002}tPort;
+	  // const unsigned short PORT  = 8002;
+	  template <typename T = nw::Acceptor,
+	    int (T::* pFunc) () = &nw::Acceptor::listen_2_events,
+	    typename CAST_ARGS = char* >
+	  static int run_task(void* pobj, void* pargs)
+	  {
 	    pid_t pid=0;
 
 	    if(0 > (pid=fork())) // TODO indicate the failure somehow
@@ -138,7 +134,17 @@ class nwUT : public CppUnit::TestFixture
 	    }
 	    
 	    return pid;
-	}
+	  }
+
+
+
+ private:
+
+	static int run_client();
+	static int run_srv();
+	static void assert_clnt_result(ClientImpl& i_clnt, const char* const);
+
+
 };
 
   } // namespace ut
