@@ -9,10 +9,9 @@
 #include <stdlib.h> // for exit(3)
 #include <string.h> // for memset (3)
 #include <errno.h> // for perror(3) till we have a logger
-#include <netinet/in.h> // for struct sockaddr_in
-#include <netdb.h> // for gethostbyname(3)
 #include <sys/wait.h> // for wait(2)
 #include <fcntl.h> // for open(2)
+#include "types.h" // for BufferSz
 #include "nwUT.h" // for nw test suite
 #include "Acceptor.h" // class to be tested
 
@@ -21,6 +20,7 @@ namespace nw{
 
   namespace ut {
 
+
 CPPUNIT_TEST_SUITE_REGISTRATION(nwUT);
 
 void nwUT::setUp(){}
@@ -28,7 +28,7 @@ void nwUT::tearDown(){}
 
 
 
-unsigned int nwUT::ClientImpl::m_msgId=0;
+ //unsigned int nwUT::ClientImpl<>::m_msgId=0;
 
 
 /*
@@ -51,7 +51,7 @@ void nwUT::test_init_localhost()
 * its run method is very basic: fill a buffer with a page
 * worth of data, and send it immediately to acceptor
 **/
-class ClientImplBuff_1024 : public nwUT::ClientImpl
+class ClientImplBuff_1024 : public nwUT::ClientImpl<>
 {
 
 	  public:
@@ -66,7 +66,7 @@ class ClientImplBuff_1024 : public nwUT::ClientImpl
 			fw::BufferSz buff;
 			__FILL_BUFF_SZ(buff,1024);
 			m_buff=buff;
-			nwUT::ClientImpl::run();
+			nwUT::ClientImpl<>::run();
 			return 0;
 		}
 };
@@ -116,49 +116,10 @@ void nwUT::test_2_clnts()
 
 
 
-/* make the clever compilers happy */
-static fw::BufferSz dummyBfSz;
 
-
-/* Generic nw client impl code */
-
-nwUT::ClientImpl::
-ClientImpl(const char* const i_pIp,
-           unsigned int i_numEvntToSnd):
-            					m_buff(dummyBfSz),
-            					m_numEvntToSnd(i_numEvntToSnd)
-{
-   struct sockaddr_in server_info;
-   struct hostent *he;
-
-  if ((m_socket_fd = socket(AF_INET, SOCK_STREAM, 0))== -1) {
-     fprintf(stderr, "Socket Failure!!\n");
-     exit(1);
-  }
-
-   if ((he = gethostbyname(i_pIp))==NULL) {
-      fprintf(stderr, "Cannot get host name\n");
-      exit(1);
-  }
-
-  memset(&server_info, 0, sizeof(server_info));
-  server_info.sin_family = AF_INET;
-  server_info.sin_port = htons(PORT);
-  server_info.sin_addr = *((struct in_addr *)he->h_addr);
-  if (connect(m_socket_fd,
-	      (struct sockaddr *)&server_info, 
-	      sizeof(struct sockaddr))<0) 
-  {
-    //fprintf(stderr, "Connection Failure\n");
-    perror("connect");
-    exit(1);
-  }
-
-}
-
-void
-nwUT::assert_clnt_result(ClientImpl& i_clnt,
-  		         const char* const i_msg)
+template<typename HDR>
+void nwUT::ClientImpl<HDR>::
+assert_clnt_result(const char* const i_msg)
 {
   int logFd;
     __SYS_CALL_TEST_NM1_EXIT((logFd=open(ACC_LOG_NM, O_RDONLY, 0)));
@@ -170,7 +131,7 @@ nwUT::assert_clnt_result(ClientImpl& i_clnt,
 		    sizeof(nw::nw_message<>));
 
     CPPUNIT_ASSERT_MESSAGE(i_msg,
-		       ( memcmp(&nmsg, &i_clnt.m_msg, sizeof(nw::nw_message<>)) != 0));
+		       ( memcmp(&nmsg, &m_msg, sizeof(nw::nw_message<HDR>)) != 0));
 	  // Don't close the file here, as this func
 	  // might be called for multiple messages
 }
