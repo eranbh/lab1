@@ -17,4 +17,6 @@
 ###main###
 export SWLAB_ROOT=${HOME}/work/sw_lab
 export LD_LIBRARY_PATH=${SWLAB_ROOT}/common/nw/lib:${LD_LIBRARY_PATH}
-${SWLAB_ROOT}/common/ut/bin/utNW
+DEBUGGER=$1
+$DEBUGGER ${SWLAB_ROOT}/common/ut/bin/utNW
+

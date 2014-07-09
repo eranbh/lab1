@@ -91,7 +91,7 @@ Acceptor::listen_2_events()
                                        &event));
 
   int fds=0;
-  int handleSts=1;
+  int handleSts=0;
 
   /* may you live forever*/
   do

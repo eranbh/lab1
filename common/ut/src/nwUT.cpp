@@ -87,7 +87,7 @@ void nwUT::test_nwmsg()
   for(int chNm=2;chNm>0;--chNm)
   	  wait(&sts);
 
-  //assert_clnt_result(impl, "nwUT::test_nwmsg");
+  impl.assert_clnt_result("nwUT::test_nwmsg");
 }
 
 
