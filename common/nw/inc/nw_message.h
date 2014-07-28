@@ -11,7 +11,8 @@
 // TODO create a set of typedefs for primitives according to platforms
 #include<assert.h> // for assert(3)
 #include <string.h>
-#include<types.h>
+#include "types.h"
+#include "macros.h"
 
 
 namespace nw {
@@ -31,10 +32,25 @@ template<typename MSG_TYPS=AcceptorBaseMessages>
 class Iheader
 {
  public:
- 
- 
+
+  
   typedef MSG_TYPS msg_types;
   typedef typename MSG_TYPS::this_type this_type;
+
+  struct HeaderArgs
+  {
+    /* invalidate at birth */
+    HeaderArgs(){m_msg_type = msg_types::INV;}
+
+  protected:
+    HeaderArgs(const HeaderArgs& a_headerArgs)
+    {m_msg_type=a_headerArgs.m_msg_type;}
+
+    const HeaderArgs& operator=(const HeaderArgs& a_arg)
+    {m_msg_type = a_arg.m_msg_type;}
+
+      Iheader<MSG_TYPS>::msg_types m_msg_type;
+  };
  
   this_type getMsgType()const{return m_msg_type;}
   void setMsgType(this_type a_msg_type){m_msg_type=a_msg_type;}
@@ -42,11 +58,15 @@ class Iheader
 protected:
 
   ~Iheader(){}
- // this calls only _this_ init
-  Iheader(){init();}
+ // C'tor
+ Iheader(this_type a_msg_types=msg_types::INV)
+ {m_msg_type=a_msg_types;}
 
- // this is protected to force derived impl
- virtual void init(){m_msg_type=msg_types::INV;}
+ // this MUST be impl'ed to force the
+ // proper init of concrete header impls
+ // im not wrapping the args to init with
+ // a fancy inner type DEAL WITH IT
+ virtual void init(void*) = 0;
  
     this_type m_msg_type;
 private: // never allow access to this !!!
@@ -59,6 +79,9 @@ private: // never allow access to this !!!
 struct header : public Iheader<>
 {
  
+  typedef Iheader<>::msg_types msg_types;
+  typedef typename Iheader<>::msg_types::this_type this_type;
+
  header():Iheader(),
     m_msg_sz(0)
 #ifdef __TESTING_MODE
@@ -76,13 +99,20 @@ struct header : public Iheader<>
   const header& operator=(const header& a_other)
      {return *this;}
 
-virtual void init()
-    { 
-      m_msg_sz=0;
+virtual void init(void* a_pHdrArgs)
+{ 
+  __RE_INTPRT_MEM_TO_PTYPE( m_msg_sz, 
+			    fw::uint32,
+			    a_pHdrArgs);
+      
 #ifdef __TESTING_MODE
-      m_msgSeq = 0;
+  __RE_INTPRT_MEM_TO_PTYPE(m_msgSeq,
+			   fw::uint32,
+			   (char*)a_pHdrArgs+
+			         sizeof(fw::uint32));
 #endif // #ifdef __TESTING_MODE
-    }
+}
+
 };
 
 

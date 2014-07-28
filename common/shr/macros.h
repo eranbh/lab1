@@ -4,6 +4,7 @@
 #include <errno.h> // for errno(3)
 #include <stdlib.h> // for exit(3)
 #include <unistd.h> // for write(2)
+#include <assert.h> // for assert(3)
 
 #define __SYS_CALL_TEST_NM1_RETURN(EXP)   \
   do                                      \
@@ -33,8 +34,12 @@
 
 
 
-#define __RE_INTPRT_MEM_TO_PTYPE(TYP,MEM) \
-  reinterpret_cast<TYP*>(MEM)
+#define __RE_INTPRT_MEM_TO_PTYPE(RES,TYP,MEM)	\
+do                                              \
+{                                               \
+  assert(MEM);                                  \
+  RES=*reinterpret_cast<TYP*>(MEM);		\
+}while(0)
 
 
 #define __STRINGIFY(W) #W

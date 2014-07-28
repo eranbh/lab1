@@ -66,7 +66,7 @@ class ClientImplBuff_1024 : public nwUT::ClientImpl<>
 			fw::BufferSz buff;
 			__FILL_BUFF_SZ(buff,1024);
 			m_buff=buff;
-			nwUT::ClientImpl<>::run();
+			nwUT::ClientImpl<>::run(nw_message<>::msg_types::REG);
 			return 0;
 		}
 };
@@ -128,10 +128,11 @@ assert_clnt_result(const char* const i_msg)
     
     __READ_FD_DRAIN(reinterpret_cast<char*>(&nmsg),
 		    logFd,
-		    sizeof(nw::nw_message<>));
+		    sizeof(nw::nw_message<HDR>));
 
     CPPUNIT_ASSERT_MESSAGE(i_msg,
 		       ( memcmp(&nmsg, &m_msg, sizeof(nw::nw_message<HDR>)) != 0));
+
 	  // Don't close the file here, as this func
 	  // might be called for multiple messages
 }

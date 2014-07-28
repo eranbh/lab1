@@ -28,6 +28,8 @@ do{                                              \
   BUFF.sz=SZ;                                    \
 }while(0)
 
+
+
 namespace nw {
 
   namespace ut {
@@ -60,7 +62,7 @@ class nwUT : public CppUnit::TestFixture
         * factored to a seperate file, and also used
         * as a process in its own right
 	*/
-	template<typename HDR=nw::header>
+	template<typename HDR = nw::header>
 	class ClientImpl
 	{
 	public:
@@ -101,11 +103,11 @@ class nwUT : public CppUnit::TestFixture
 	}
 
 	  /* default impl */
-	virtual int run()
+	virtual int run(typename HDR::this_type a_msgTyp)
 	{
 	  //HDR& head = m_msg.get_header();
 	  m_msg.init(m_buff.buff, 
-		     m_buff.sz, nw_message<HDR>::msg_types::REG);
+		     m_buff.sz, a_msgTyp);
 	  
 	  for(unsigned int i=0;i<m_numEvntToSnd;++i)
 	    {
