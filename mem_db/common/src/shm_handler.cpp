@@ -18,6 +18,8 @@ const mem_db::Uint32 MEGA = 1024*1024;
 do{                             \
   CHNK.sz=0;                    \
   CHNK.actSz=0;                 \
+  CHNK.nxt=0;                   \
+  CHNK.prv=0;                   
 }while(0)
 
 /*
@@ -41,6 +43,14 @@ mem_allocator::mem_allocator()
   // we have a fresh block - lets clean it
   memset(mp_vmem, 0, MEGA);
 
+  // place chunk header
+
+  ChunkHeader* pchunkHeader = 
+    __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, mp_vmem);
+
+  pchunkHeader->sz=MEGA;
+  pchunkHeader->actSz=0;
+ 
   // now export the id to the world
   int fd;
   __SYS_CALL_TEST_NM1_EXIT((fd=open("id",
@@ -51,14 +61,7 @@ mem_allocator::mem_allocator()
 
   // because we specified O_SYNC, the id
   // is garenteed to be on the disk now
-
-  // place chunk header
-
-  ChunkHeader* pchunkHeader = 
-    __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, mp_vmem);
-
-  pchunkHeader->sz=MEGA;
-  pchunkHeader->actSz=0;
+  // db initial storage is now officially up for grabs 
 }
 
 int mem_allocator::initAllocator()
@@ -70,11 +73,7 @@ int mem_allocator::initAllocator()
 void* mem_allocator::
 allocChunk(const unsigned int i_Sz, Pointer& o_pointer)
 {
-  // TODO access free block list and fetch block
-  //      check if allocation can be satisfied
-  //      for now, always give the mem in the beginig
-  //      of the allocated block
-  //      first fill in header
+ 
   ChunkHeader* pchunkHeader =
     __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, mp_vmem);
 

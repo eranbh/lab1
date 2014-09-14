@@ -10,10 +10,22 @@ class mem_allocator
 private:
 
 
+  // assumption is that:
+  // no allocation will ever exceed 1gb[2^20 bytes]
+  // in the worst case, entire chunk is alloc'ed, thats
+  // why the nxt/prv need to support these sizes as well
   typedef struct tChunkHeader
   {
-    unsigned int sz;
-    unsigned int actSz;
+    fw::uint32 sz;
+    // using the actsz field's msb to
+    // hold the 
+    typedef union
+    {
+      fw::uint32 actSz;
+      fw::uint32 alloced:1;
+    };
+    fw::uint32 nxt;
+    fw::uint32 prv;
   }ChunkHeader;
 
 
