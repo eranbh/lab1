@@ -12,13 +12,13 @@ from abc import ABCMeta, abstractmethod
 class FileManipulationCmd:
     
     __metaclass__ = ABCMeta
-    mFileManager
+    mFileManager = ''
     def __init__(fileManager):
       mFileManager = fileManager  
     
     @abstractmethod
-    def execute(self)
-
+    def execute(self):
+        pass
 
 
 class Sort(FileManipulationCmd):
