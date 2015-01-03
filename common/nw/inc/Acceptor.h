@@ -36,11 +36,6 @@ public:
     {
       close(m_listen_fd);
       close(m_epoll_fd);
-
-#ifdef __TESTING_MODE
-      close(m_logFd);
-#endif // __TESTING_MODE
-
     }
 
   /*
@@ -70,16 +65,7 @@ private:
   int m_listen_fd; 
   int m_epoll_fd;
 
-
-#ifdef __TESTING_MODE
-	int m_logFd;
-#endif // __TESTING_MODE
-
 };
-
-#ifdef __TESTING_MODE
-static const char* const ACC_LOG_NM = "acc.log";
-#endif // __TESTING_MODE
 
 } // namespace nw
 

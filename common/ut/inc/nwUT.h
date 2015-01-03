@@ -72,7 +72,7 @@ class nwUT : public CppUnit::TestFixture
 	
 	ClientImpl(const char* const i_pIp="localhost",
 		   unsigned int i_numEvntToSnd=1):
-	   m_numEvntToSnd(i_numEvntToSnd)
+	           m_numEvntToSnd(i_numEvntToSnd)
 	{
 	  struct sockaddr_in server_info;
 	  struct hostent *he;
@@ -100,6 +100,16 @@ class nwUT : public CppUnit::TestFixture
 	      exit(1);
 	    }
 
+	  // this file is used for logging incoming
+	  // acknowledgment msgs. the validation of 
+	  // this file's content should be done at 
+	  // the higher - concrete level of abst
+	  // the name of the file, is the procs pid
+	  m_pid = getpid();
+	    __SYS_CALL_TEST_NM1_EXIT((m_logFd=open(m_pid, 
+						   O_CREAT|O_TRUNC|O_RDWR, 
+						   S_IRWXU)));
+
 	}
 
 	  /* default impl */
@@ -110,21 +120,42 @@ class nwUT : public CppUnit::TestFixture
 		     m_buff.sz, a_msgTyp);
 	  
 	  for(unsigned int i=0;i<m_numEvntToSnd;++i)
-	    {
+	  {
 			  
-	      // client is suppose to be constructed by now
-	      // write the entire content of the buff to the socket
-	      __WRITE_FD_DRAIN(&m_msg, m_socket_fd, sizeof(nw::nw_message<HDR>));
+	    // client is suppose to be constructed by now
+	    // write the entire content of the buff to the socket
+	    __WRITE_FD_DRAIN(&m_msg, 
+			     m_socket_fd, 
+			     sizeof(nw::nw_message<HDR>));
 
-	    }
+	  }
+	  // each event is answered by trm message
+	  // this impl blocks till the rsp arrives.
+	  // all validations will be done ouside this code
+	  // in specific impls
+	  
+	  for(unsigned int i=0;i<m_numEvntToSnd;++i)
+	  {
+	    ::memset(m_msg, 0, sizeof(nw::nw_message<HDR>);
+	    __READ_FD_DRAIN(&m_msg, 
+			    m_socket_fd, 
+			    sizeof(nw::nw_message<HDR>));
+	    // write the resulting ack message to disk
+	    // this should be validated by the concrete impl
+	    __WRITE_FD_DRAIN(&m_msg,
+                             m_socket_fd,
+                             sizeof(nw::nw_message<HDR>));
+	    
+	  }
 
 	  close(m_socket_fd);
+	  close(m_logFd);
 	  return 0;
 	}
 	  
 	virtual void init(void* ) {} /*only to allow an init with void arg in case its not needed */
 
-	  void assert_clnt_result(const char* const);
+	void assert_clnt_result(const char* const);
 
 
 	protected:
@@ -145,11 +176,13 @@ class nwUT : public CppUnit::TestFixture
 	  	}
 
 
-	  fw::BufferSz            m_buff;
+	  fw::BufferSz             m_buff;
 	  int                      m_socket_fd;
 	  unsigned int             m_numEvntToSnd;
 	  nw::nw_message<HDR>      m_msg;
-	  static unsigned int      m_msgId;
+	  int                      m_logFd;
+	  pid_t                    m_pid;
+	  unsigned int             m_msgId
 	};
 
 

@@ -36,21 +36,6 @@ class Iheader
   
   typedef MSG_TYPS msg_types;
   typedef typename MSG_TYPS::this_type this_type;
-
-  struct HeaderArgs
-  {
-    /* invalidate at birth */
-    HeaderArgs(){m_msg_type = msg_types::INV;}
-
-  protected:
-    HeaderArgs(const HeaderArgs& a_headerArgs)
-    {m_msg_type=a_headerArgs.m_msg_type;}
-
-    const HeaderArgs& operator=(const HeaderArgs& a_arg)
-    {m_msg_type = a_arg.m_msg_type;}
-
-      Iheader<MSG_TYPS>::msg_types m_msg_type;
-  };
  
   this_type getMsgType()const{return m_msg_type;}
   void setMsgType(this_type a_msg_type){m_msg_type=a_msg_type;}
@@ -85,9 +70,9 @@ struct header : public Iheader<>
  header():Iheader(),
     m_msg_sz(0)
 #ifdef __TESTING_MODE
-    ,m_msgSeq(0) 
+    , m_msgSeq(0) 
 #endif // __TESTING_MODE
-    {}
+    {setMsgType(msg_types::INV);}
   fw::uint32 getMsgSz()const{return m_msg_sz;}
   void setMsgSz(fw::uint32 a_msg_sz){m_msg_sz=a_msg_sz;}
 
@@ -159,7 +144,7 @@ class nw_message
 
  private:
   HEADER m_header;
-  char   m_body[MAX_MSG_SZ];
+  char   m_body[MAX_MSG_SZ]; // TODO this _must_ be BuffSz!!!
 };
 
 } // namespace nw

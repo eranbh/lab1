@@ -16,9 +16,6 @@
 
 namespace nw {
 
-#ifdef __TESTING_MODE
-	int m_logFd=0;
-#endif // __TESTING_MODE
 
 Acceptor::Acceptor(const char* const p_ip, int i_backlog)
 {
@@ -142,10 +139,6 @@ Acceptor::listen_2_events()
     }// for
   } while(0 == handleSts);
 
-#ifdef __TESTING_MODE
-  __SYS_CALL_TEST_NM1_RETURN(close(m_logFd));
-#endif // __TESTING_MODE
-
   return 0; /* stopped by user */
 }
 
@@ -191,6 +184,12 @@ Acceptor::handle_request(int fd)
   		printf("msg body:\n");
   		for(uint32 i=0;i<nmsg.m_header.m_msg_sz;++i)
   			printf("%c",nmsg.m_body[i]);
+		// sending a term to the client
+		// not cleaning the rest of the message
+		nmsg.setMsgType(msg_types::TRM);
+		__WRITE_FD_DRAIN(reinterpret_cast<char*>(&nmsg),
+				 fd,
+				 sizeof(nw_message))
 #endif // __TESTING_MODE
   		break;
   	  }
