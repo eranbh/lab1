@@ -46,7 +46,6 @@ def main(argv):
             inputFile = arg
         elif opt == '-o':
             outputfile = arg
-
     # handle a situation where a switch repeated itself.
     # i think this is a bug in the getopt logic. it should
     # trace the fact that a certain switch was already supplied

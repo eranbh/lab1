@@ -14,8 +14,8 @@ class FileManipulationCmd:
     __metaclass__ = ABCMeta
     mFileManager = ''
     def __init__(fileManager):
-      mFileManager = fileManager
-
+      mFileManager = fileManager  
+    
     @abstractmethod
     def execute(self):
         pass
