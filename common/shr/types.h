@@ -11,7 +11,7 @@ namespace fw{
 */
 template <typename T>
 static void
-raw_copy_bytes(T* op_dest, const T* const ip_src, unsigned int sz=1)
+raw_copy_bytes(T* op_dest, const T* const ip_src, unsigned int sz)
 {
   assert(op_dest &&  ip_src && sz);
   assert(memcpy(op_dest, ip_src, sizeof(T)*sz));

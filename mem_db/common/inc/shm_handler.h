@@ -7,76 +7,77 @@
 
 class mem_allocator
 {
-private:
 
-
-  // assumption is that:
-  // no allocation will ever exceed 1gb[2^20 bytes]
-  // in the worst case, entire chunk is alloc'ed, thats
-  // why the nxt/prv need to support these sizes as well
-  typedef struct tChunkHeader
-  {
-    fw::uint32 sz;
-    // using the actsz field's msb to
-    // hold the 
-    typedef union
-    {
-      fw::uint32 actSz;
-      fw::uint32 alloced:1;
-    };
-    fw::uint32 nxt;
-    fw::uint32 prv;
-  }ChunkHeader;
-
-
-  static const unsigned int SMALL_CHUNK_SZ = 1024;
-  static const unsigned int HUGE_CHUNK_SZ  = 4096;
-
-  mem_allocator();
 
 public:
-
-
   /*TODO: sync the access to the alloc*/
   static mem_allocator& get_alloc()
   {static mem_allocator s_alloc;return s_alloc;}
 
 
-  // Assumes valid memory
+
+
+private:
+
+
+  // assumption is that:
+  // no allocation will ever exceed 1gb[2^30 bytes]
+  // in the worst case, entire chunk is alloc'ed, thats
+  // why the nxt/prv need to support these sizes as well
+  typedef struct tChunkHeader
+  {
+    fw::uint32 sz;
+    fw::uint32 actSz;
+    fw::uint16 nxt; // one bit is used for occupied
+    fw::uint16 prv; // only 15 bits available
+  }ChunkHeader;
+
+
+  static const fw::uint32 ALLOC_MASK = 0x00000001;
+  mem_allocator();
+
+
+  /*
+  * the following are funcs manipulating the
+  * pools internal state. 
+  */
   inline static unsigned int 
   getSz(void* pshm)
   {
-    ChunkHeader* phead = 
-    __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, pshm);
+    ChunkHeader* phead; 
+    __RE_INTPRT_MEM_TO_PTYPE(phead, ChunkHeader, pshm);
     phead--;
     __PRINT_ADDR(phead);
     return phead->sz;
   }
 
-   inline static unsigned int 
-  getActSz(void* pshm)
-  {
-    ChunkHeader* phead = 
-    __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, pshm);
-    phead--;
-    return phead->actSz;
-  }
-  
-  inline static void updateActSz(unsigned int i_sz, void* pshm)
-  {
-    ChunkHeader* phead =
-    __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, pshm);
-    phead--;
-    phead->actSz+=i_sz;
-  } 
 
-  inline static void updateSz(unsigned int i_sz, void* pshm)
+ inline static void updateSz(unsigned int i_sz, void* pshm)
   {
     ChunkHeader* phead =
     __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, pshm);
     phead--;
     phead->sz+=i_sz;
   } 
+
+
+   inline static unsigned int 
+  getActSz(void* pshm)
+  {
+    ChunkHeader* phead;
+    __RE_INTPRT_MEM_TO_PTYPE(phead, ChunkHeader, pshm);
+    phead--;
+    return phead->nxt >> 1;
+  }
+  
+  inline static void updateActSz(unsigned int i_sz, void* pshm)
+  {
+    ChunkHeader* phead;
+    __RE_INTPRT_MEM_TO_PTYPE(phead, ChunkHeader, pshm);
+    phead--;
+    phead->actSz+=i_sz;
+    phead->actSz=(actSz << 1) | (phead->actSz) & 0x00000001;
+  }
 
 
   ~mem_allocator(){}
@@ -90,23 +91,16 @@ public:
 
   int disposeChunk(const Pointer i_pointer);
 
-  void* allocSmallChunk(Pointer& o_pointer)
-  {return allocChunk(SMALL_CHUNK_SZ, o_pointer);}
-  void* allocHugeChunk(Pointer& o_pointer)
-  {return allocChunk(HUGE_CHUNK_SZ, o_pointer);}
-
   void* pointerToLocalPointer(const Pointer& pointer);
 
-  // This actually:
-  // 1. creates a new SHM key
-  // 2. Allocates a new [bigger] chunk
-  // 3. copies the data on to the allocated mem
-  // 4. Changes the db_start shm key with the new one
+ 
   void* reAllocSHM(Pointer& pointer);
 
 
    void* allocChunk(const unsigned int i_Sz, Pointer& o_pointer);
  private:
+
+   int getNextFreeBlock(Pointer&);
   
    /*
    * the shm chunk's id 

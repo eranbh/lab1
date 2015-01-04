@@ -69,6 +69,19 @@ int mem_allocator::initAllocator()
   return 0;
 }
 
+/* this attempts to find a free block in the currently
+   alloced arena. it assumes nothing, and performs no
+   optimizations. it performs a full list scan  */
+int mem_allocator::
+getNextFreeBlock(fw::uint32 sz, Pointer& o_point)
+{
+  // start at the top
+  ChunkHeader* pchunkHeader =
+    __RE_INTPRT_MEM_TO_PTYPE(ChunkHeader, mp_vmem);
+  
+  while(__GET_NXT_MEMBER(pchunkHeader))
+  return 0;
+}
 
 void* mem_allocator::
 allocChunk(const unsigned int i_Sz, Pointer& o_pointer)
