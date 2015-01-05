@@ -5,6 +5,7 @@ import sys, getopt
 import CoreCommands
 import imp
 
+
 def usage(reason):
     print 'program will halt:' +  reason
     print 'usage: FileManipulator.py -x <command> -i <input-file> -o <output-file>'
@@ -24,6 +25,36 @@ class FileManagment:
         moFile = sys.stdout
         if outFile != '':
             moFile = open(outFile, 'w')
+
+
+class CmdLookupMng:
+
+    mFileManager = FileManagment()
+    def __init__(self, fileManager):
+        mFileManager=fileManager
+
+    def load_module_from_dir(self, dirPath):
+        for fileNm in os.listdir(dirPath):
+            mod_name,file_ext = os.path.splitext(os.path.split(fileNm)[-1])
+            
+            fileNm = dirPath + '/' + fileNm
+            print fileNm
+
+            if file_ext.lower() == '.py':
+                py_mod = imp.load_source(mod_name, fileNm)
+
+            elif file_ext.lower() == '.pyc':
+                py_mod = imp.load_compiled(mod_name, fileNm)
+        return py_mod
+
+    def cmdLookup(self, path, command):
+        py_mod = self.load_module_from_dir(path)
+        if (py_mod != None):
+            if hasattr(py_mod, command):
+                class_inst = getattr(py_mod, command)(self.mFileManager)
+                if class_inst != None:
+                    return class_inst
+        return None
 
 def main(argv):
     if (len(sys.argv) < 5) or (len(sys.argv) > 7):
@@ -61,16 +92,21 @@ def main(argv):
         exit(2)
 
     #run command executer
+    custSearchPath = os.getenv('MODULE_SEARCH_PATH', '')
+    localSearchPath= os.getcwd() + '/cmds'
+    cmdLookupMng = CmdLookupMng(fileManager)
     
-    modSearchPath = os.getenv('MODULE_SEARCH_PATH', os.getcwd()+ '/cmd')
-    commandModule = imp.load_source(command, modSearchPath)
-    if commandModule == None:
-        print "module %s was not found" % command
-        exit(2)
-    from commandModule import command
-    cmd = eval(command+"()")
-    cmd.__init__(fileManager)
-    cmd.execute()
+    # first we look into customized modules
+    if custSearchPath != '':
+        cmd = cmdLookupMng.cmdLookup(custSearchPath, command)
+        # this is a one shot utility - of we have found what we need we term
+        if cmd != None:
+            cmd.execute()
+            exit(0)
+    # we fall back on local modules
+    cmd = cmdLookupMng.cmdLookup(localSearchPath, command)
+    if cmd != None:
+        cmd.execute()
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -13,7 +13,7 @@ class FileManipulationCmd:
 
     __metaclass__ = ABCMeta
     mFileManager = ''
-    def __init__(fileManager):
+    def __init__(self,fileManager):
       mFileManager = fileManager  
     
     @abstractmethod
@@ -23,17 +23,16 @@ class FileManipulationCmd:
 
 class Sort(FileManipulationCmd):
     def __init__(self, fileManager):
-        Base.__init__(self, fileManager)
+        FileManipulationCmd.__init__(self, fileManager)
 
-    def execute(self, fileManager):
+    def execute(self):
         print "Sort [Execute]"
 
 
 class Reverse(FileManipulationCmd):
 
     def __init__(self, fileManager):
-        Base.__init__(self, fileManager)
+        FileManipulationCmd.__init__(self, fileManager)
 
     def execute(self):
-        Base.__init__(self, fileManager)
         print "Reverse [Execute]"
