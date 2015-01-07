@@ -38,7 +38,6 @@ class Reverse(FileManipulationCmd):
         print "Reverse [Execute]"
         inBuff=''
         inBuff = self.mFileManager.readFile()
-        print inBuff
         rev=""
         for i in range (0, len(inBuff)):
             rev += inBuff[(len(inBuff)-1) -i]

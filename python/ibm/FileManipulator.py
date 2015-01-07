@@ -14,18 +14,22 @@ def usage(reason):
 
 class FileManagment:
 
-    miFile = open('in', 'r')
-    moFile = open('out', 'w')
-
+    def __init__(self):
+        self.miDefFile = open('in', 'r')
+        self.moDefFile = sys.stdout
+        self.miFile = None
     #TODO handle all io errors
     # also - use functions defined by infra layer
     def prepareFiles(self, inFile, outFile):
-        miFile = open(inFile, 'r')
+        self.miFile = self.miDefFile
+        if inFile != 'in':
+            self.miFile = open(inFile, 'r')
 
         # if we did not get an out-file we use stdout
-        moFile = sys.stdout
         if outFile != '':
-            moFile = open(outFile, 'w')
+            self.moFile.close()
+            self.moFile.flush()
+            self.moFile = open(outFile, 'w')
 
     # this *very* naiive function simply reads
     # the entire content of a file to memory
@@ -108,7 +112,7 @@ def main(argv):
     # first we look into customized modules
     if custSearchPath != '':
         cmd = cmdLookupMng.cmdLookup(custSearchPath, command, fileManager)
-        # this is a one shot utility - of we have found what we need we term
+        # this is a one shot utility - if we have found what we need we term
         if cmd != None:
             cmd.execute()
             exit(0)
