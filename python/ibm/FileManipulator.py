@@ -13,12 +13,13 @@ def usage(reason):
 
 
 class FileManagment:
-    def __init__(self):
-        miFile = ''
-        moFile = ''
-    #TODO handle all io errors
-    def prepareFiles(self, inFile, outFile):
 
+    miFile = open('in', 'r')
+    moFile = open('out', 'w')
+
+    #TODO handle all io errors
+    # also - use functions defined by infra layer
+    def prepareFiles(self, inFile, outFile):
         miFile = open(inFile, 'r')
 
         # if we did not get an out-file we use stdout
@@ -26,20 +27,28 @@ class FileManagment:
         if outFile != '':
             moFile = open(outFile, 'w')
 
+    # this *very* naiive function simply reads
+    # the entire content of a file to memory
+    # do not use for large files
+    # todo handle errors
+    def readFile(self):
+        return self.miFile.read()
+
+    # this *very* naiive function simply writes
+    # the entire content of a memory buff to a file
+    # do not use for large files
+    # todo handle errors
+    def writeFile(self, outBuffer):
+        self.moFile.write(outBuffer)
 
 class CmdLookupMng:
-
-    mFileManager = FileManagment()
-    def __init__(self, fileManager):
-        mFileManager=fileManager
 
     def load_module_from_dir(self, dirPath):
         for fileNm in os.listdir(dirPath):
             mod_name,file_ext = os.path.splitext(os.path.split(fileNm)[-1])
             
             fileNm = dirPath + '/' + fileNm
-            print fileNm
-
+            
             if file_ext.lower() == '.py':
                 py_mod = imp.load_source(mod_name, fileNm)
 
@@ -47,11 +56,11 @@ class CmdLookupMng:
                 py_mod = imp.load_compiled(mod_name, fileNm)
         return py_mod
 
-    def cmdLookup(self, path, command):
+    def cmdLookup(self, path, command, fileMng):
         py_mod = self.load_module_from_dir(path)
         if (py_mod != None):
             if hasattr(py_mod, command):
-                class_inst = getattr(py_mod, command)(self.mFileManager)
+                class_inst = getattr(py_mod, command)(fileMng)
                 if class_inst != None:
                     return class_inst
         return None
@@ -91,20 +100,20 @@ def main(argv):
         print "preparing files for manipulation failed: %s" % e
         exit(2)
 
-    #run command executer
+    #run command executer -- move all this to cmdLookupMng
     custSearchPath = os.getenv('MODULE_SEARCH_PATH', '')
-    localSearchPath= os.getcwd() + '/cmds'
-    cmdLookupMng = CmdLookupMng(fileManager)
+    localSearchPath= os.getcwd()
+    cmdLookupMng = CmdLookupMng()
     
     # first we look into customized modules
     if custSearchPath != '':
-        cmd = cmdLookupMng.cmdLookup(custSearchPath, command)
+        cmd = cmdLookupMng.cmdLookup(custSearchPath, command, fileManager)
         # this is a one shot utility - of we have found what we need we term
         if cmd != None:
             cmd.execute()
             exit(0)
     # we fall back on local modules
-    cmd = cmdLookupMng.cmdLookup(localSearchPath, command)
+    cmd = cmdLookupMng.cmdLookup(localSearchPath, command, fileManager)
     if cmd != None:
         cmd.execute()
 

@@ -7,12 +7,13 @@
     a customized command, needs to adhere to the FileManipulationCmd
     interface defined here """
 
+from FileManipulator import FileManagment
 from abc import ABCMeta, abstractmethod
 
 class FileManipulationCmd:
 
     __metaclass__ = ABCMeta
-    mFileManager = ''
+    mFileManager = FileManagment()
     def __init__(self,fileManager):
       mFileManager = fileManager  
     
@@ -28,7 +29,6 @@ class Sort(FileManipulationCmd):
     def execute(self):
         print "Sort [Execute]"
 
-
 class Reverse(FileManipulationCmd):
 
     def __init__(self, fileManager):
@@ -36,3 +36,10 @@ class Reverse(FileManipulationCmd):
 
     def execute(self):
         print "Reverse [Execute]"
+        inBuff=''
+        inBuff = self.mFileManager.readFile()
+        print inBuff
+        rev=""
+        for i in range (0, len(inBuff)):
+            rev += inBuff[(len(inBuff)-1) -i]
+        self.mFileManager.writeFile(rev)
