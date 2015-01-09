@@ -13,9 +13,8 @@ from abc import ABCMeta, abstractmethod
 class FileManipulationCmd:
 
     __metaclass__ = ABCMeta
-    mFileManager = FileManagment()
     def __init__(self,fileManager):
-      mFileManager = fileManager  
+      self.mFileManager = fileManager  
     
     @abstractmethod
     def execute(self):
