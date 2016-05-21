@@ -15,14 +15,12 @@
 
 	// the open family of functions.
 	// we care about opening certain files
-	int open(const char *pathname, int flags);
 
-	int open(const char *pathname, int flags, mode_t mode);
+        int open(const char *pathname, ...);
 
-	int creat(const char *pathname, mode_t mode);
+        int creat(const char *pathname, mode_t mode);
 
-	int openat(int dirfd, const char *pathname, int flags);
+        int openat(int dirfd, const char *pathname, int flags, ... );	
 
-	int openat(int dirfd, const char *pathname, int flags, mode_t mode);
 
 #endif /* INC_AGENT_INTERCEPTION_POINTS_H_ */
