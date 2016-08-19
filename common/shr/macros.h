@@ -6,6 +6,25 @@
 #include <unistd.h> // for write(2)
 #include <assert.h> // for assert(3)
 
+// if we only had c++ nullptr
+#define __SYS_CALL_TEST_NN_RETURN(EXP)   \
+  do                                     \
+  {                                      \
+    if( NULL == EXP)                     \
+      { perror(#EXP); return NULL;  }    \ 
+  }while(0)
+
+
+
+#define __SYS_CALL_TEST_NN_EXIT(EXP)     \
+  do                                     \
+  {                                      \
+    if( NULL == EXP)                     \
+      { perror(#EXP); exit(1);  }        \ 
+  }while(0)
+
+
+
 #define __SYS_CALL_TEST_NM1_RETURN(EXP)   \
   do                                      \
   {                                       \
