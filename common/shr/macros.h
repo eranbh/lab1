@@ -10,7 +10,7 @@
 #define __SYS_CALL_TEST_NN_RETURN(EXP)   \
   do                                     \
   {                                      \
-    if( NULL == EXP)                     \
+    if( NULL == (EXP))                     \
       { perror(#EXP); return NULL;  }    \ 
   }while(0)
 
@@ -19,7 +19,7 @@
 #define __SYS_CALL_TEST_NN_EXIT(EXP)     \
   do                                     \
   {                                      \
-    if( NULL == EXP)                     \
+    if( NULL == (EXP))                     \
       { perror(#EXP); exit(1);  }        \ 
   }while(0)
 
@@ -29,7 +29,7 @@
   do                                      \
   {                                       \
      errno=0;                             \
-     if(0 > EXP)	                  \
+     if(0 > (EXP))	                  \
      { perror(#EXP); return -1;  }        \
   }while(0)
 
@@ -38,7 +38,7 @@
   do                                      \
   {                                       \
      errno=0;                             \
-     if(0 > EXP)	                  \
+     if(0 > (EXP))	                  \
        { perror(#EXP); exit(1);  }	  \
   }while(0)
 

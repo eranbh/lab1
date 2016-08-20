@@ -26,7 +26,10 @@ static const char* const LD_PRELOAD_ENV_VAR_NM = "LD_PRELOAD";
 void AgentUT::test_init_preload()
 {
    // add preloading for our module
-   __SYS_CALL_TEST_NN_RETURN getenv(); 
+   __SYS_CALL_TEST_NM1_EXIT(setenv(LD_PRELOAD_ENV_VAR_NM,
+                                   AGENT_PRELOAD_LIB_NM));
+   // we are preloaded. try and call a hijacked function
+   
    // then test that something happened 
   CPPUNIT_ASSERT_MESSAGE("init failed for localhost",
 			 (1 == 1));
