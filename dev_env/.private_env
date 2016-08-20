@@ -1,0 +1,39 @@
+# this file contains some environment variables
+# that are important for dev work. no personal stuff
+
+export LC_TIME=en_US.UTF8
+export WORK=$HOME/work
+export PRIVATE_BIN=$WORK/bin
+export GRADLE_BIN=$PRIVATE_BIN/gradle-2.14.1/bin
+# PLACE ALL PATH RELATED STUFF ABOVE THIS LINE !!!
+export PATH=$PRIVATE_BIN:$GRADLE_BIN:$PATH
+
+# product specific stuff
+export CURR_ANDROID=marshmallow
+export CURR_DEVICE=bullhead
+export REPOS=$WORK/repositories
+export PROD_AREA=$REPOS/$CURR_ANDROID/out/target/product/$CURR_DEVICE
+export BUILD_LOG_AREA=$REPOS/logs
+export LOG_AREA=$HOME/logs
+
+
+
+# build our kick-ass prompt. this is where the android stuff go
+
+# we need a way to some how know that the android
+# environment initialization was done. also, we want
+# to display the specifics to the user, as to avoid building
+# the wrong products [thanks for the long build times google]
+# this has the following constrins:
+# the variables below will remain defined by the google scripts
+# the way they are today. if that changes, this code will too
+
+
+export TARGET_PRODUCT="INVALID"
+export TARGET_BUILD_TYPE="INVALID"
+export TARGET_BUILD_VARIANT="INVALID"
+
+
+export PS1='\e[1m\e[34m\u\e[32m@\e[33m\h \e[39m[ \e[32mTRGT_PRD: \e[91m$TARGET_PRODUCT \e[32mTRGT_BLD_TP: \e[91m$TARGET_BUILD_TYPE \e[32mTRGT_BLD_VAR: \e[91m$TARGET_BUILD_VARIANT \e[39m ] \e[32m\w \e[0m\n>>> '
+
+#export PS1='\[\033[01m\][ \[\033[01;31m\]\u@\h \[\033[00m\]\[\033[01m\] TRGT_PRD: $TARGET_PRODUCT TRGT_BLD_TP: $TARGET_BUILD_TYPE TRGT_BLD_VAR: $TARGET_BUILD_VARIANT ] \[\033[01;32m\]\w\[\033[00m\] \n\[\033[01;31m\]$\[\033[00m\] > '

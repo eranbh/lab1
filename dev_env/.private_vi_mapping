@@ -1,0 +1,4 @@
+map <F2> :tabe
+map <F3> :tabprevious <enter>
+map <F4> :tabnext <enter>
+map sx   :w <enter>

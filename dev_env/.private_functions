@@ -1,0 +1,30 @@
+
+# logcat into file
+function all
+{
+     DATE=`date`
+     adb logcat >> "${LOG_AREA}/logcat.$DATE" 
+}
+
+# smart grep functions [google has some, but
+# only as targets for make. i need to have
+# some handy when im working]
+
+# find by name exact
+function fn_ext
+{
+    find . -type f -name $1;
+}
+
+# find by name wildcard pattern
+function fn_wc
+{
+    find . -type f -name "*$1*";
+}
+
+# find by content exact
+function fn_cnt_ext
+{
+	fn_ext $1 |xargs grep $2
+}
+

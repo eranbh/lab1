@@ -27,9 +27,11 @@ func_ptr_t find_sym_by_name(const char* sym_name,
         {
             // a lib name should have been sent
            va_list ap;
-           va_start(ap, "%s");
+           va_start(ap, lookup_policy);
            char* plibNm = va_arg(ap, char*);
+           if(0 >= plibNm) return bad_func_ptr;
            va_end(ap);
+           break; 
         } 
         case PLC_NEXT:
         default: break; // make compiler happy 
