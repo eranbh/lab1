@@ -10,17 +10,25 @@
 #define __SYS_CALL_TEST_NN_RETURN(EXP)   \
   do                                     \
   {                                      \
-    if( NULL == (EXP))                     \
-      { perror(#EXP); return NULL;  }    \ 
+    if( NULL == (EXP))                   \
+      { perror(#EXP); return NULL;  }    \
   }while(0)
 
+
+// smart ass version, that shuts compilers up
+#define __SYS_CALL_TEST_NN_CAST_RETURN(EXP, TYP) \
+  do                                             \
+  {                                              \
+    if( NULL == (EXP))                           \
+      { perror(#EXP); return (TYP)NULL;  }       \
+  }while(0)
 
 
 #define __SYS_CALL_TEST_NN_EXIT(EXP)     \
   do                                     \
   {                                      \
-    if( NULL == (EXP))                     \
-      { perror(#EXP); exit(1);  }        \ 
+    if( NULL == (EXP))                   \
+      { perror(#EXP); exit(1);  }        \
   }while(0)
 
 

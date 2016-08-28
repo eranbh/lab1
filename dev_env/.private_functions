@@ -1,4 +1,14 @@
 
+
+# our prompt is sensitive to the pwd.
+# this is to make the prompt as useful as possible
+function cd
+{
+    
+    command cd $1;
+}
+
+
 # logcat into file
 function all
 {
@@ -25,6 +35,11 @@ function fn_wc
 # find by content exact
 function fn_cnt_ext
 {
-	fn_ext $1 |xargs grep $2
+    fn_ext $1 |xargs grep $2
 }
 
+# get git branch - used for prompt
+get_git_branch()
+{
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}

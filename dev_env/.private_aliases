@@ -66,3 +66,6 @@ alias cpuc="ps aux | sort -nrk 3,3 | head -n 5"
 # memory consumption by process [top 5]
 alias memc="ps -eo pmem,pcpu,vsize,pid,cmd | sort -k 1 -nr | head -5"
 
+# deploy a tar.bz file
+alias utb="tar xjf"
+

@@ -5,8 +5,11 @@
 * this module is aware of pre-loading, it is not a 
 * general purpose dl-api wrapper. use it wisely
 */
+#include <dlfcn.h> // for dl apis
 #include <stdarg.h> // var args handling
+#include "macros.h" // our macros
 #include "preload_utils.h" // pre-loading exposed definitions
+
 
 func_ptr_t find_sym_by_name(const char* sym_name, 
                             sym_lookup_policy_t lookup_policy, 
@@ -20,7 +23,7 @@ func_ptr_t find_sym_by_name(const char* sym_name,
          return bad_func_ptr; 
     }
 
-
+    void* phandle = RTLD_NEXT,* psym = 0;
     switch(lookup_policy)
     {
         case PLC_LIB_NM:
@@ -31,11 +34,17 @@ func_ptr_t find_sym_by_name(const char* sym_name,
            char* plibNm = va_arg(ap, char*);
            if(0 >= plibNm) return bad_func_ptr;
            va_end(ap);
-           break; 
+           __SYS_CALL_TEST_NN_CAST_RETURN(phandle=dlopen(plibNm, RTLD_LAZY), 
+                                          func_ptr_t);
+           // fall through here !!!
         } 
         case PLC_NEXT:
+        {
+             __SYS_CALL_TEST_NN_CAST_RETURN(psym=dlsym(phandle, sym_name),
+                                            func_ptr_t);
+        }
         default: break; // make compiler happy 
     }
 
-    return bad_func_ptr; 
+    return (func_ptr_t)psym; 
 }

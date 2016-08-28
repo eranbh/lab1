@@ -16,7 +16,7 @@
 	// the open family of functions.
 	// we care about opening certain files
 
-        int open(const char *pathname, ...);
+        int open(const char *pathname, int flags, ...);
 
         int creat(const char *pathname, mode_t mode);
 

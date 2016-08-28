@@ -1,3 +1,4 @@
+" THIS FILE SHOULD BE SOFT LINKED TO ... FROM $HOME/.vimrc
 map <F2> :tabe
 map <F3> :tabprevious <enter>
 map <F4> :tabnext <enter>
