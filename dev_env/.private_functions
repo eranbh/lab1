@@ -12,7 +12,7 @@ function cd
 # logcat into file
 function all
 {
-     DATE=`date`
+     DATE=`date +%F__%T`
      adb logcat >> "${LOG_AREA}/logcat.$DATE" 
 }
 

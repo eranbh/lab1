@@ -5,10 +5,17 @@
 * this module is aware of pre-loading, it is not a 
 * general purpose dl-api wrapper. use it wisely
 */
+#define _GNU_SOURCE
 #include <dlfcn.h> // for dl apis
 #include <stdarg.h> // var args handling
 #include "macros.h" // our macros
 #include "preload_utils.h" // pre-loading exposed definitions
+
+
+void insert_pre_loading_to_env(const char* const libPath)
+{
+    
+}
 
 
 func_ptr_t find_sym_by_name(const char* sym_name, 
@@ -28,7 +35,7 @@ func_ptr_t find_sym_by_name(const char* sym_name,
     {
         case PLC_LIB_NM:
         {
-            // a lib name should have been sent
+           // a lib name should have been sent
            va_list ap;
            va_start(ap, lookup_policy);
            char* plibNm = va_arg(ap, char*);

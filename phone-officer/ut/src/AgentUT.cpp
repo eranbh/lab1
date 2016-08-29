@@ -21,7 +21,7 @@ void AgentUT::tearDown(){}
 
 
 static const char* const 
-AGENT_PRELOAD_LIB_NM = "/home/eran/work/lab/phone-officer/agent/lib/libagent"; 
+AGENT_PRELOAD_LIB_NM = "/home/eran/work/lab/phone-officer/agent/lib/libagent.so"; 
 
 static const char* const 
 LD_PRELOAD_ENV_VAR_NM = "LD_PRELOAD";

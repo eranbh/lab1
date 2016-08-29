@@ -1,2 +1,3 @@
 all:
-	g++ -Wall -fPIC --shared -I../../common/shr   -Iinc/  src/preload_utils.c -o lib/libpreloadutils.so
+	gcc -c -Wall -fPIC -I../../common/shr  -Iinc/  -o src/preload_utils.o  src/preload_utils.c  
+	ar rcs  lib/libpreloadutils.a src/preload_utils.o

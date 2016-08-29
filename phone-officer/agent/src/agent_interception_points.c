@@ -24,7 +24,7 @@ int open(const char *pathname, int flags, ...)
     if(0 == pathname) return -1;
     
     // TODO  maybe cache this pointer in a static?
-    func_ptr_t popen = find_sym_by_name("open", PLC_NEXT); 
+    func_ptr_t popen = find_sym_by_name("open", PLC_NEXT, 5); 
 
     if(bad_func_ptr == popen) return -1;
 
