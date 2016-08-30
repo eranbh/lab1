@@ -56,6 +56,8 @@ alias c="clear"
 # fire up vi editor
 alias "v=vim"
 
+# vim an entire folder into tabs
+alias "vf=vim -p *"
 
 # fire up emacs [no windows of course]
 alias "e=emacs -nw"
