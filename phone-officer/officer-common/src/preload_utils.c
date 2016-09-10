@@ -12,8 +12,27 @@
 #include "preload_utils.h" // pre-loading exposed definitions
 
 
+extern char **environ;
 
-const char* const LIBC_NAME = "libc.so.6"
+const char* const LIBC_NAME = "libc.so.6";
+
+
+// returns the length of the string sent in.
+// NOTE: if the str is not null terminated, the 
+// behavior of this function UNDEFINED
+// also, we made this symbol static, as we only want
+// this to be used internally. this does not make any
+// input validations
+inline 
+static int get_string_length(const char* const str)
+{
+    int len = 0;
+   
+    for(len ; str[len] ; len++);
+
+    return len;
+}
+
 
 // this function will add the variable sent to it, to
 // the users environment. the idea here is that we can
@@ -24,35 +43,53 @@ const char* const LIBC_NAME = "libc.so.6"
 // could prove to be catastrophical. especialy if it is not
 // properly null terminated
 // this function _always_ allocates the extra memory needed
-// for the new pair. there is no checking for duplications
+// for the new env. there is no checking for duplications
+// we try _very hard_ not to use libc syms here. this code
+// might be called from preloaded code
 int insert_entry_to_env(const char* const entry)
 {
     int envLen = 0;
-    char* pNewEnv = 0;
+    char** pNewEnv = 0;
+
+    typedef void* (*malloc_ptr_t)(size_t);
     
     // no point in searching for the sym more than once
-    static void* (*pmalloc)(size_t) = 
-        find_sym_by_name("malloc", PLC_LIB_NM, LIBC_NAME);
+    malloc_ptr_t pmalloc = 
+      (malloc_ptr_t) find_sym_by_name("malloc", PLC_LIB_NM, LIBC_NAME);
 
+    //TODO the case for environ == 0 needs more care
     if(0 == pmalloc || 0 == environ) return -1;
 
     // dont loose the handle to the old env [backup]
-    const char* pOldEnv = *environ;
+    char* pOldEnv = *environ;
     
     // take the length of the current env
     for(envLen ; environ[envLen] ; envLen++);
 
-    // allocate the new array. we need extra slot for null
-    __SYS_CALL_TEST_NN_RETURN_VAL(pNewEnv = pmalloc(envLen+1), -1);
+    // allocate the new array of pointers. we need extra slot for null
+    __SYS_CALL_TEST_NN_RETURN_VAL(pNewEnv = pmalloc((envLen+2)*sizeof(char*)), -1);
 
    // copy env
-   for(envLen=0 ; environ[envLen] ; pNewEnv[envLen] = environ[envLen], envLen++);
+   for(envLen=0 ; environ[envLen] ; envLen++)
+   {
+       typedef char* (*strdup_ptr_t)(const char*);
+       char* envVar = 0;
+       strdup_ptr_t pstrdup = 
+           (strdup_ptr_t) find_sym_by_name("strdup", PLC_LIB_NM, LIBC_NAME);
+
+       __SYS_CALL_TEST_NN_RETURN_VAL(envVar=pstrdup(environ[envLen]), -1);
+
+      pNewEnv[envLen] = envVar; 
+   }
+
+   // add new env var 
+   pNewEnv[envLen] = pstrdup(entry);
 
    // add null termination
    pNewEnv[envLen] = 0;
 
    // point to the new array
-   *environ = pNewEnv; // new env in place
+   environ = pNewEnv; // new env in place
 
    // set the old memory free
    free(pOldEnv);
@@ -60,7 +97,42 @@ int insert_entry_to_env(const char* const entry)
    return 0;
 }
 
+// this is a substitute function for the
+// getenv function. you need this if you dont want
+// to access libc from preloaded code [as i do]
+char* find_entry_in_env(const char* const entry_key)
+{
+    typedef int (*memcmp_ptr_t) (void*, const void*, size_t );
+    memcmp_ptr_t pmemcmp =
+           (memcmp_ptr_t) find_sym_by_name("memcmp", PLC_LIB_NM, LIBC_NAME);
 
+    int entSz = get_string_length(entry_key);
+
+    for(int i=0 ; environ[i] ; i++)
+    {
+        if(entSz == get_string_length(environ[i]))
+        {
+            if(0 == pmemcmp(environ[i], entry_key, entSz))
+            {
+                // we assume it a valid entry: [key=value]
+                return environ[i]+entSz+1;
+            }
+        } 
+    }
+    return 0;
+}
+
+// this function should be used to push new values
+// to existing env variables.
+// the arguments are assumed to be null terminated.
+// this function scans the env for the given key
+// if that isnt found, it will fall back on a full 
+// insert_entry_to_env which _will_ reallocate the env.
+int update_entry_in_env(const char* const entry_key, 
+                        const char*       entry_value)
+{
+    
+}
 
 
 func_ptr_t find_sym_by_name(const char* sym_name, 

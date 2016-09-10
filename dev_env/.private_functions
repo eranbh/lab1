@@ -1,11 +1,26 @@
-
-
 # our prompt is sensitive to the pwd.
 # this is to make the prompt as useful as possible
-function cd
+function cd()
 {
-    
     command cd $1;
+
+    PADDITIONAL_INFO=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'`
+    if [ -z $PADDITIONAL_INFO ]
+     then
+      PADDITIONAL_INFO="git: no branch"
+    fi
+
+    PADDITIONAL_AOSP_ENV=""
+    # now if the path contains the name of a google repo
+    # we add the current environment variables to help
+    # prevent build confusion and general sadness
+    if [[ $PWD == *marshmallow* ]] ; then
+       if [ -z "$TARGET_PRODUCT" ] ;  then
+             PADDITIONAL_AOSP_ENV="aosp env: invalid. choose a combo"
+         else 
+             PADDITIONAL_AOSP_ENV="$TARGET_PRODUCT ; $TARGET_BUILD_TYPE ; $TARGET_BUILD_VARIANT"
+       fi
+    fi
 }
 
 
@@ -38,8 +53,4 @@ function fn_cnt_ext
     fn_ext $1 |xargs grep $2
 }
 
-# get git branch - used for prompt
-get_git_branch()
-{
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
-}
+
