@@ -34,12 +34,8 @@ export LOG_AREA=$HOME/logs
 # the way they are today. if that changes, this code will too
 
 
-#export TARGET_PRODUCT="INVALID"
-export TARGET_BUILD_TYPE="INVALID"
-export TARGET_BUILD_VARIANT="INVALID"
 
 
-# export PS1='\e[1m\e[34m\u\e[32m@\e[33m\h \e[39m[ \e[32mTRGT_PRD: \e[91m$TARGET_PRODUCT \e[32mTRGT_BLD_TP: \e[91m$TARGET_BUILD_TYPE \e[32mTRGT_BLD_VAR: \e[91m$TARGET_BUILD_VARIANT \e[39m ] \e[32m\w \e[0m\n>>> '
 export PADDITIONAL_INFO=""
 export PADDITIONAL_AOSP_ENV=""
 export PS1='\e[1m\e[34m\u\e[32m@\e[33m\h \e[39m [$PADDITIONAL_INFO  $PADDITIONAL_AOSP_ENV] \e[32m\w \e[0m\n>>> '

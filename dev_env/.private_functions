@@ -4,10 +4,13 @@ function cd()
 {
     command cd $1;
 
-    PADDITIONAL_INFO=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'`
-    if [ -z $PADDITIONAL_INFO ]
+    PADDITIONAL_INFO="git: "
+    BRANCH_NAME=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'`
+    if [ -z $BRANCH_NAME ]
      then
-      PADDITIONAL_INFO="git: no branch"
+        PADDITIONAL_INFO+="no branch"
+     else
+        PADDITIONAL_INFO+=$BRANCH_NAME
     fi
 
     PADDITIONAL_AOSP_ENV=""
@@ -15,10 +18,11 @@ function cd()
     # we add the current environment variables to help
     # prevent build confusion and general sadness
     if [[ $PWD == *marshmallow* ]] ; then
-       if [ -z "$TARGET_PRODUCT" ] ;  then
-             PADDITIONAL_AOSP_ENV="aosp env: invalid. choose a combo"
+       PADDITIONAL_AOSP_ENV="aosp env: "
+       if [ -z $TARGET_PRODUCT ] ;  then
+             PADDITIONAL_AOSP_ENV+="invalid. choose a combo"
          else 
-             PADDITIONAL_AOSP_ENV="$TARGET_PRODUCT ; $TARGET_BUILD_TYPE ; $TARGET_BUILD_VARIANT"
+             PADDITIONAL_AOSP_ENV+="$TARGET_PRODUCT ; $TARGET_BUILD_TYPE ; $TARGET_BUILD_VARIANT"
        fi
     fi
 }
