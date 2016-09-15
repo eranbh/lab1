@@ -28,7 +28,7 @@ static int get_string_length(const char* const str)
 {
     int len = 0;
    
-    for(len ; str[len] ; len++);
+    for( ; str[len] ; len++){}
 
     return len;
 }
@@ -50,21 +50,28 @@ int insert_entry_to_env(const char* const entry)
 {
     int envLen = 0;
     char** pNewEnv = 0;
-
-    typedef void* (*malloc_ptr_t)(size_t);
     
-    // no point in searching for the sym more than once
-    malloc_ptr_t pmalloc = 
-      (malloc_ptr_t) find_sym_by_name("malloc", PLC_LIB_NM, LIBC_NAME);
+    typedef void* (*malloc_ptr_t)(size_t);
+    malloc_ptr_t pmalloc = 0; 
+    
+    typedef char* (*strdup_ptr_t)(const char*);
+    strdup_ptr_t pstrdup = 
+       (strdup_ptr_t) find_sym_by_name("strdup", PLC_LIB_NM, LIBC_NAME);
+
 
     //TODO the case for environ == 0 needs more care
-    if(0 == pmalloc || 0 == environ) return -1;
+    if(0 == environ) return -1;
+
+
+     __SYS_CALL_TEST_NN_RETURN_VAL((malloc_ptr_t)find_sym_by_name("malloc", 
+                                                                  PLC_LIB_NM, LIBC_NAME), 
+                                   -1);
 
     // dont loose the handle to the old env [backup]
     char* pOldEnv = *environ;
     
     // take the length of the current env
-    for(envLen ; environ[envLen] ; envLen++);
+    for( ; environ[envLen] ; envLen++);
 
     // allocate the new array of pointers. we need extra slot for null
     __SYS_CALL_TEST_NN_RETURN_VAL(pNewEnv = pmalloc((envLen+2)*sizeof(char*)), -1);
@@ -72,11 +79,8 @@ int insert_entry_to_env(const char* const entry)
    // copy env
    for(envLen=0 ; environ[envLen] ; envLen++)
    {
-       typedef char* (*strdup_ptr_t)(const char*);
        char* envVar = 0;
-       strdup_ptr_t pstrdup = 
-           (strdup_ptr_t) find_sym_by_name("strdup", PLC_LIB_NM, LIBC_NAME);
-
+       
        __SYS_CALL_TEST_NN_RETURN_VAL(envVar=pstrdup(environ[envLen]), -1);
 
       pNewEnv[envLen] = envVar; 
@@ -100,7 +104,7 @@ int insert_entry_to_env(const char* const entry)
 // this is a substitute function for the
 // getenv function. you need this if you dont want
 // to access libc from preloaded code [as i do]
-char* find_entry_in_env(const char* const entry_key)
+const char* find_entry_in_env(const char* const entry_key)
 {
     typedef int (*memcmp_ptr_t) (void*, const void*, size_t );
     memcmp_ptr_t pmemcmp =
@@ -108,7 +112,9 @@ char* find_entry_in_env(const char* const entry_key)
 
     int entSz = get_string_length(entry_key);
 
-    for(int i=0 ; environ[i] ; i++)
+
+    size_t i;
+    for(i=0; environ[i] ; i++)
     {
         if(entSz == get_string_length(environ[i]))
         {
@@ -131,7 +137,47 @@ char* find_entry_in_env(const char* const entry_key)
 int update_entry_in_env(const char* const entry_key, 
                         const char*       entry_value)
 {
+    const char* pCurrEntry=0;
+    char*       pNewEntry=0;
+    int entryLen=0;
+
+    typedef void* (*malloc_ptr_t)(size_t);
+    malloc_ptr_t pmalloc=0; 
     
+    // first see if this entry exists
+    if(0 == (pCurrEntry=find_entry_in_env(entry_key)))
+    {
+        // the entry does not exist. lets add it
+        __SYS_CALL_TEST_NM1_RETURN(insert_entry_to_env(entry_key));
+       return 0;
+    }
+
+    // the entry was found. lets build an entry and place it in env
+    __SYS_CALL_TEST_NN_RETURN_VAL(pmalloc=(malloc_ptr_t)find_sym_by_name("malloc", 
+                                                                         PLC_LIB_NM, LIBC_NAME),
+                                           -1);
+    
+    // we need room for: null + equal sign
+    entryLen = get_string_length(entry_key) + 
+               get_string_length(entry_value) +
+               2;
+   
+    __SYS_CALL_TEST_NN_RETURN_VAL(pNewEntry=pmalloc(entryLen), -1);
+
+   // copy data to new entry. format: <key=value>
+   size_t i;
+   for(i=0; entry_key+i ; pNewEntry++){*pNewEntry=entry_key[i];}
+   *pNewEntry='=';
+   for(i=0; entry_value+i ;  pNewEntry++){*pNewEntry=entry_value[i];}
+   *pNewEntry='\0';
+
+   // add the new entry to the current env
+   // in order to do that, we need the _actual_
+   // address for this entry in environ
+   for(i=0;environ[i] != pCurrEntry;i++){}
+   environ[i]=pNewEntry;
+
+   return 0;
 }
 
 
@@ -172,3 +218,5 @@ func_ptr_t find_sym_by_name(const char* sym_name,
 
     return (func_ptr_t)psym; 
 }
+
+
