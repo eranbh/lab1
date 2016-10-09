@@ -57,4 +57,29 @@ function fn_cnt_ext
     fn_ext $1 |xargs grep $2
 }
 
+# view images
+function oimg
+{
+    nohup eog "$1" 2>/dev/null & 
+}
 
+
+# view images
+function opdf
+{
+    nohup evince "$1" 2>/dev/null & 
+}
+
+# open gantt tool
+function ogantt
+{
+    nohup ganttproject "$1"  2>/dev/null & 
+}
+
+
+# manually install deb
+function install-deb
+{
+    sudo dpkg -i $1;
+    sudo apt-get install -f;
+}

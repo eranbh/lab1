@@ -12,6 +12,7 @@ export PATH=$PRIVATE_BIN:$GRADLE_BIN:$PATH
 export CURR_ANDROID=marshmallow
 export CURR_DEVICE=bullhead
 export REPOS=$WORK/repositories
+export LAB=$WORK/lab
 export PROD_AREA=$REPOS/$CURR_ANDROID/out/target/product/$CURR_DEVICE
 export BUILD_LOG_AREA=$REPOS/logs
 export LOG_AREA=$HOME/logs
