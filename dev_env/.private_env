@@ -40,3 +40,9 @@ export LOG_AREA=$HOME/logs
 export PADDITIONAL_INFO=""
 export PADDITIONAL_AOSP_ENV=""
 export PS1='\e[1m\e[34m\u\e[32m@\e[33m\h \e[39m [$PADDITIONAL_INFO  $PADDITIONAL_AOSP_ENV] \e[32m\w \e[0m\n>>> '
+
+
+# Android related
+
+# NDK location
+export PATH=/opt/android/ndk/android-ndk-r13/:$PATH
