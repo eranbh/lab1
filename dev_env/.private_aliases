@@ -1,5 +1,5 @@
 # open studio
-alias oas='nohup /usr/local/android-studio/bin/studio.sh >/dev/null 2>&1 & '
+alias oas='nohup $PRIVATE_BIN/android-studio/bin/studio.sh >/dev/null 2>&1 & '
 
 # go to work :)
 alias gtw="cd $WORK"
@@ -55,6 +55,9 @@ alias c="clear"
 
 # fire up vi editor
 alias "v=vim"
+
+# fire up make [pwd]
+alias "m=make"
 
 # vim an entire folder into tabs
 alias "vf=vim -p *"
