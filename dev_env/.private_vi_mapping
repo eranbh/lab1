@@ -1,25 +1,34 @@
 
+set nocompatible              " be iMproved, required
+filetype off                  " dont assume anything by file name required by some plugins
+set number                    " Line numbers
+" colorscheme solarized       " TODO find out how to set vim solarized
+set colorcolumn=80            " Have a line after 80 char
+colorscheme darkblue          " my favourite color scheme
+set t_Co=256 "first of all, tell vim to use 256 colors
+set laststatus=2 "this tells vim to open a status line even for one win
 
 " PLUGINS WHO NEEDS'EM
-set nocompatible              " be iMproved, required
-filetype off                  " required
-
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
 
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'Valloric/YouCompleteMe'
-
+Plugin 'VundleVim/Vundle.vim' " let Vundle manage Vundle, required
+Plugin 'Valloric/YouCompleteMe' " code completion by google
+" Plugin 'kien/ctrlp.vim' " file search
+Plugin 'tpope/vim-fugitive'
+" airline related
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+" Plugin 'vim-fugitive'
+let g:airline_theme='jellybeans' "this is my chosen theme
+set noshowmode " make the mode go away
+let g:airline#extensions#branch#enabled=1 " add git branch name to the statusline
+" airline end
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
-
-
 
 
 " THIS FILE SHOULD BE SOFT LINKED TO ... FROM $HOME/.vimrc
