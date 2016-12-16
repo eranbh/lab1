@@ -74,3 +74,7 @@ alias memc="ps -eo pmem,pcpu,vsize,pid,cmd | sort -k 1 -nr | head -5"
 # deploy a tar.bz file
 alias utb="tar xjf"
 
+# log into NAZGUL
+# TODO consider answering the challenge with expect
+alias cnz="ssh NAZGUL"
+

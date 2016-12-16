@@ -83,3 +83,17 @@ function install-deb
     sudo dpkg -i $1;
     sudo apt-get install -f;
 }
+# opens a word document
+function owd
+{
+    nohup /usr/lib/libreoffice/program/soffice.bin --writer  "$1" > /dev/null 2>&1 &
+}
+
+# android: set env
+function sae
+{
+    cd "$REPOS/$CURR_ANDROID";
+    . build/envsetup.sh;
+    lunch;
+}
+
