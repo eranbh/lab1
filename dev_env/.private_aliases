@@ -78,3 +78,6 @@ alias utb="tar xjf"
 # TODO consider answering the challenge with expect
 alias cnz="ssh NAZGUL"
 
+# open a vpn connection to the office
+alias ovpn="openvpn $PRIVATE_RES/client.ovpn"
+

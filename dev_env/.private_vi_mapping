@@ -15,8 +15,8 @@ call vundle#begin()
 
 Plugin 'VundleVim/Vundle.vim' " let Vundle manage Vundle, required
 Plugin 'Valloric/YouCompleteMe' " code completion by google
-" Plugin 'kien/ctrlp.vim' " file search
-Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-fugitive' " this takes care of git managment
+Plugin 'scrooloose/nerdtree' " file explorer
 " airline related
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'

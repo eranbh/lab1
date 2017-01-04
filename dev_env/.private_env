@@ -3,6 +3,7 @@
 
 export LC_TIME=en_US.UTF8
 export WORK=$HOME/work
+export PRIVATE_RES=$WORK/resources
 export PRIVATE_BIN=$WORK/bin
 export GRADLE_BIN=$PRIVATE_BIN/gradle-2.14.1/bin
 # PLACE ALL PATH RELATED STUFF ABOVE THIS LINE !!!

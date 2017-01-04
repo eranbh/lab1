@@ -2,11 +2,14 @@
 # this is to make the prompt as useful as possible
 function cd()
 {
+
+    
     command cd $1;
 
     PADDITIONAL_INFO="git: "
     BRANCH_NAME=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'`
-    if [ -z $BRANCH_NAME ]
+
+    if [[ -z $BRANCH_NAME ]]
      then
         PADDITIONAL_INFO+="no branch"
      else
@@ -17,6 +20,7 @@ function cd()
     # now if the path contains the name of a google repo
     # we add the current environment variables to help
     # prevent build confusion and general sadness
+
     if [[ $PWD == *marshmallow* ]] ; then
        PADDITIONAL_AOSP_ENV="aosp env: "
        if [ -z $TARGET_PRODUCT ] ;  then
