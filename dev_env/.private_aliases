@@ -1,3 +1,6 @@
+# my own ls
+alias ll='ls -alFh'
+
 # open studio
 alias oas='nohup $PRIVATE_BIN/android-studio/bin/studio.sh >/dev/null 2>&1 & '
 
@@ -12,6 +15,9 @@ alias gtk="cd $REPOS/kaymera"
 
 #go to marshmallow
 alias gtm="cd $REPOS/$CURR_ANDROID"
+
+# go to nougat
+alias gtn="cd $REPOS/nougat"
 
 # go to my lab
 alias gtl="cd $WORK/lab"
@@ -56,6 +62,10 @@ alias c="clear"
 # fire up vi editor
 alias "v=vim"
 
+
+# fire up less viewer
+alias "l=less"
+
 # fire up make [pwd]
 alias "m=make"
 
@@ -81,3 +91,9 @@ alias cnz="ssh NAZGUL"
 # open a vpn connection to the office
 alias ovpn="openvpn $PRIVATE_RES/client.ovpn"
 
+## git related
+
+alias gb="git branch"
+alias gf="git fetch"
+alias gr="git rebase"
+alias gl="git log"

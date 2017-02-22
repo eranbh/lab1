@@ -19,8 +19,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION(AgentUT);
 void AgentUT::setUp(){}
 void AgentUT::tearDown(){}
 
-// TODO use this in the future
-//static const char* PROJ_ROOT="/home/eran/work/lab/phone-officer/ut/preloaded";
+
+// TODO use a packaged task class to encapsulated the
+// logic within each one of the TCs. this will modernize
+// the code, and make it easy to run the TCs in their own ctx
 
 static const char* const 
 AGENT_PRELOAD_LIB_NM = "/home/eran/work/lab/phone-officer/agent/lib/libagent.so"; 

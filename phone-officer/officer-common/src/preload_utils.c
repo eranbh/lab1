@@ -24,7 +24,7 @@ const char* const LIBC_NAME = "libc.so.6";
 // this to be used internally. this does not make any
 // input validations
 inline 
-static int get_string_length(const char* const str)
+int get_string_length(const char* const str)
 {
     int len = 0;
    

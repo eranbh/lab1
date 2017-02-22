@@ -19,3 +19,6 @@ const char* find_entry_in_env(const char* const entry_key);
 // env variable into the __current__ process'
 // environment. 
 int insert_pre_loading_to_env(const char* const);
+
+int get_string_length(const char* const str);
+
