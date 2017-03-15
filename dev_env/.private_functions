@@ -74,6 +74,13 @@ function opdf
     nohup evince "$1" 2>/dev/null & 
 }
 
+# view images
+function ochm
+{
+    nohup kchmviewer "$1" 2>/dev/null & 
+}
+
+
 # open gantt tool
 function ogantt
 {
