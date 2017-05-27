@@ -71,7 +71,8 @@ function oimg
 # view images
 function opdf
 {
-    nohup evince "$1" 2>/dev/null & 
+    #nohup evince "$1" 2>/dev/null &
+    nohup FoxitReader "$1" 2>/dev/null & 
 }
 
 # view images
@@ -98,6 +99,11 @@ function install-deb
 function owd
 {
     nohup /usr/lib/libreoffice/program/soffice.bin --writer  "$1" > /dev/null 2>&1 &
+}
+
+function ocpp
+{
+    nohup eclipse 2>/dev/null &
 }
 
 # android: set env

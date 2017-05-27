@@ -1,12 +1,25 @@
+#include<vector>
+
 struct stam
 {
 	template<typename T>
-	void func(T arg){}
+	static void func(T arg){}
+
+	template<typename U>
+	using member = std::vector<U>; 
 };
+
+template<typename T>
+void func1(T& t)
+{
+        // accessing a function template through template param
+	T::template func(t);
+	// accessing a variable template through template param
+	typename T::template member<T> h;
+}
 
 int main(int argc, char* argv[])
 {
     stam st;
-    int i=0;
-    st.func<int>(i);
+    func1(st);
 }
