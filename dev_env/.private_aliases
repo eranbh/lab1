@@ -1,23 +1,8 @@
 # my own ls
-alias ll='ls -alFh'
-
-# open studio
-alias oas='nohup $PRIVATE_BIN/android-studio/bin/studio.sh >/dev/null 2>&1 & '
+alias ll='ls -alFhG'
 
 # go to work :)
 alias gtw="cd $WORK"
-
-# go to my private bin [home to all the utils]
-alias gtpb="cd $PRIVATE_BIN"
-
-# go to kaymera repository
-alias gtk="cd $REPOS/kaymera"
-
-#go to marshmallow
-alias gtm="cd $REPOS/$CURR_ANDROID"
-
-# go to nougat
-alias gtn="cd $REPOS/nougat"
 
 # go to my lab
 alias gtl="cd $WORK/lab"
@@ -25,43 +10,21 @@ alias gtl="cd $WORK/lab"
 # open emacs no windows of course
 alias se="emacs -nw > /dev/null 2>&1"
 
-# go to the product area for a specific os-device pair
-alias gtpa="cd $PROD_AREA"
-
-# go to the build log area
-alias gtbla="cd $BUILD_LOG_AREA"
-
 # go to general log area
 alias gtla="cd $LOG_AREA"
-
-# adb logcat
-alias al="adb logcat"
-
-# adb devices
-alias ad="adb devices"
-
-# adb shell [as is taken, so ... ]
-alias ash="adb shell"
-
-# this goes to my [writable] area in the shared
-# this assumes that the drive is mounted properly
-# TODO there is a personal area on shared. consider adding it too
-alias "gts=cd /mnt/it-server.kaymera.com/Temporary/ForEran/"
 
 # go to Downloads
 alias gtd="cd $HOME/Downloads"
 
-
-# go to resources
-alias gtr="cd $WORK/resources"
-
 #clear the screen
 alias c="clear"
 
+# i need this for the fucking mac to work.
+# for some reason I cant touch the vi exe
+alias "vi=vim"
 
 # fire up vi editor
 alias "v=vim"
-
 
 # fire up less viewer
 alias "l=less"
@@ -72,28 +35,14 @@ alias "m=make"
 # vim an entire folder into tabs
 alias "vf=vim -p *"
 
-# fire up emacs [no windows of course]
-alias "e=emacs -nw"
-
 # cpu consumption by process [top 5]
 alias cpuc="ps aux | sort -nrk 3,3 | head -n 5"
 
-# memory consumption by process [top 5]
-alias memc="ps -eo pmem,pcpu,vsize,pid,cmd | sort -k 1 -nr | head -5"
-
 # untar a tar.bz file
-alias utb="tar xjf"
+alias utbz="tar xvjf"
 
 # untar a tar.gz file
 alias utgz="tar xvzf"
-
-
-# log into NAZGUL
-# TODO consider answering the challenge with expect
-alias cnz="ssh NAZGUL"
-
-# open a vpn connection to the office
-alias ovpn="openvpn $PRIVATE_RES/client.ovpn"
 
 ## git related
 
@@ -101,3 +50,9 @@ alias gb="git branch"
 alias gf="git fetch"
 alias gr="git rebase"
 alias gl="git log"
+
+
+# vagrant related
+alias vu="vagrant up"
+alias vs="vagrant ssh"
+alias vh="vagrant halt"

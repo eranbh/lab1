@@ -1,5 +1,10 @@
 
 set nocompatible              " be iMproved, required
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set incsearch
+set hlsearch
 filetype off                  " dont assume anything by file name required by some plugins
 set number                    " Line numbers
 " colorscheme solarized       " TODO find out how to set vim solarized
@@ -7,7 +12,7 @@ set colorcolumn=80            " Have a line after 80 char
 colorscheme darkblue          " my favourite color scheme
 set t_Co=256 "first of all, tell vim to use 256 colors
 set laststatus=2 "this tells vim to open a status line even for one win
-
+syntax enable " for some reason this is needed on MACs. go figure 
 " PLUGINS WHO NEEDS'EM
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -15,6 +20,7 @@ call vundle#begin()
 
 Plugin 'VundleVim/Vundle.vim' " let Vundle manage Vundle, required
 Plugin 'Valloric/YouCompleteMe' " code completion by google
+Plugin 'rdnetto/YCM-Generator', { 'branch': 'stable'} " generates indexes for ycm
 Plugin 'tpope/vim-fugitive' " this takes care of git managment
 Plugin 'scrooloose/nerdtree' " file explorer
 " airline related

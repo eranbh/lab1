@@ -6,111 +6,146 @@ function cd()
     
     command cd $1;
 
-    PADDITIONAL_INFO="git: "
+    #PADDITIONAL_INFO="git: "
     BRANCH_NAME=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'`
 
     if [[ -z $BRANCH_NAME ]]
      then
-        PADDITIONAL_INFO+="no branch"
+        PADDITIONAL_INFO="no branch"
      else
-        PADDITIONAL_INFO+=$BRANCH_NAME
-    fi
-
-    PADDITIONAL_AOSP_ENV=""
-    # now if the path contains the name of a google repo
-    # we add the current environment variables to help
-    # prevent build confusion and general sadness
-
-    if [[ $PWD == *marshmallow* ]] ; then
-       PADDITIONAL_AOSP_ENV="aosp env: "
-       if [ -z $TARGET_PRODUCT ] ;  then
-             PADDITIONAL_AOSP_ENV+="invalid. choose a combo"
-         else 
-             PADDITIONAL_AOSP_ENV+="$TARGET_PRODUCT ; $TARGET_BUILD_TYPE ; $TARGET_BUILD_VARIANT"
-       fi
+        PADDITIONAL_INFO=$BRANCH_NAME
     fi
 }
 
-
-# logcat into file
-function all
+# a set of aliases to avoid repetition
+function no-cerr
 {
-     DATE=`date +%F__%T`
-     adb logcat >> "${LOG_AREA}/logcat.$DATE" 
+
+   eval  "$1" 2>/dev/null
 }
 
-# smart grep functions [google has some, but
-# only as targets for make. i need to have
-# some handy when im working]
+function daemonize
+{
+    eval "nohup $1 &" 
+}
+
+
+function usage
+{
+    echo "$1"
+}
 
 # find by name exact
-function fn_ext
+function fn_fl_nm
 {
-    find . -type f -name $1;
+    # defaults
+    FIND_PATH="."
+    TYPE="f"
+    if [ $# -eq 1 ]; then
+        NAME=$1  
+    elif [ $# -eq 3 ]; then
+        FIND_PATH=$1
+        TYPE=$2
+        NAME=$3
+    elif [ $# -le 2 ] || [ $# -ge 3 ]; then
+        usage "BAD ARGS: [name] || [path, type, name]"
+        return
+    fi 
+    no-cerr "find $FIND_PATH  -type $TYPE -name \"$NAME\""
 }
 
-# find by name wildcard pattern
-function fn_wc
+function check_valid_values
 {
-    find . -type f -name "*$1*";
-}
-
-# find by content exact
-function fn_cnt_ext
-{
-    fn_ext $1 |xargs grep $2
-}
-
-# view images
-function oimg
-{
-    nohup eog "$1" 2>/dev/null & 
+    if [ $1 -lt $2 ] || [ $1 -gt "$3" ]; then
+        usage "$4"
+        return "1"
+    fi
+    return "0"
 }
 
 
-# view images
+function fn_fl_ct
+{
+    check_valid_values $# "2" "4" "BAD ARGS: [name, pattern] || [path, type, name, pattern]"
+
+    if [ $# -lt 4 ]; then
+        FILES=`fn_fl_nm "$1"`
+        PATTERN=$2
+    else
+        FILES=`fn_fl_nm "$1 $2 $3"`
+        PATTERN=$4
+    fi
+    
+    for file in ${FILES[*]}
+    do
+        grep -Hn "${PATTERN}" ${file}
+    done
+}
+
+function find_in_all_asterix
+{
+    ret=`check_valid_values $1 "1" "2" "BAD ARGS: [ pattern] || [path, pattern]"`
+    if [ ret == 1 ]; then
+        return 1
+    fi
+    if [ $# -eq 4 ]; then 
+        fn_fl_ct "$2" "-f" "$4" "$3"
+    else
+        fn_fl_ct "$3" "$2"
+    fi
+    return 0
+}
+
+function fn_in_all_h
+{
+    ret=`find_in_all_asterix $# $@ "*.h"` 
+    if [ ret == 1 ]; then
+        return 1
+    fi
+}
+
+function fn_in_all_cpp
+{
+    ret=`find_in_all_asterix $# $@ "*.cc"` 
+    if [ ret == 1 ]; then
+        return 1
+    fi
+}
+
+export PDF_READ_NM="\"/Applications/Adobe Acrobat Reader DC.app/Contents/MacOS/AdobeReader\""
+
+# view pdfs
 function opdf
 {
-    #nohup evince "$1" 2>/dev/null &
-    nohup FoxitReader "$1" 2>/dev/null & 
+    daemonize "{$PDF_READ_NM} $1" 
 }
 
-# view images
-function ochm
-{
-    nohup kchmviewer "$1" 2>/dev/null & 
-}
+#TODO view images
+#function ochm
+#{
+#    nohup kchmviewer "$1" 2>/dev/null & 
+#}
 
 
-# open gantt tool
-function ogantt
-{
-    nohup ganttproject "$1"  2>/dev/null & 
-}
+export OFFICE_PACKAGE="\"/Applications/LibreOffice Vanilla.app/Contents/MacOS/soffice\""
 
-
-# manually install deb
-function install-deb
-{
-    sudo dpkg -i $1;
-    sudo apt-get install -f;
-}
 # opens a word document
 function owd
 {
-    nohup /usr/lib/libreoffice/program/soffice.bin --writer  "$1" > /dev/null 2>&1 &
+    daemonize "${OFFICE_PACKAGE} --writer"
 }
 
-function ocpp
+# opens a slid deck powerpoint like thing
+function opp
 {
-    nohup eclipse 2>/dev/null &
+    daemonize "${OFFICE_PACKAGE} --impress"
 }
 
-# android: set env
-function sae
+
+###### SENTINEL RELATED #####
+export ECLIPSE="\"${WORK}/opt/eclipse/Eclipse.app/Contents/MacOS/\""
+function oecl
 {
-    cd "$REPOS/$CURR_ANDROID";
-    . build/envsetup.sh;
-    lunch;
+    export PATH=/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Commands/java:${PATH}
+    daemonize  "${ECLIPSE}/eclipse"
 }
-

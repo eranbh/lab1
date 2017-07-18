@@ -3,20 +3,11 @@
 
 export LC_TIME=en_US.UTF8
 export WORK=$HOME/work
-export PRIVATE_RES=$WORK/resources
 export PRIVATE_BIN=$WORK/bin
-export GRADLE_BIN=$PRIVATE_BIN/gradle-3.5/bin
-export ECLIPSE_BIN=$PRIVATE_BIN/eclipse
-export CMAKE_BIN=$PRIVATE_BIN/cmake-3.8.1-Linux-x86_64/bin
 # PLACE ALL PATH RELATED STUFF ABOVE THIS LINE !!!
-export PATH=$PRIVATE_BIN:$GRADLE_BIN:$ECLIPSE_BIN:$CMAKE_BIN:$PATH
+export PATH=$PRIVATE_BIN:$PATH
 
-# product specific stuff
-export CURR_ANDROID=marshmallow
-export CURR_DEVICE=bullhead
-export REPOS=$WORK/repositories
 export LAB=$WORK/lab
-export PROD_AREA=$REPOS/$CURR_ANDROID/out/target/product/$CURR_DEVICE
 export BUILD_LOG_AREA=$REPOS/logs
 export LOG_AREA=$HOME/logs
 
@@ -44,14 +35,4 @@ export PADDITIONAL_INFO=""
 export PADDITIONAL_AOSP_ENV=""
 export PS1='\e[1m\e[34m\u\e[32m@\e[33m\h \e[39m [$PADDITIONAL_INFO  $PADDITIONAL_AOSP_ENV] \e[32m\w \e[0m\n>>> '
 
-
-# Android related
-
-# for some repo operations you need to be setenv
-# no lunch is needed, so its version specific, not
-#device specific
-. $REPOS/$CURR_ANDROID/build/envsetup.sh
-
-
-# NDK location
-export PATH=/opt/android/ndk/android-ndk-r13/:$PATH
+# Add sentinel related stuff
