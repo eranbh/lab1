@@ -84,8 +84,8 @@ function fn_fl_ct
 
 function find_in_all_asterix
 {
-    ret=`check_valid_values $1 "1" "2" "BAD ARGS: [ pattern] || [path, pattern]"`
-    if [ ret == 1 ]; then
+    check_valid_values $1 "1" "2" "BAD ARGS: [ pattern] || [path, pattern]"
+    if [ $? == 1 ]; then
         return 1
     fi
     if [ $# -eq 4 ]; then 
@@ -98,19 +98,28 @@ function find_in_all_asterix
 
 function fn_in_all_h
 {
-    ret=`find_in_all_asterix $# $@ "*.h"` 
-    if [ ret == 1 ]; then
+    find_in_all_asterix $# $@ "*.h*" 
+    if [ $? == 1 ]; then
         return 1
     fi
 }
 
 function fn_in_all_cpp
 {
-    ret=`find_in_all_asterix $# $@ "*.cc"` 
-    if [ ret == 1 ]; then
+    find_in_all_asterix $# $@ "*.c*" 
+    if [ $? == 1 ]; then
         return 1
     fi
 }
+
+function fn_in_all_py
+{
+    find_in_all_asterix $# $@ "*.py" 
+    if [ $? == 1 ]; then
+        return 1
+    fi
+}
+
 
 export PDF_READ_NM="\"/Applications/Adobe Acrobat Reader DC.app/Contents/MacOS/AdobeReader\""
 
