@@ -56,7 +56,7 @@ function fn_fl_nm
 
 function check_valid_values
 {
-    if [ $1 -lt $2 ] || [ $1 -gt "$3" ]; then
+    if [ "$1" -lt "$2" ] || [ "$1" -gt "$3" ]; then
         usage "$4"
         return "1"
     fi
@@ -121,12 +121,11 @@ function fn_in_all_py
 }
 
 
-export PDF_READ_NM="\"/Applications/Adobe Acrobat Reader DC.app/Contents/MacOS/AdobeReader\""
 
 # view pdfs
 function opdf
 {
-    daemonize "{$PDF_READ_NM} $1" 
+     daemonize "${PDF_READ_NM} $1" 
 }
 
 #TODO view images
@@ -136,7 +135,6 @@ function opdf
 #}
 
 
-export OFFICE_PACKAGE="\"/Applications/LibreOffice Vanilla.app/Contents/MacOS/soffice\""
 
 # opens a word document
 function owd
@@ -152,7 +150,6 @@ function opp
 
 
 ###### SENTINEL RELATED #####
-export ECLIPSE="\"${WORK}/opt/eclipse/Eclipse.app/Contents/MacOS/\""
 function oecl
 {
     export PATH=/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Commands/java:${PATH}

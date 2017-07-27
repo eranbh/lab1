@@ -35,4 +35,9 @@ export PADDITIONAL_INFO=""
 export PADDITIONAL_AOSP_ENV=""
 export PS1='\e[1m\e[34m\u\e[32m@\e[33m\h \e[39m [$PADDITIONAL_INFO  $PADDITIONAL_AOSP_ENV] \e[32m\w \e[0m\n>>> '
 
+
+
 # Add sentinel related stuff
+export PDF_READ_NM="\"/Applications/Adobe Acrobat Reader DC.app/Contents/MacOS/AdobeReader\""
+export OFFICE_PACKAGE="\"/Applications/LibreOffice Vanilla.app/Contents/MacOS/soffice\""
+export ECLIPSE="\"${WORK}/opt/eclipse/Eclipse.app/Contents/MacOS/\""
