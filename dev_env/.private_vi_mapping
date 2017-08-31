@@ -1,4 +1,3 @@
-
 set nocompatible              " be iMproved, required
 set tabstop=4
 set shiftwidth=4
@@ -13,6 +12,7 @@ colorscheme darkblue          " my favourite color scheme
 set t_Co=256 "first of all, tell vim to use 256 colors
 set laststatus=2 "this tells vim to open a status line even for one win
 syntax enable " for some reason this is needed on MACs. go figure 
+set switchbuf=usetab,newtab "switching between tabs by naming them
 " PLUGINS WHO NEEDS'EM
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -38,8 +38,11 @@ filetype plugin indent on    " required
 
 
 " THIS FILE SHOULD BE SOFT LINKED TO ... FROM $HOME/.vimrc
-map <F2> :tabe
-map <F3> :tabprevious <enter>
-map <F4> :tabnext <enter>
-map sx   :w <enter>
+map <F2>  :tabe
+map <F3>  :tabprevious <enter>
+map <F4>  :tabnext <enter>
+map <F5>  :sbuffer
+map <c-s> :w <enter>
+imap <c-s> <esc> :w <enter> \| <esc> \| i
+vmap <c-s> <esc> :w <enter> \| <esc> \| v
 

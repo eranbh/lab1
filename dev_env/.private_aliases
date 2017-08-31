@@ -26,6 +26,10 @@ alias "vi=vim"
 # fire up vi editor
 alias "v=vim"
 
+# fires up vim for a vertical viewing
+# this can be useful for header/src couples
+alias "vih=vim -O "
+
 # fire up less viewer
 alias "l=less"
 
@@ -33,7 +37,7 @@ alias "l=less"
 alias "m=make"
 
 # vim an entire folder into tabs
-alias "vf=vim -p *"
+alias "vt=vim -p *"
 
 # cpu consumption by process [top 5]
 alias cpuc="ps aux | sort -nrk 3,3 | head -n 5"
@@ -54,5 +58,6 @@ alias gl="git log"
 
 # vagrant related
 alias vu="vagrant up"
+alias vd="vagrant destroy"
 alias vs="vagrant ssh"
 alias vh="vagrant halt"

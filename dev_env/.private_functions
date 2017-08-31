@@ -67,6 +67,10 @@ function check_valid_values
 function fn_fl_ct
 {
     check_valid_values $# "2" "4" "BAD ARGS: [name, pattern] || [path, type, name, pattern]"
+    
+    if [ $? == 1 ]; then
+        return 1
+    fi
 
     if [ $# -lt 4 ]; then
         FILES=`fn_fl_nm "$1"`
@@ -98,7 +102,9 @@ function find_in_all_asterix
 
 function fn_in_all_h
 {
-    find_in_all_asterix $# $@ "*.h*" 
+    find_in_all_asterix $# $@ "*.h" 
+    find_in_all_asterix $# $@ "*.hpp" 
+    find_in_all_asterix $# $@ "*.inl" 
     if [ $? == 1 ]; then
         return 1
     fi
@@ -106,7 +112,8 @@ function fn_in_all_h
 
 function fn_in_all_cpp
 {
-    find_in_all_asterix $# $@ "*.c*" 
+    find_in_all_asterix $# $@ "*.cpp" 
+    find_in_all_asterix $# $@ "*.cc" 
     if [ $? == 1 ]; then
         return 1
     fi
@@ -125,7 +132,7 @@ function fn_in_all_py
 # view pdfs
 function opdf
 {
-     daemonize "${PDF_READ_NM} $1" 
+     daemonize "${PDF_READ_NM} \"$1\"" 
 }
 
 #TODO view images
@@ -155,3 +162,12 @@ function oecl
     export PATH=/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Commands/java:${PATH}
     daemonize  "${ECLIPSE}/eclipse"
 }
+
+# opening vim needs some loving
+function vim
+{
+    local STTYOPTS="$(stty --save)"
+    stty stop '' -ixoff
+    command vim "$@"
+    stty "$STTYOPTS"
+} 
