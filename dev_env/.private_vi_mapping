@@ -37,12 +37,18 @@ call vundle#end()            " required
 filetype plugin indent on    " required
 
 
-" THIS FILE SHOULD BE SOFT LINKED TO ... FROM $HOME/.vimrc
+" KEY MAPPINGS !! 
 map <F2>  :tabe
+imap <F2> <esc>  :tabe
+vmap <F2>  <esc> :tabe
 map <F3>  :tabprevious <enter>
+imap <F3>  <esc> :tabprevious <enter>
+vmap <F3>  <esc> :tabprevious <enter>
 map <F4>  :tabnext <enter>
+imap <F4>  <esc> :tabnext <enter>
+vmap <F4>  <esc> :tabnext <enter>
 map <F5>  :sbuffer
-map <c-s> :w <enter>
+imap <F5>  <esc> :sbuffer
+vmap <F5>  <esc> :sbuffer
 imap <c-s> <esc> :w <enter> \| <esc> \| i
 vmap <c-s> <esc> :w <enter> \| <esc> \| v
-
