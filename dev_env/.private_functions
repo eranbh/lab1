@@ -166,7 +166,7 @@ function oecl
 # opening vim needs some loving
 function vim
 {
-    local STTYOPTS="$(stty --save)"
+    local STTYOPTS="$(stty -g)"
     stty stop '' -ixoff
     command vim "$@"
     stty "$STTYOPTS"
