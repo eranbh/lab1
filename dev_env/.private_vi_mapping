@@ -50,5 +50,6 @@ vmap <F4>  <esc> :tabnext <enter>
 map <F5>  :sbuffer
 imap <F5>  <esc> :sbuffer
 vmap <F5>  <esc> :sbuffer
+map  <c-s> <esc> :w <enter> 
 imap <c-s> <esc> :w <enter> \| <esc> \| i
 vmap <c-s> <esc> :w <enter> \| <esc> \| v

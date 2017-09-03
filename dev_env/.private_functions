@@ -132,7 +132,7 @@ function fn_in_all_py
 # view pdfs
 function opdf
 {
-     daemonize "${PDF_READ_NM} \"$1\"" 
+     daemonize "${PDF_PACKAGE} \"$1\"" 
 }
 
 #TODO view images
