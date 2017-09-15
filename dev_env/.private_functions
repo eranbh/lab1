@@ -155,6 +155,12 @@ function opp
     daemonize "${OFFICE_PACKAGE} --impress"
 }
 
+function gc
+{
+    git checkout $1
+    cd $PWD
+}
+
 
 ###### SENTINEL RELATED #####
 function oecl
@@ -170,4 +176,4 @@ function vim
     stty stop '' -ixoff
     command vim "$@"
     stty "$STTYOPTS"
-} 
+}
