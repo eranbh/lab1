@@ -6,6 +6,7 @@ set incsearch
 set hlsearch
 filetype off                  " dont assume anything by file name required by some plugins
 set number                    " Line numbers
+set relativenumber            " relative line number. useful!
 " colorscheme solarized       " TODO find out how to set vim solarized
 set colorcolumn=80            " Have a line after 80 char
 colorscheme darkblue          " my favourite color scheme
@@ -42,6 +43,8 @@ filetype plugin indent on    " required
 
 
 " KEY MAPPINGS !! 
+
+" tabs
 map <F2>  :tabe
 imap <F2> <esc>  :tabe
 vmap <F2>  <esc> :tabe
@@ -51,16 +54,33 @@ vmap <F3>  <esc> :tabprevious <enter>
 map <F4>  :tabnext <enter>
 imap <F4>  <esc> :tabnext <enter>
 vmap <F4>  <esc> :tabnext <enter>
+
+" go to command mode [hey, c-c is taken]
+map  <c-g> :
+imap <c-g> <esc>  :
+vmap <c-g> <esc>  :
+
+" split to buffer
 map <F5>  :sbuffer
 imap <F5>  <esc> :sbuffer
 vmap <F5>  <esc> :sbuffer
+
+" save
 map  <c-s> <esc> :w <enter> 
 imap <c-s> <esc> :w <enter> \| <esc> \| i
 vmap <c-s> <esc> :w <enter> \| <esc> \| v
+
+" compile code
 nmap <F9> :SCCompile <enter> <enter>
 nmap <F10> :SCCompileRun <enter> <enter>
 imap <F9> <esc>  :SCCompile <enter> <enter>
 imap <F10> <esc> :SCCompileRun <enter> <enter>
 vmap <F9> <esc> :SCCompile <enter> <enter>
 vmap <F10> <esc> :SCCompileRun <enter> <enter>
+
+
+map  <c-c> <esc> :wqa  <enter> 
+imap <c-c> <esc> :wqa  <enter> 
+vmap <c-s> <esc> :wqa  <enter> 
+
 
