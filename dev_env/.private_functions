@@ -155,11 +155,23 @@ function opp
     daemonize "${OFFICE_PACKAGE} --impress"
 }
 
-function gc
+function gco
 {
     git checkout $1
     cd $PWD
 }
+
+function gco_ob
+{
+   git checkout  "$1" --  "$2" 
+}
+
+function gs_ob
+{
+   git show  "$1":"$2" 
+}
+
+
 
 
 ###### SENTINEL RELATED #####
