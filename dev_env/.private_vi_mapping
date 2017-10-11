@@ -14,6 +14,7 @@ set t_Co=256 "first of all, tell vim to use 256 colors
 set laststatus=2 "this tells vim to open a status line even for one win
 syntax enable " for some reason this is needed on MACs. go figure 
 set switchbuf=usetab,newtab "switching between tabs by naming them
+set autoread "reload files if they are updated by external sources
 " PLUGINS WHO NEEDS'EM
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim

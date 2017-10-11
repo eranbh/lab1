@@ -161,9 +161,15 @@ function gco
     cd $PWD
 }
 
+# this one is risky: if you co a file
+# it overwites what you have on disk
+# prompt user for it
 function gco_ob
 {
-   git checkout  "$1" --  "$2" 
+   read -p "checkout $1 from branch $2. you sure? [Y/N]:  " answer
+   if [  "${answer}"  =  "Y" ]; then 
+      git checkout  "$1" --  "$2"
+   fi 
 }
 
 function gs_ob
