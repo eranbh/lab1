@@ -161,6 +161,14 @@ function gco
     cd $PWD
 }
 
+# this creates a tracking branch
+# we usually want the master, but
+# im not making any assumptions
+function gco_tr_br
+{
+    git checkout -b $1 $2
+}
+
 # this one is risky: if you co a file
 # it overwites what you have on disk
 # prompt user for it

@@ -15,6 +15,7 @@ set laststatus=2 "this tells vim to open a status line even for one win
 syntax enable " for some reason this is needed on MACs. go figure 
 set switchbuf=usetab,newtab "switching between tabs by naming them
 set autoread "reload files if they are updated by external sources
+set encoding=utf-8 " encoding is important for some plugins
 " PLUGINS WHO NEEDS'EM
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -22,6 +23,7 @@ call vundle#begin()
 
 Plugin 'VundleVim/Vundle.vim' " let Vundle manage Vundle, required
 Plugin 'Valloric/YouCompleteMe' " code completion by google
+let g:ycm_global_ycm_extra_conf = '/Users/eranb/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
 Plugin 'rdnetto/YCM-Generator', { 'branch': 'stable'} " generates indexes for ycm
 Plugin 'tpope/vim-fugitive' " this takes care of git managment
 Plugin 'scrooloose/nerdtree' " file explorer

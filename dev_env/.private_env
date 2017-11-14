@@ -4,8 +4,9 @@
 export LC_TIME=en_US.UTF8
 export WORK=$HOME/work
 export PRIVATE_BIN=$WORK/bin
+export CMAKE_BIN=/usr/local/cmake/bin
 # PLACE ALL PATH RELATED STUFF ABOVE THIS LINE !!!
-export PATH=$PRIVATE_BIN:$PATH
+export PATH=$PRIVATE_BIN:$CMAKE_BIN:$PATH
 
 export LAB=$WORK/lab
 export BUILD_LOG_AREA=$REPOS/logs
@@ -14,22 +15,6 @@ export LOG_AREA=$HOME/logs
 
 
 # build our kick-ass prompt.
-
-# I have 2 kinds of working envs:
-# 1. an android repo:
-# 2. my working lab
-
-
-# we need a way to some how know that the android
-# environment initialization was done. also, we want
-# to display the specifics to the user, as to avoid building
-# the wrong products [thanks for the long build times google]
-# this has the following constrins:
-# the variables below will remain defined by the google scripts
-# the way they are today. if that changes, this code will too
-
-
-
 
 export PADDITIONAL_INFO=""
 export PS1='\e[1m\e[34m\u\e[32m@\e[33m\h \e[39m [$PADDITIONAL_INFO ] \e[32m\w \e[0m\n>>> '
