@@ -185,7 +185,10 @@ function gs_ob
    git show  "$1":"$2" 
 }
 
-
+function gs_oc
+{
+    git show HEAD~"$1":"$2"
+}
 
 
 ###### SENTINEL RELATED #####
