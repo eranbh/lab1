@@ -59,29 +59,21 @@ imap <F4>  <esc> :tabnext <enter>
 vmap <F4>  <esc> :tabnext <enter>
 
 " go to command mode [hey, c-c is taken]
-map  <c-g> :
+map  <c-g>        :
 imap <c-g> <esc>  :
 vmap <c-g> <esc>  :
 
-" split to buffer
-map <F5>  :sbuffer
-imap <F5>  <esc> :sbuffer
-vmap <F5>  <esc> :sbuffer
+" move between buffers
+map <F5>   :sbn <enter> 
+imap <F5>  sbn <enter>
+vmap <F5>  sbn <enter>
 
 " save
 map  <c-s> <esc> :w <enter> 
 imap <c-s> <esc> :w <enter> \| <esc> \| i
 vmap <c-s> <esc> :w <enter> \| <esc> \| v
 
-" compile code
-nmap <F9> :SCCompile <enter> <enter>
-nmap <F10> :SCCompileRun <enter> <enter>
-imap <F9> <esc>  :SCCompile <enter> <enter>
-imap <F10> <esc> :SCCompileRun <enter> <enter>
-vmap <F9> <esc> :SCCompile <enter> <enter>
-vmap <F10> <esc> :SCCompileRun <enter> <enter>
-
-
+" quitting all
 map  <c-c> <esc> :wqa  <enter> 
 imap <c-c> <esc> :wqa  <enter> 
 vmap <c-s> <esc> :wqa  <enter> 
