@@ -169,6 +169,30 @@ function gco_tr_br
     git checkout -b $1 $2
 }
 
+# this cancels changes not staged
+# it prompts to avoid sad endings
+function gx_ns
+{
+   read -p "about to cancel changes: $1. you sure? [Y/N]" answer
+   if [  "${answer}"  =  "Y" ]; then 
+        git checkout -- "$1"
+   fi 
+}
+
+# this cancels changes already staged
+# it prompts to avoid sad endings
+# NOTE: this is a __hard__ reset
+function gx_s
+{
+   read -p "about to unstage changes: $1. you sure? [Y/N]" answer
+   if [  "${answer}"  =  "Y" ]; then 
+        git reset HEAD "$1"
+        gx_ns "$1"
+   fi 
+}
+
+
+
 # this one is risky: if you co a file
 # it overwites what you have on disk
 # prompt user for it
