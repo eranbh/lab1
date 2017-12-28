@@ -67,6 +67,6 @@ alias vh="vagrant halt"
 alias vr="vagrant reload"
 
 # sentinel related
-alias gtse="/Volumes/Users/eranb"
-alias gtsp="/Volumes/Users/Public"
-
+alias gtse="cd /Volumes/Users/eranb"
+alias gtsp="cd /Volumes/Users/Public"
+alias gts1="cd $S1_LIN_AGENT"

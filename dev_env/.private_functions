@@ -29,6 +29,21 @@ function daemonize
     eval "nohup $1 &" 
 }
 
+function redirect_both_streams
+{
+    eval "$1" 2>&1
+}
+
+function output_to_file_and_stdout
+{
+    eval redirect_both_streams "$1" | tee "$2"
+}
+
+function tee_output
+{
+    eval output_to_file_and_stdout "$1" "$2" 
+}
+
 
 function usage
 {
