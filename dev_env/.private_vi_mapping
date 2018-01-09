@@ -16,6 +16,9 @@ syntax enable " for some reason this is needed on MACs. go figure
 set switchbuf=usetab,newtab "switching between tabs by naming them
 set autoread "reload files if they are updated by external sources
 set encoding=utf-8 " encoding is important for some plugins
+set cindent " automatic c-ident according to file type
+set cinoptions=g0 " the style of the identation for scope declerations
+
 " PLUGINS WHO NEEDS'EM
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -77,7 +80,4 @@ vmap <c-s> <esc> :w <enter> \| <esc> \| v
 map  <c-c> <esc> :wqa  <enter> 
 imap <c-c> <esc> :wqa  <enter> 
 vmap <c-s> <esc> :wqa  <enter> 
-set cindent
-set cinoptions=g0
-
 
