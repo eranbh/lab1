@@ -182,6 +182,7 @@ function gco
 function gco_tr_br
 {
     git checkout -b $1 $2
+    cd $PWD    
 }
 
 # this cancels changes not staged
@@ -227,6 +228,18 @@ function gs_ob
 function gs_oc
 {
     git show HEAD~"$1":"$2"
+}
+
+function gb
+{
+    if [ $# -gt 1 ]; then
+        if [ "$1" = "-m" ]; then
+            git branch -m $2 $3
+            cd $PWD
+        fi
+    else
+        git branch
+    fi
 }
 
 
