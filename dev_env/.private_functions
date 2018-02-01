@@ -185,6 +185,13 @@ function gco_tr_br
     cd $PWD    
 }
 
+# convinience function for grabbing
+# a fresh master branch
+function gcm
+{
+    gco_tr_br master origin/master
+}
+
 # this cancels changes not staged
 # it prompts to avoid sad endings
 function gx_ns
@@ -230,15 +237,13 @@ function gs_oc
     git show HEAD~"$1":"$2"
 }
 
-function gb
+function gbr
 {
-    if [ $# -gt 1 ]; then
-        if [ "$1" = "-m" ]; then
-            git branch -m $2 $3
-            cd $PWD
-        fi
-    else
-        git branch
+    if [ ! $# -gt 0 ]; then
+        echo "git branch rename requires parameters. see man"
+    else        
+        git branch -m $1 $2
+        cd $PWD 
     fi
 }
 
