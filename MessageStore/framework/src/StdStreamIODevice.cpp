@@ -3,7 +3,7 @@
 //
 #include <algorithm>
 #include <iterator>
-#include <fstream>
+#include <limits>
 #include "inc/StdStreamIODevice.h"
 
 namespace framework {
@@ -17,6 +17,7 @@ StdStreamIODevice::readData(std::uint64_t len)
     dataChunk.reserve(len);
     // working directly with an istrean is prety low
     // on abstractions. we have to read the char one by one
+    // note that we preserve the new line character!
     char ch = 0;
     for( std::uint64_t i=0 ; i<len && (ch != '\n') ; ++i)
     {
@@ -35,6 +36,11 @@ void StdStreamIODevice::writeData(std::any buff, std::uint64_t len)
     std::copy(dataChunk.begin(), dataChunk.end(),
               std::ostream_iterator<char>(m_outStream));
     m_outStream << std::endl;
+}
+
+void StdStreamIODevice::ignoreTillChar(char ch)
+{
+    m_inStream.ignore(std::numeric_limits<std::streamsize>::max(), ch);
 }
 
 } // namespace framework

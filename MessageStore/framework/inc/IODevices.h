@@ -61,6 +61,10 @@ public:
 
     virtual void writeData(std::any, std::uint64_t, IODeviceErrors&){throw ;}
 
+
+    // unloads characters till a given char
+    virtual void ignoreTillChar(char ch){throw ;}
+
     // .... many other IO related apis
 };
 

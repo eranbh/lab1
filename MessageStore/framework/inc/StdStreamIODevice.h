@@ -40,6 +40,11 @@ public:
     // will always write StreamDataChunk of length len
     virtual void writeData(std::any, std::uint64_t) override ;
 
+    // ignores chars up to a given delimiter character.
+    // this is useful when you read less then
+    // a given len. giving offset semantics to streams
+    virtual void ignoreTillChar(char ch) override ;
+
 
     struct StdStreamException{
         // .. reason, error code, whatever!!
