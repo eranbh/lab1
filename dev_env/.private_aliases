@@ -10,9 +10,6 @@ alias gtl="cd $WORK/lab"
 # open emacs no windows of course
 alias se="emacs -nw > /dev/null 2>&1"
 
-# go to general log area
-alias gtla="cd $LOG_AREA"
-
 # go to Downloads
 alias gtd="cd $HOME/Downloads"
 
@@ -58,6 +55,7 @@ alias gd="git diff"
 alias ga="git add"
 alias gc="git commit -a" # with adding
 alias gb="git branch"
+alias fb="git branch | grep"
 
 # vagrant related
 alias vu="vagrant up"
@@ -70,4 +68,5 @@ alias vr="vagrant reload"
 alias gtse="cd /Volumes/Users/eranb"
 alias gtsp="cd /Volumes/Users/Public"
 alias gts1="cd $S1_LIN_AGENT"
+alias gtv="cd $VMS"
 

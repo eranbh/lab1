@@ -4,7 +4,7 @@ function cd()
 {
 
     
-    command cd $1;
+    command cd "$1"
 
     #PADDITIONAL_INFO="git: "
     BRANCH_NAME=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'`
