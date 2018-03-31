@@ -26,6 +26,9 @@ const std::string ClientUiTask::SEND_USR_TO = "Please enter the first and last n
                                               "__TO__ which the message is sent, separated by space." ;
 const std::string ClientUiTask::NO_SUCH_USER = "The user you have requested does not exist in the system. Please try again.";
 const std::string ClientUiTask::USER_MSG = "Please enter the message you wish to send [128 chars max].";
+const std::string ClientUiTask::RCV_USR = "Please enter the first and last name of the user for which you "
+                                          "would like to receive messages, separated by space";
+const std::string ClientUiTask::USR_EXIST =  "The user you chose to add exists in the system.";
 const uint8_t ClientUiTask::MAX_USR_NAME = 20;
 const uint8_t ClientUiTask::MAX_USR_LAST = 20;
 const uint8_t ClientUiTask::MAX_MSG_SIZE = 128;
@@ -108,10 +111,11 @@ ClientUiTask::readLineFromStream(std::uint64_t len)
             ANY_CAST(m_ioDevice->readData(len));
 
     // discard newline if exists
-    if(chunk[chunk.size()-1] != '\n')
+    if(chunk[chunk.size()-1] != '\n') {
         m_ioDevice->ignoreTillChar('\n');
+    }
     else
-        chunk[chunk.size()] = '\0';
+        chunk.resize(chunk.size()-1);
 
     return chunk;
 }
@@ -132,7 +136,10 @@ void ClientUiTask::handleUserRequest(UserOptions opt)
             break;
         }
         case UserOptions::RECV_ALL_MSGS:
-        {}
+        {
+            handleRecvForUser();
+            break;
+        }
 
         case UserOptions::BAD_OPT:
         {
@@ -166,7 +173,9 @@ void ClientUiTask::handleAddUser()
     UserManager::User user{.m_firstName = std::string(chunkName.data(), chunkName.size()),
                            .m_lastName = std::string(chunkLast.data(), chunkLast.size())};
 
-    m_userManager.addUser(std::move(user));
+    if( UserManager::ReturnCodes::EXISTS ==
+            m_userManager.addUser(std::move(user)))
+        displaySingleOption(USR_EXIST);
 }
 
 void ClientUiTask::handleSendToUser()
@@ -179,9 +188,9 @@ void ClientUiTask::handleSendToUser()
     std::string first, last;
     std::stringstream ss{ std::string(chunkFirstLast.data(), chunkFirstLast.size())};
     std::getline(ss, first, ' ');
-    std::getline(ss, last, ' ');
+    std::getline(ss, last, '\0');
 
-    UserManager::User userFrom{.m_firstName = first,
+      UserManager::User userFrom{.m_firstName = first,
                                .m_lastName = last};
 
     if(false == m_userManager.doesUserExist(userFrom))
@@ -197,9 +206,10 @@ void ClientUiTask::handleSendToUser()
             readLineFromStream(MAX_USR_NAME + MAX_USR_LAST);
 
     // very fragile. no sanity checks!!!
+    ss.clear();
     ss.str(std::string(chunkFirstLast.data(), chunkFirstLast.size()));
     std::getline(ss, first, ' ');
-    std::getline(ss, last, ' ');
+    std::getline(ss, last, '\0');
 
     UserManager::User userTo{.m_firstName = first,
                              .m_lastName = last};
@@ -224,7 +234,33 @@ void ClientUiTask::handleSendToUser()
 }
 
 void ClientUiTask::handleRecvForUser()
-{}
+{
+    displaySingleOption(RCV_USR);
+    framework::StreamDataChunk chunkFirstLast =
+            readLineFromStream(MAX_USR_NAME + MAX_USR_LAST);
+
+    // very fragile. no sanity checks!!!
+    std::string first, last;
+    std::stringstream ss{ std::string(chunkFirstLast.data(), chunkFirstLast.size())};
+    std::getline(ss, first, ' ');
+    std::getline(ss, last, '\0');
+
+    UserManager::User user{.m_firstName = first,
+                               .m_lastName = last};
+
+    if(false == m_userManager.doesUserExist(user))
+    {
+        displaySingleOption(NO_SUCH_USER);
+        return;
+    }
+
+    UserManager::Messages msgs = m_userManager.getUserMessages(user);
+    for(auto& msg : msgs)
+    {
+        displaySingleOption(msg.m_msg);
+    }
+
+}
 
 } // namespace msg_store
 

@@ -25,6 +25,8 @@ class UserManager
 public:
 
     enum class ReturnCodes {SUCCESS, NOT_EXISTS, EXISTS, BAD_OPT};
+    struct UserMsg;
+    using Messages = std::vector<UserMsg>;
 
     struct User
     {
@@ -52,6 +54,10 @@ public:
 
     bool doesUserExist(User);
 
+    Messages getUserMessages(User);
+
+
+
 
 private:
 
@@ -60,9 +66,11 @@ private:
     {
     public:
         void addMessage(UserMsg msg){m_msgs.push_back(msg);}
+        Messages getUserMessages() { return m_msgs;}
+        void clearUsersBox(){m_msgs.clear();}
 
     private:
-        std::vector<UserMsg> m_msgs;
+        Messages m_msgs;
 
         // .. other satellite data you want to keep on a user
     };

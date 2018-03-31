@@ -46,6 +46,8 @@ private:
     static const std::string SEND_USR_TO;
     static const std::string NO_SUCH_USER;
     static const std::string USER_MSG;
+    static const std::string RCV_USR;
+    static const std::string USR_EXIST;
     static const uint8_t MAX_USR_NAME;
     static const uint8_t MAX_USR_LAST;
     static const uint8_t MAX_MSG_SIZE;

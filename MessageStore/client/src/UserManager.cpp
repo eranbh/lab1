@@ -11,10 +11,11 @@ UserManager::addUser(User user)
 {
 
     // find is cheap with maps. so run it before allocating stuff
-    if( END_OF_MAP != findUserBox(User(user.m_firstName, user.m_lastName)))
+    if(doesUserExist(user))
         return ReturnCodes::EXISTS;
 
-    UserUniqueHash userHash = std::hash<std::string>{}(user.m_firstName + user.m_lastName);
+    std::string fullName{user.m_firstName + user.m_lastName};
+    UserUniqueHash userHash = std::hash<std::string>{}(fullName);
 
     MsgStoreUserBoxPtr userPtr = std::make_unique<MsgStoreUserBox>();
 
@@ -37,16 +38,27 @@ void UserManager::sendToUser(UserMsg msg)
 
 bool UserManager::doesUserExist(User user)
 {
-    return (findUserBox(User(user.m_firstName, user.m_lastName)) == END_OF_MAP);
+    return (findUserBox(user) != END_OF_MAP);
 }
 
 
 UserManager::UserHashToUsrBoxPtrItr
 UserManager::findUserBox(User user)
 {
-    UserUniqueHash userHash = std::hash<std::string>{}(user.m_firstName + user.m_lastName);
+    std::string fullName{user.m_firstName + user.m_lastName};
+    UserUniqueHash userHash = std::hash<std::string>{}(fullName);
 
     return m_usersByHash.find(userHash);
+}
+
+UserManager::Messages UserManager::getUserMessages(User user)
+{
+    UserHashToUsrBoxPtrItr iter = findUserBox(user);
+    if (END_OF_MAP == iter)
+        return Messages{};
+    Messages msgs = iter->second->getUserMessages();
+    iter->second->clearUsersBox(); // clear the user's box
+    return msgs;
 }
 
 } // namespace msg_store
