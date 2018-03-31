@@ -18,8 +18,7 @@ const std::string ClientUiTask::RECV = "3. Receive all messages bound to a user"
 const std::string ClientUiTask::EXIT = "4. Exit Message Store";
 const std::string ClientUiTask::GOOD_BYE = "Thank you for using Message Store. Drop by any time!";
 const std::string ClientUiTask::BAD_OPT = "Bad option selected. Please try again";
-const std::string ClientUiTask::USR_NAME = "Please enter your first name [20 chars max]: ";
-const std::string ClientUiTask::USR_LAST = "Please enter your last name [20 chars max]: ";
+const std::string ClientUiTask::USR_ADD = "Please enter your first and last name, separated by a space ";
 const std::string ClientUiTask::SEND_USR_FROM = "Please enter the first and last name of the user "
                                                 "__FROM__ which the message is sent, separated by space." ;
 const std::string ClientUiTask::SEND_USR_TO = "Please enter the first and last name of the user "
@@ -97,29 +96,6 @@ ClientUiTask::UserOptions ClientUiTask::readUserRequest()
     }
 }
 
-void ClientUiTask::displaySingleOption(std::string prompt)
-{
-    framework::StreamDataChunk chunk {prompt.begin(), prompt.end()} ;
-    m_ioDevice->
-            writeData(ANY_CAST(chunk), chunk.size());
-}
-
-framework::StreamDataChunk
-ClientUiTask::readLineFromStream(std::uint64_t len)
-{
-    framework::StreamDataChunk chunk =
-            ANY_CAST(m_ioDevice->readData(len));
-
-    // discard newline if exists
-    if(chunk[chunk.size()-1] != '\n') {
-        m_ioDevice->ignoreTillChar('\n');
-    }
-    else
-        chunk.resize(chunk.size()-1);
-
-    return chunk;
-}
-
 void ClientUiTask::handleUserRequest(UserOptions opt)
 {
     switch (opt)
@@ -157,21 +133,12 @@ void ClientUiTask::handleUserRequest(UserOptions opt)
     }
 }
 
-//////////////////////// HANDLER FUNCTIONS ////////////////////
 void ClientUiTask::handleAddUser()
 {
-    displaySingleOption(USR_NAME);
+    displaySingleOption(USR_ADD);
 
-    framework::StreamDataChunk chunkName =
-        readLineFromStream(MAX_USR_NAME);
-
-    displaySingleOption(USR_LAST);
-
-    framework::StreamDataChunk chunkLast =
-            readLineFromStream(MAX_USR_NAME);
-
-    UserManager::User user{.m_firstName = std::string(chunkName.data(), chunkName.size()),
-                           .m_lastName = std::string(chunkLast.data(), chunkLast.size())};
+    UserManager::User user =
+            parseUserFromInput(MAX_USR_NAME + MAX_USR_LAST);
 
     if( UserManager::ReturnCodes::EXISTS ==
             m_userManager.addUser(std::move(user)))
@@ -181,54 +148,29 @@ void ClientUiTask::handleAddUser()
 void ClientUiTask::handleSendToUser()
 {
     displaySingleOption(SEND_USR_FROM);
-    framework::StreamDataChunk chunkFirstLast =
-            readLineFromStream(MAX_USR_NAME + MAX_USR_LAST);
 
-    // very fragile. no sanity checks!!!
-    std::string first, last;
-    std::stringstream ss{ std::string(chunkFirstLast.data(), chunkFirstLast.size())};
-    std::getline(ss, first, ' ');
-    std::getline(ss, last, '\0');
+    UserManager::User userFrom = parseUserFromInput(MAX_USR_NAME + MAX_USR_LAST);
 
-      UserManager::User userFrom{.m_firstName = first,
-                               .m_lastName = last};
-
-    if(false == m_userManager.doesUserExist(userFrom))
-    {
+    if(false == m_userManager.doesUserExist(userFrom)) {
         displaySingleOption(NO_SUCH_USER);
         return;
     }
-
-    chunkFirstLast.clear();
 
     displaySingleOption(SEND_USR_TO);
-    chunkFirstLast =
-            readLineFromStream(MAX_USR_NAME + MAX_USR_LAST);
+    UserManager::User userTo = parseUserFromInput(MAX_USR_NAME + MAX_USR_LAST);
 
-    // very fragile. no sanity checks!!!
-    ss.clear();
-    ss.str(std::string(chunkFirstLast.data(), chunkFirstLast.size()));
-    std::getline(ss, first, ' ');
-    std::getline(ss, last, '\0');
-
-    UserManager::User userTo{.m_firstName = first,
-                             .m_lastName = last};
-
-    if(false == m_userManager.doesUserExist(userTo))
-    {
+    if(false == m_userManager.doesUserExist(userTo))  {
         displaySingleOption(NO_SUCH_USER);
         return;
     }
 
-    chunkFirstLast.clear();
 
     displaySingleOption(USER_MSG);
-    chunkFirstLast =
-            readLineFromStream(MAX_MSG_SIZE);
+    framework::StreamDataChunk chunkMsg = readLineFromStream(MAX_MSG_SIZE);
 
     UserManager::UserMsg msg {userFrom,
                               userTo,
-                              std::string(chunkFirstLast.data(), chunkFirstLast.size())};
+                              std::string(chunkMsg.data(), chunkMsg.size())};
 
     m_userManager.sendToUser(msg);
 }
@@ -236,17 +178,9 @@ void ClientUiTask::handleSendToUser()
 void ClientUiTask::handleRecvForUser()
 {
     displaySingleOption(RCV_USR);
-    framework::StreamDataChunk chunkFirstLast =
-            readLineFromStream(MAX_USR_NAME + MAX_USR_LAST);
 
-    // very fragile. no sanity checks!!!
-    std::string first, last;
-    std::stringstream ss{ std::string(chunkFirstLast.data(), chunkFirstLast.size())};
-    std::getline(ss, first, ' ');
-    std::getline(ss, last, '\0');
-
-    UserManager::User user{.m_firstName = first,
-                               .m_lastName = last};
+    UserManager::User user =
+            parseUserFromInput(MAX_USR_NAME + MAX_USR_LAST);
 
     if(false == m_userManager.doesUserExist(user))
     {
@@ -260,6 +194,47 @@ void ClientUiTask::handleRecvForUser()
         displaySingleOption(msg.m_msg);
     }
 
+}
+
+////////////////////////// UTILITIES ///////////////////////////////////
+void ClientUiTask::displaySingleOption(std::string prompt)
+{
+    framework::StreamDataChunk chunk {prompt.begin(), prompt.end()} ;
+    m_ioDevice->
+            writeData(ANY_CAST(chunk), chunk.size());
+}
+
+framework::StreamDataChunk
+ClientUiTask::readLineFromStream(std::uint64_t len)
+{
+    framework::StreamDataChunk chunk =
+            ANY_CAST(m_ioDevice->readData(len));
+
+    // discard newline if exists
+    if(chunk[chunk.size()-1] != '\n') {
+        m_ioDevice->ignoreTillChar('\n');
+    }
+    else
+        chunk.resize(chunk.size()-1);
+
+    return chunk;
+}
+
+UserManager::User
+ClientUiTask::parseUserFromInput(std::uint64_t  lenToRead)
+{
+    framework::StreamDataChunk chunkFirstLast =
+            readLineFromStream(lenToRead);
+
+    // very fragile. no sanity checks!!!
+    std::string first, last;
+    std::stringstream ss{ std::string(chunkFirstLast.data(), chunkFirstLast.size())};
+    std::getline(ss, first, ' ');
+    std::getline(ss, last, '\0');
+
+    UserManager::User user{.m_firstName = first,
+            .m_lastName = last};
+    return user;
 }
 
 } // namespace msg_store

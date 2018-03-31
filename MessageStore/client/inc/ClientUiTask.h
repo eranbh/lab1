@@ -40,8 +40,7 @@ private:
     static const std::string EXIT;
     static const std::string GOOD_BYE;
     static const std::string BAD_OPT;
-    static const std::string USR_NAME;
-    static const std::string USR_LAST;
+    static const std::string USR_ADD;
     static const std::string SEND_USR_FROM;
     static const std::string SEND_USR_TO;
     static const std::string NO_SUCH_USER;
@@ -62,6 +61,8 @@ private:
     void displaySingleOption(std::string);
     // reads till new line [ discarding it ]
     framework::StreamDataChunk readLineFromStream(std::uint64_t);
+
+    UserManager::User parseUserFromInput(std::uint64_t  lenToRead);
 
     void handleAddUser();
     void handleSendToUser();
