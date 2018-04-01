@@ -1,6 +1,4 @@
-//
-// Created by Eran Ben Horin on 30/03/2018.
-//
+#pragma once
 
 #ifndef MESSAGESTORE_USERMANAGER_H
 #define MESSAGESTORE_USERMANAGER_H
@@ -14,10 +12,13 @@ namespace msg_store{
 
 /*
 * this class represents a database of users in the msg-store system.
-* this class provides apis for accessing, and manipultating the database.
+* this class provides apis for accessing, and manipulating the database.
 * the db manages its own memory.
 * this database assumes that a user's combination of first and last names
 * are unique.
+* a good design decision here would be to place this logic in a separate thread
+* possibly the server thread. this thread could handle stuff like:
+* persistence of the user's data.
 */
 class UserManager
 {

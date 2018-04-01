@@ -1,6 +1,4 @@
-//
-// Created by Eran Ben Horin on 29/03/2018.
-//
+#pragma once
 
 #ifndef MESSAGESTORE_CLIENT_UI_TASK_H
 #define MESSAGESTORE_CLIENT_UI_TASK_H
@@ -20,6 +18,12 @@ namespace msg_store {
 class ClientUiTask {
 
 public:
+
+    // friendship for testing.
+    // this technique has the advantage of not requiring
+    // inclusion of the testing code, or special set methods
+    // for setting the impl details [ e.g. the IODevice impl ]
+    friend class ClientUITest;
 
     enum class UserOptions : short { ADD_USER, SEND_MSG, RECV_ALL_MSGS, EXIT, BAD_OPT};
 
@@ -58,7 +62,7 @@ private:
 
     void handleUserRequest(UserOptions);
 
-    void displaySingleOption(std::string);
+    void displaySingleMessage(std::string);
     // reads till new line [ discarding it ]
     framework::StreamDataChunk readLineFromStream(std::uint64_t);
 

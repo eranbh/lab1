@@ -1,6 +1,3 @@
-//
-// Created by Eran Ben Horin on 30/03/2018.
-//
 #include <functional>
 #include "inc/UserManager.h"
 

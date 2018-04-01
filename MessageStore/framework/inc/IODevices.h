@@ -2,7 +2,7 @@
 #define MESSAGESTORE_IODEVICES_H
 
 /*
-* this header contains our representaion of an IO device.
+* this header contains our representation of an IO device.
 * there can, essentially, be 2 types of an IO operations:
 * 1. reading - handles reading a stream of data off of
 *    a device.

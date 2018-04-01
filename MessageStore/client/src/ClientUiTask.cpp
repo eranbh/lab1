@@ -1,6 +1,8 @@
-//
-// Created by Eran Ben Horin on 29/03/2018.
-//
+/*
+ * this file contains the UI thread's logic. it could be used with any
+ * underlying IO device, as long as that has an interface that conforms
+ * to the one given by IODevice.
+ */
 #include <sstream>
 #include "inc/ClientUiTask.h"
 
@@ -32,15 +34,20 @@ const uint8_t ClientUiTask::MAX_USR_NAME = 20;
 const uint8_t ClientUiTask::MAX_USR_LAST = 20;
 const uint8_t ClientUiTask::MAX_MSG_SIZE = 128;
 
+
+// this ui thread works with the std streams. but
+// you can plugin whatever you like here ...
+// cant make it a template, as the init way is not enforced
+// by the interface, and therefor is not unified for all impls
 ClientUiTask::ClientUiTask() : m_thread(nullptr) {
-    // this ui thread works with the std streams. but
-    // you can plugin whatever you like here ...
+
     m_ioDevice =
             std::make_unique<framework::StdStreamIODevice>(std::cin,
                                                            std::cout);
 }
 
 ClientUiTask::~ClientUiTask() {
+    // has to be here otherwise the program might std::terminate
     m_keepRunning = false;
     if(m_thread->joinable())
         m_thread->join();
@@ -70,11 +77,11 @@ ClientUiTask::UserOptions ClientUiTask::displayUserOptions()
 {
     UserOptions chosenOpt = UserOptions::BAD_OPT;
 
-    displaySingleOption(WELCOME);
-    displaySingleOption(ADD);
-    displaySingleOption(SEND);
-    displaySingleOption(RECV);
-    displaySingleOption(EXIT);
+    displaySingleMessage(WELCOME);
+    displaySingleMessage(ADD);
+    displaySingleMessage(SEND);
+    displaySingleMessage(RECV);
+    displaySingleMessage(EXIT);
 
     chosenOpt = readUserRequest();
 
@@ -119,12 +126,12 @@ void ClientUiTask::handleUserRequest(UserOptions opt)
 
         case UserOptions::BAD_OPT:
         {
-            displaySingleOption(BAD_OPT);
+            displaySingleMessage(BAD_OPT);
             break;
         }
         case UserOptions::EXIT:
         {
-            displaySingleOption(GOOD_BYE);
+            displaySingleMessage(GOOD_BYE);
             m_keepRunning = false;
             break;
         }
@@ -135,37 +142,37 @@ void ClientUiTask::handleUserRequest(UserOptions opt)
 
 void ClientUiTask::handleAddUser()
 {
-    displaySingleOption(USR_ADD);
+    displaySingleMessage(USR_ADD);
 
     UserManager::User user =
             parseUserFromInput(MAX_USR_NAME + MAX_USR_LAST);
 
     if( UserManager::ReturnCodes::EXISTS ==
             m_userManager.addUser(std::move(user)))
-        displaySingleOption(USR_EXIST);
+        displaySingleMessage(USR_EXIST);
 }
 
 void ClientUiTask::handleSendToUser()
 {
-    displaySingleOption(SEND_USR_FROM);
+    displaySingleMessage(SEND_USR_FROM);
 
     UserManager::User userFrom = parseUserFromInput(MAX_USR_NAME + MAX_USR_LAST);
 
     if(false == m_userManager.doesUserExist(userFrom)) {
-        displaySingleOption(NO_SUCH_USER);
+        displaySingleMessage(NO_SUCH_USER);
         return;
     }
 
-    displaySingleOption(SEND_USR_TO);
+    displaySingleMessage(SEND_USR_TO);
     UserManager::User userTo = parseUserFromInput(MAX_USR_NAME + MAX_USR_LAST);
 
     if(false == m_userManager.doesUserExist(userTo))  {
-        displaySingleOption(NO_SUCH_USER);
+        displaySingleMessage(NO_SUCH_USER);
         return;
     }
 
 
-    displaySingleOption(USER_MSG);
+    displaySingleMessage(USER_MSG);
     framework::StreamDataChunk chunkMsg = readLineFromStream(MAX_MSG_SIZE);
 
     UserManager::UserMsg msg {userFrom,
@@ -177,27 +184,27 @@ void ClientUiTask::handleSendToUser()
 
 void ClientUiTask::handleRecvForUser()
 {
-    displaySingleOption(RCV_USR);
+    displaySingleMessage(RCV_USR);
 
     UserManager::User user =
             parseUserFromInput(MAX_USR_NAME + MAX_USR_LAST);
 
     if(false == m_userManager.doesUserExist(user))
     {
-        displaySingleOption(NO_SUCH_USER);
+        displaySingleMessage(NO_SUCH_USER);
         return;
     }
 
     UserManager::Messages msgs = m_userManager.getUserMessages(user);
     for(auto& msg : msgs)
     {
-        displaySingleOption(msg.m_msg);
+        displaySingleMessage(msg.m_msg);
     }
 
 }
 
 ////////////////////////// UTILITIES ///////////////////////////////////
-void ClientUiTask::displaySingleOption(std::string prompt)
+void ClientUiTask::displaySingleMessage(std::string prompt)
 {
     framework::StreamDataChunk chunk {prompt.begin(), prompt.end()} ;
     m_ioDevice->
