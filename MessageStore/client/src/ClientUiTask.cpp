@@ -30,6 +30,8 @@ const std::string ClientUiTask::USER_MSG = "Please enter the message you wish to
 const std::string ClientUiTask::RCV_USR = "Please enter the first and last name of the user for which you "
                                           "would like to receive messages, separated by space";
 const std::string ClientUiTask::USR_EXIST =  "The user you chose to add exists in the system.";
+const std::string ClientUiTask::MSG_HEADER = "\nUser Messages:";
+const std::string ClientUiTask::NO_MSG = "\nNo users for this user";
 const uint8_t ClientUiTask::MAX_USR_NAME = 20;
 const uint8_t ClientUiTask::MAX_USR_LAST = 20;
 const uint8_t ClientUiTask::MAX_MSG_SIZE = 128;
@@ -196,8 +198,13 @@ void ClientUiTask::handleRecvForUser()
     }
 
     UserManager::Messages msgs = m_userManager.getUserMessages(user);
-    for(auto& msg : msgs)
-    {
+    if(0 == msgs.size()) {
+        displaySingleMessage(NO_MSG);
+        return;
+    }
+
+    displaySingleMessage(MSG_HEADER);
+    for (auto &msg : msgs) {
         displaySingleMessage(msg.m_msg);
     }
 
