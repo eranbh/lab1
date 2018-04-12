@@ -97,7 +97,7 @@ function fn_fl_ct
     
     for file in ${FILES[*]}
     do
-        grep -Hn "${PATTERN}" ${file}
+        grep -Hn --color=auto  "${PATTERN}" ${file}
     done
 }
 
@@ -151,10 +151,10 @@ function opdf
 }
 
 #TODO view images
-#function ochm
-#{
-#    nohup kchmviewer "$1" 2>/dev/null & 
-#}
+function oimg
+{
+    daemonize " ${IMG_PACKAGE} \"$1\"" 
+}
 
 
 
