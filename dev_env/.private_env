@@ -28,10 +28,11 @@ export VMS=${WORK}/vms
 
 # Add sentinel related stuff
 export S1_LIN_AGENT=${WORK}/sentinel/linux-agent
+export S2_LIN_AGENT=${WORK}/sentinel/linux-agent-2
 
 # local dev tools
-export LOCAL_GCC_PATH="/usr/local/Cellar/gcc/7.2.0"
-export LOCAL_GXX_INC="${LOCAL_GCC_PATH}/include/c++/7.2.0"
+export LOCAL_GCC_PATH="/usr/local/Cellar/gcc/7.3.0_1/"
+export LOCAL_GXX_INC="${LOCAL_GCC_PATH}/include/c++/7.3.0"
 export PATH="${LOCAL_GCC_PATH}/bin:${PATH}"
 export LD_LIBRARY_PATH="${LOCAL_GCC_PATH}/lib/gcc/7:${LD_LIBRARY_PATH}"
 

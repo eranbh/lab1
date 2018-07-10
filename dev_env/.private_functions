@@ -2,7 +2,10 @@
 # this is to make the prompt as useful as possible
 function cd()
 {
-
+    if [[ -z "$1" ]]
+    then
+        command cd ~
+    fi    
     
     command cd "$1"
 

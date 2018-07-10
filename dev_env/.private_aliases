@@ -68,5 +68,6 @@ alias vr="vagrant reload"
 alias gtse="cd /Volumes/Users/eranb"
 alias gtsp="cd /Volumes/Users/Public"
 alias gts1="cd $S1_LIN_AGENT"
+alias gts2="cd $S2_LIN_AGENT/linuxagent_ng"
 alias gtv="cd $VMS"
 
