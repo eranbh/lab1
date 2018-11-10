@@ -250,6 +250,14 @@ function gbr
     fi
 }
 
+# this refreshes from origin
+# ater this, you can checkout stuff
+function gfo
+{
+    git fetch origin
+}
+
+
 
 ###### SENTINEL RELATED #####
 function oecl
