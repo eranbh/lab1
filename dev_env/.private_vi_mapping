@@ -6,7 +6,6 @@ set incsearch
 set hlsearch
 filetype off                  " dont assume anything by file name required by some plugins
 set number                    " Line numbers
-set relativenumber            " relative line number. useful!
 " colorscheme solarized       " TODO find out how to set vim solarized
 set colorcolumn=80            " Have a line after 80 char
 colorscheme darkblue          " my favourite color scheme
