@@ -5,7 +5,7 @@ alias ll='ls -alFhG'
 alias gtw="cd $WORK"
 
 # go to my lab
-alias gtl="cd $WORK/lab"
+alias gtl="cd $WORK/lab1"
 
 # open emacs no windows of course
 alias se="emacs -nw > /dev/null 2>&1"
@@ -64,10 +64,7 @@ alias vs="vagrant ssh"
 alias vh="vagrant halt"
 alias vr="vagrant reload"
 
-# sentinel related
-alias gtse="cd /Volumes/Users/eranb"
-alias gtsp="cd /Volumes/Users/Public"
-alias gts1="cd $S1_LIN_AGENT"
-alias gts2="cd $S2_LIN_AGENT/linuxagent_ng"
-alias gtv="cd $VMS"
+# df related
+alias ad="adb devices"
+alias as="adb shell"
 

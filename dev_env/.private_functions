@@ -259,11 +259,10 @@ function gfo
 
 
 
-###### SENTINEL RELATED #####
-function oecl
+###### DF RELATED #####
+function sas
 {
-    export PATH=/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Commands/java:${PATH}
-    daemonize  "${ECLIPSE}/eclipse"
+    daemonize  "studio.sh"
 }
 
 # opening vim needs some loving
