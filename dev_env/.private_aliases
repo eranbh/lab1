@@ -67,4 +67,5 @@ alias vr="vagrant reload"
 # df related
 alias ad="adb devices"
 alias as="adb shell"
-
+alias gtdf="cd $WORK/df"
+alias ssrv="ssh deploy@192.168.85.2"

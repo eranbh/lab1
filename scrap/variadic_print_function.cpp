@@ -10,14 +10,14 @@ namespace
 {
     // base case 
     template<typename Type> 
-    void print(Type arg_for_print)
+    void print(Type&& arg_for_print)
     {
         std::cout << arg_for_print;
     } 
     
     // recursive step
     template<typename Type, typename ... Types>
-    void print(Type arg_for_print, Types ... types)
+    void print(Type&& arg_for_print, Types&& ... types)
     {
         std::cout << arg_for_print;
         std::cout << " ";
@@ -32,7 +32,7 @@ namespace
 // to catch issues at __compile time__ rather than
 // get all sorts of issues at runtime.    
 template<typename ... Types>
-void print_variadic_type_msg(Types ... types)
+void print_variadic_type_msg(Types&& ... types)
 {
     print(std::forward<Types>(types) ... );
     std::cout << std::endl;

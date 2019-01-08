@@ -29,7 +29,7 @@ function no-cerr
 
 function daemonize
 {
-    eval "nohup $1 &" 
+    eval "nohup $1 >/dev/null &" 
 }
 
 function redirect_both_streams
