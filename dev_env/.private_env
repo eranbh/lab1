@@ -8,7 +8,7 @@ export CMAKE_BIN=/usr/local/cmake/bin
 # PLACE ALL PATH RELATED STUFF ABOVE THIS LINE !!!
 export PATH=$PRIVATE_BIN:$CMAKE_BIN:$PATH
 
-export LAB=$WORK/lab
+export LAB=$WORK/lab1
 export BUILD_LOG_AREA=$REPOS/logs
 export LOG_AREA=$HOME/logs
 
@@ -26,13 +26,14 @@ export OFFICE_PACKAGE="\"/usr/lib/libreoffice/program/oosplash\""
 export IMG_PACKAGE="\"/usr/bin/open\""
 export VMS=${WORK}/vms
 
-# Add sentinel related stuff
-export S1_LIN_AGENT=${WORK}/sentinel/linux-agent
-export S2_LIN_AGENT=${WORK}/sentinel/linux-agent-2
+# Add df related stuff
+export DF_ROOT=${WORK}/df
+export DF_CYRUS_ROOT=${WORK}/df/cyrus
+export DF_SERVER_ROOT=${WORK}/df/server
 
 # local dev tools
-export LOCAL_GCC_PATH="/usr/local/Cellar/gcc/7.3.0_1/"
-export LOCAL_GXX_INC="${LOCAL_GCC_PATH}/include/c++/7.3.0"
-export PATH="${LOCAL_GCC_PATH}/bin:${PATH}"
-export LD_LIBRARY_PATH="${LOCAL_GCC_PATH}/lib/gcc/7:${LD_LIBRARY_PATH}"
+export LOCAL_GCC_PATH=""
+export LOCAL_GXX_INC=""
+# export PATH=""
+export LD_LIBRARY_PATH=""
 

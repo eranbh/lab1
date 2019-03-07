@@ -145,7 +145,13 @@ function fn_in_all_py
     fi
 }
 
-
+function fn_in_all_rb
+{
+    find_in_all_asterix $# $@ "*.rb" 
+    if [ $? == 1 ]; then
+        return 1
+    fi
+}
 
 # view pdfs
 function opdf
@@ -273,3 +279,9 @@ function vim
     command vim "$@"
     stty "$STTYOPTS"
 }
+
+function sjd
+{
+    daemonize "java -jar ~/work/cyber-tools/jd/jd-gui-1.4.0.jar"
+}
+

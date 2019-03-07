@@ -45,6 +45,9 @@ alias utbz="tar xvjf"
 # untar a tar.gz file
 alias utgz="tar xvzf"
 
+# tars in compressed mode
+alias tz="tar -cvzf"
+
 ## git related
 
 alias gf="git fetch"
@@ -68,4 +71,9 @@ alias vr="vagrant reload"
 alias ad="adb devices"
 alias as="adb shell"
 alias gtdf="cd $WORK/df"
-alias ssrv="ssh deploy@192.168.85.2"
+alias gtdfc="cd $WORK/df/cyrus"
+alias gtdfd="cd $WORK/df/dropper"
+alias gtdfs="cd $WORK/df/server"
+alias ssrv="ssh deploy@192.168.85.24"
+alias hdc="hexdump -C"
+alias grb="./gradlew assemble"

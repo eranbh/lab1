@@ -1,7 +1,7 @@
 #pragma once
 
 #include "proactor.h"
-#include "events/ipc_events.h"
+#include "events/inc/ipc_events.h"
 
 namespace fk
 {
@@ -11,6 +11,7 @@ namespace evt
 
 class proactor
 {
+public:
     void start_event_loop();
     void stop_event_loop();
 
