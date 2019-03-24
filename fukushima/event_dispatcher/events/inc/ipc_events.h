@@ -12,7 +12,7 @@ using native_handle = int;
 
 
 // internal definitions    
-namespace
+namespace bits
 {
     struct ipc_event
     {
@@ -27,19 +27,19 @@ namespace
 }
 
 
-class socket_connect_event : private  ipc_event
+class socket_connect_event : private  bits::ipc_event
 {
     socket_connect_event(native_handle handle): ipc_event{handle}{}
     using ipc_event::handle;
 };
 
-class socket_input_ready_event : private ipc_event
+class socket_input_ready_event : private bits::ipc_event
 {
     socket_input_ready_event(native_handle handle): ipc_event{handle}{}
     using ipc_event::handle;
 };
 
-class socket_output_ready_event : private ipc_event
+class socket_output_ready_event : private bits::ipc_event
 {
     socket_output_ready_event(native_handle handle): ipc_event{handle}{}
     using ipc_event::handle;

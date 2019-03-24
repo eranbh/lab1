@@ -19,7 +19,7 @@ struct group
         }
     };
     // process procVec[3];
-    std::array<process,3> procVec;
+    std::array<process,10> procVec;
 }; 
 
 int

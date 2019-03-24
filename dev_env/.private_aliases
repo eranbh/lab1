@@ -48,6 +48,9 @@ alias utgz="tar xvzf"
 # tars in compressed mode
 alias tz="tar -cvzf"
 
+# simply untars
+alias ut="tar -xvf"
+
 ## git related
 
 alias gf="git fetch"
@@ -77,3 +80,4 @@ alias gtdfs="cd $WORK/df/server"
 alias ssrv="ssh deploy@192.168.85.24"
 alias hdc="hexdump -C"
 alias grb="./gradlew assemble"
+alias gtws="cd /run/user/1000/gvfs/smb-share:server=10.0.0.215,share=rds/UsersFolder/eranb"
