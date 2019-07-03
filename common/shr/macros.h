@@ -1,5 +1,5 @@
 #ifndef __COMMON_SHR_MACROS_H_
-#define __COMMON_SHR_MACROS_H__
+#define __COMMON_SHR_MACROS_H_
 
 #include <errno.h> // for errno(3)
 #include <stdlib.h> // for exit(3)

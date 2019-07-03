@@ -29,7 +29,10 @@ export VMS=${WORK}/vms
 # Add df related stuff
 export DF_ROOT=${WORK}/df
 export DF_CYRUS_ROOT=${WORK}/df/cyrus
+export DF_DROPPER_ROOT=${WORK}/df/dropper
+export DF_SO_PROX_ROOT=${WORK}/df/so_proxy_generator
 export DF_SERVER_ROOT=${WORK}/df/server
+export DF_LAB_ROOT=${WORK}/df/lab
 
 # local dev tools
 export LOCAL_GCC_PATH=""

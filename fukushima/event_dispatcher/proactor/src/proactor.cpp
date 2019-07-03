@@ -5,7 +5,6 @@ namespace fk
 namespace evt
 {
 
-
 void 
 proactor::start_event_loop()
 {}
