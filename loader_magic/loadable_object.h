@@ -2,8 +2,7 @@
 #include <string>
 /**
 */
-namespace cyrus
-{
+
 namespace loader
 {
     using object_handle = void*;
@@ -25,4 +24,4 @@ namespace loader
             std::string m_object_path{""};
     };
 }
-}
+
