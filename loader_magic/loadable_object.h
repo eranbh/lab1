@@ -1,12 +1,11 @@
 #pragma once
 #include <string>
+#include "loader_fd.h"
 /**
 */
 
 namespace loader
 {
-    using object_handle = void*;
-
     class loadable_object
     {
         public:
@@ -17,11 +16,15 @@ namespace loader
             loadable_object& operator=(const loadable_object&);
             loadable_object(loadable_object&&);
             loadable_object& operator=(loadable_object&&);
+
+            void proxy_object(std::string);
+
+            void inject_to_process(std::string);
+
+            // ...
         
         private:
             
-            object_handle m_object_handle;
-            std::string m_object_path{""};
+            loader_fd m_object_handle;
     };
 }
-
