@@ -1,12 +1,13 @@
 #pragma once
 #include <dlfcn.h>
 #include <string>
+#include "basic_exceptions.h"
 
 namespace loader
 {
 
 
-struct loader_exception
+struct loader_exception : std::system_error
 {
     
 };    
