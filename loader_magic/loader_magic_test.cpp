@@ -4,5 +4,5 @@
 
 TEST(loader_magic, test_ctor)
 {
-    loader::loadable_object lo{""};
+    loader::loadable_object lo{"/usr/lib/libgjs.so.0"};
 }

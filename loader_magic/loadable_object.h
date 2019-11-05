@@ -11,11 +11,6 @@ namespace loader
         public:
 
             loadable_object(std::string object_path);
-            ~loadable_object();
-            loadable_object(const loadable_object&);
-            loadable_object& operator=(const loadable_object&);
-            loadable_object(loadable_object&&);
-            loadable_object& operator=(loadable_object&&);
 
             void proxy_object(std::string);
 
@@ -25,6 +20,6 @@ namespace loader
         
         private:
             
-            loader_fd m_object_handle;
+            loader_fd m_object_handle{};
     };
 }

@@ -1,3 +1,5 @@
+set(CMAKE_CXX_FLAGS -std=c++17)
+set(CMAKE_BUILD_TYPE Debug)
 
 link_libraries(-ldl)
 
