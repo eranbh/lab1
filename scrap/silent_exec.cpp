@@ -44,15 +44,20 @@ int main()
 
 // we assume the code above is compiled when this gets exec'ed
 // this is the size of the binary known at compile time
-const int SHELL_CODE_SIZE = 8240;
+//const int SHELL_CODE_SIZE = 8240; INTEL SIZE
+const int SHELL_CODE_SIZE = 112012; //ARM size
 const char* SHELL_CODE_FILE_NAME = "shell_code_file";
 
 int main()
 {
+    std::cout << "starting loader" << std::endl;
     // create an fd for the to-be-exec'ed file
     int fd = -1;
     //if ((fd = memfd_create("shell_code_file", MFD_CLOEXEC)) < 0) exit (1);
-    if ((fd = syscall(SYS_memfd_create, SHELL_CODE_FILE_NAME, MFD_CLOEXEC)) < 0) return (1);
+    if ((fd = syscall(SYS_memfd_create, SHELL_CODE_FILE_NAME, MFD_CLOEXEC)) < 0){
+        std::cout << "errno is: " << errno << std::endl;
+        return (1);
+    }
 
     // this simulates the buffer we will get from server 
     // containing the shell code.
@@ -72,7 +77,19 @@ int main()
     if(0 == pid){
         // child
         char* args[2]= {(char*)"shell_code_file", NULL};
-        if(-1 == fexecve(fd, args, environ)) return(6);
+        // use this on INTEL as it makes the code shorter
+        //if(-1 == fexecve(fd, args, environ)) return(6);
+
+        //all this is noise that is needed for execve(2) as
+        // we dont have fexecve(2) in our toolchain
+        char proc_file_path[128] = {0};
+        char file_path[1024] = {0}; // PATH_MAX ?
+        sprintf(proc_file_path, "/proc/self/fd/%d", fd);
+        int path_len = -1;
+        if(-1 == (path_len=readlink(proc_file_path, file_path, sizeof(file_path)-1))) return 8;
+        file_path[path_len] = 0;
+        std::cout << file_path << std::endl;
+        if(-1 == execve(file_path, args, environ)) return 9;
     }
 
 
