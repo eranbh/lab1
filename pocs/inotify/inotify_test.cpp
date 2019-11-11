@@ -16,6 +16,7 @@
 #include <sys/inotify.h> // for inotify_init(2)
 #include <sys/stat.h> // for stat(2)
 #include <functional> // for std::hash
+#include <map> // for std::hash
 #include<iostream> // for terminal related io
 
 
@@ -106,7 +107,7 @@ listen2Events(int wlFd)
        // lets see what the cat dragged in
        // we must have - at least - an event
        if(bytesRead < EVENT_SIZE) logFatalAndExit(strerror(errno));
-      
+     
        pevent = 
             reinterpret_cast<struct inotify_event*>(eventBuffer);
 
