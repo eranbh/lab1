@@ -84,3 +84,6 @@ alias ssrv="ssh deploy@192.168.85.24"
 alias hdc="hexdump -C"
 alias grb="./gradlew assemble"
 alias gtws="cd /run/user/1000/gvfs/smb-share:server=10.0.0.215,share=rds/UsersFolder/eranb"
+
+#kids related
+alias start_boscaceoil='wine ~/Desktop/alon/boscaceoil/BoscaCeoil.exe'
