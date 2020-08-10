@@ -132,10 +132,22 @@ function fn_in_all_cpp
 {
     find_in_all_asterix $# $@ "*.cpp" 
     find_in_all_asterix $# $@ "*.cc" 
+    find_in_all_asterix $# $@ "*.c" 
     if [ $? == 1 ]; then
         return 1
     fi
 }
+
+function fn_in_all_cmake
+{
+    find_in_all_asterix $# $@ "CMakeLists.txt" 
+    if [ $? == 1 ]; then
+        return 1
+    fi
+}
+
+
+
 
 function fn_in_all_py
 {
@@ -153,6 +165,13 @@ function fn_in_all_rb
     fi
 }
 
+function fn_in_all_yaml
+{
+    find_in_all_asterix $# $@ "*.yaml"
+    if [ $? == 1 ]; then
+        return 1
+    fi
+}
 # view pdfs
 function opdf
 {

@@ -5,8 +5,9 @@ export LC_TIME=en_US.UTF8
 export WORK=$HOME/work
 export PRIVATE_BIN=$WORK/bin
 export CMAKE_BIN=/usr/local/cmake/bin
+export ANDROID_STUDIO=/home/user/Desktop/android-studio/bin
 # PLACE ALL PATH RELATED STUFF ABOVE THIS LINE !!!
-export PATH=$PRIVATE_BIN:$CMAKE_BIN:$PATH
+export PATH=$PRIVATE_BIN:$CMAKE_BIN:$ANDROID_STUDIO:$PATH
 
 export LAB=$WORK/lab1
 export BUILD_LOG_AREA=$REPOS/logs
@@ -28,9 +29,12 @@ export VMS=${WORK}/vms
 
 # Add df related stuff
 export DF_ROOT=${WORK}/df
-export DF_CYRUS_ROOT=${WORK}/df/cyrus
-export DF_DROPPER_ROOT=${WORK}/df/dropper-2
-export DF_SO_PROX_ROOT=${WORK}/df/so_proxy_generator
+export DF_CYRUS_ROOT=${WORK}/df/cyrus_android
+export DF_CYRUS_COMMON=${DF_CYRUS_ROOT}/Common
+export DF_ANDROID_DEBUGTOOLS_ROOT=${DF_CYRUS_COMMON}/Core/DebugTools
+export DF_ANDROID_TOOLS_ROOT=${DF_ANDROID_DEBUGTOOLS_ROOT}/androidtools
+export DF_ANDROID_MAGISK_ROOT=${WORK}/df/magiskporject
+export DF_DROPPER_ROOT=${WORK}/df/dropper_android
 export DF_SERVER_ROOT=${WORK}/df/servers
 export DF_LAB_ROOT=${WORK}/df/lab
 
