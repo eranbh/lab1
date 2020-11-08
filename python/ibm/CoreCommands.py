@@ -26,7 +26,7 @@ class Sort(FileManipulationCmd):
         FileManipulationCmd.__init__(self, fileManager)
 
     def execute(self):
-        print "Sort [Execute]"
+        print ("Sort [Execute]")
 
 class Reverse(FileManipulationCmd):
 
