@@ -34,7 +34,7 @@ class Reverse(FileManipulationCmd):
         FileManipulationCmd.__init__(self, fileManager)
 
     def execute(self):
-        print "Reverse [Execute]"
+        print ("Reverse [Execute]")
         inBuff=''
         inBuff = self.mFileManager.readFile()
         rev=""
