@@ -4,6 +4,7 @@ import os
 import sys, getopt
 import CoreCommands
 import imp
+import rook
 
 
 def usage(reason):
@@ -137,6 +138,8 @@ def main(argv):
         print 'was not able to find command %s. check speling and module path' % command
     
     exit(4)
+
 if __name__ == "__main__":
+    rook.start(token='bf10e09b66618e23007bff44236e78842bce6beb86703d9d66a4845cd28fe2af', labels={"env":"dev"})
     main(sys.argv[1:])
 
