@@ -1,0 +1,46 @@
+# this file contains some environment variables
+# that are important for dev work. no personal stuff
+
+export LC_TIME=en_US.UTF8
+export WORK=$HOME/work
+export PRIVATE_BIN=$WORK/bin
+export CMAKE_BIN=/usr/local/cmake/bin
+export ANDROID_STUDIO=/home/user/Desktop/android-studio/bin
+# PLACE ALL PATH RELATED STUFF ABOVE THIS LINE !!!
+export PATH=$PRIVATE_BIN:$CMAKE_BIN:$ANDROID_STUDIO:$PATH
+
+export LAB=$WORK/lab1
+export BUILD_LOG_AREA=$REPOS/logs
+export LOG_AREA=$HOME/logs
+
+
+
+# build our kick-ass prompt.
+
+export PADDITIONAL_INFO=""
+export PS1='\e[1m\e[34m\u\e[32m@\e[33m\h \e[39m [$PADDITIONAL_INFO ] \e[32m\w \e[0m\n>>> '
+
+
+
+export PDF_PACKAGE="\"/usr/bin/evince\""
+export OFFICE_PACKAGE="\"/usr/lib/libreoffice/program/oosplash\""
+export IMG_PACKAGE="\"/usr/bin/open\""
+export VMS=${WORK}/vms
+
+# Add df related stuff
+export DF_ROOT=${WORK}/df
+export DF_CYRUS_ROOT=${WORK}/df/cyrus_android
+export DF_CYRUS_COMMON=${DF_CYRUS_ROOT}/Common
+export DF_ANDROID_DEBUGTOOLS_ROOT=${DF_CYRUS_COMMON}/Core/DebugTools
+export DF_ANDROID_TOOLS_ROOT=${DF_ANDROID_DEBUGTOOLS_ROOT}/androidtools
+export DF_ANDROID_MAGISK_ROOT=${WORK}/df/magiskporject
+export DF_DROPPER_ROOT=${WORK}/df/dropper_android
+export DF_SERVER_ROOT=${WORK}/df/servers
+export DF_LAB_ROOT=${WORK}/df/lab
+
+# local dev tools
+export LOCAL_GCC_PATH=""
+export LOCAL_GXX_INC=""
+# export PATH=""
+export LD_LIBRARY_PATH=""
+

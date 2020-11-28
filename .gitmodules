@@ -1,0 +1,6 @@
+[submodule "3rd_parties/cpp-taskflow"]
+	path = 3rd_parties/cpp-taskflow
+	url = https://github.com/cpp-taskflow/cpp-taskflow.git
+[submodule "3rd_parties/boost"]
+	path = 3rd_parties/boost
+	url = https://github.com/boostorg/boost

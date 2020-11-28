@@ -1,0 +1,306 @@
+# our prompt is sensitive to the pwd.
+# this is to make the prompt as useful as possible
+function cd()
+{
+    if [[ -z "$1" ]]
+    then
+        command cd ~
+    fi    
+    
+    command cd "$1"
+
+    #PADDITIONAL_INFO="git: "
+    BRANCH_NAME=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'`
+
+    if [[ -z $BRANCH_NAME ]]
+     then
+        PADDITIONAL_INFO="no branch"
+     else
+        PADDITIONAL_INFO=$BRANCH_NAME
+    fi
+}
+
+# a set of aliases to avoid repetition
+function no-cerr
+{
+
+   eval  "$1" 2>/dev/null
+}
+
+function daemonize
+{
+    eval "nohup $1 >/dev/null &" 
+}
+
+function redirect_both_streams
+{
+    eval "$1" 2>&1
+}
+
+function output_to_file_and_stdout
+{
+    eval redirect_both_streams "$1" | tee "$2"
+}
+
+function tee_output
+{
+    eval output_to_file_and_stdout "$1" "$2" 
+}
+
+
+function usage
+{
+    echo "$1"
+}
+
+# find by name exact
+function fn_fl_nm
+{
+    # defaults
+    FIND_PATH="."
+    TYPE="f"
+    if [ $# -eq 1 ]; then
+        NAME=$1  
+    elif [ $# -eq 3 ]; then
+        FIND_PATH=$1
+        TYPE=$2
+        NAME=$3
+    elif [ $# -le 2 ] || [ $# -ge 3 ]; then
+        usage "BAD ARGS: [name] || [path, type, name]"
+        return
+    fi 
+    no-cerr "find $FIND_PATH  -type $TYPE -name \"$NAME\""
+}
+
+function check_valid_values
+{
+    if [ "$1" -lt "$2" ] || [ "$1" -gt "$3" ]; then
+        usage "$4"
+        return "1"
+    fi
+    return "0"
+}
+
+
+function fn_fl_ct
+{
+    check_valid_values $# "2" "4" "BAD ARGS: [name, pattern] || [path, type, name, pattern]"
+    
+    if [ $? == 1 ]; then
+        return 1
+    fi
+
+    if [ $# -lt 4 ]; then
+        FILES=`fn_fl_nm "$1"`
+        PATTERN=$2
+    else
+        FILES=`fn_fl_nm "$1 $2 $3"`
+        PATTERN=$4
+    fi
+    
+    for file in ${FILES[*]}
+    do
+        grep -Hn --color=auto  "${PATTERN}" ${file}
+    done
+}
+
+function find_in_all_asterix
+{
+    check_valid_values $1 "1" "2" "BAD ARGS: [ pattern] || [path, pattern]"
+    if [ $? == 1 ]; then
+        return 1
+    fi
+    if [ $# -eq 4 ]; then 
+        fn_fl_ct "$2" "-f" "$4" "$3"
+    else
+        fn_fl_ct "$3" "$2"
+    fi
+    return 0
+}
+
+function fn_in_all_h
+{
+    find_in_all_asterix $# $@ "*.h" 
+    find_in_all_asterix $# $@ "*.hpp" 
+    find_in_all_asterix $# $@ "*.inl" 
+    if [ $? == 1 ]; then
+        return 1
+    fi
+}
+
+function fn_in_all_cpp
+{
+    find_in_all_asterix $# $@ "*.cpp" 
+    find_in_all_asterix $# $@ "*.cc" 
+    find_in_all_asterix $# $@ "*.c" 
+    if [ $? == 1 ]; then
+        return 1
+    fi
+}
+
+function fn_in_all_cmake
+{
+    find_in_all_asterix $# $@ "CMakeLists.txt" 
+    if [ $? == 1 ]; then
+        return 1
+    fi
+}
+
+
+
+
+function fn_in_all_py
+{
+    find_in_all_asterix $# $@ "*.py" 
+    if [ $? == 1 ]; then
+        return 1
+    fi
+}
+
+function fn_in_all_rb
+{
+    find_in_all_asterix $# $@ "*.rb" 
+    if [ $? == 1 ]; then
+        return 1
+    fi
+}
+
+function fn_in_all_yaml
+{
+    find_in_all_asterix $# $@ "*.yaml"
+    if [ $? == 1 ]; then
+        return 1
+    fi
+}
+# view pdfs
+function opdf
+{
+     daemonize "${PDF_PACKAGE} \"$1\"" 
+}
+
+#TODO view images
+function oimg
+{
+    daemonize " ${IMG_PACKAGE} \"$1\"" 
+}
+
+
+
+# opens a word document
+function owd
+{
+    daemonize "${OFFICE_PACKAGE} --writer"
+}
+
+# opens a slid deck powerpoint like thing
+function opp
+{
+    daemonize "${OFFICE_PACKAGE} --impress"
+}
+
+function gco
+{
+    git checkout $1
+    cd $PWD
+}
+
+# this creates a tracking branch
+# we usually want the master, but
+# im not making any assumptions
+function gco_tr_br
+{
+    git checkout -b $1 $2
+    cd $PWD    
+}
+
+# convinience function for grabbing
+# a fresh master branch
+function gcm
+{
+    gco_tr_br master origin/master
+}
+
+# this cancels changes not staged
+# it prompts to avoid sad endings
+function gx_ns
+{
+   read -p "about to cancel changes: $1. you sure? [Y/N]" answer
+   if [  "${answer}"  =  "Y" ]; then 
+        git checkout -- "$1"
+   fi 
+}
+
+# this cancels changes already staged
+# it prompts to avoid sad endings
+# NOTE: this is a __hard__ reset
+function gx_s
+{
+   read -p "about to unstage changes: $1. you sure? [Y/N]" answer
+   if [  "${answer}"  =  "Y" ]; then 
+        git reset HEAD "$1"
+        gx_ns "$1"
+   fi 
+}
+
+
+
+# this one is risky: if you co a file
+# it overwites what you have on disk
+# prompt user for it
+function gco_ob
+{
+   read -p "checkout $1 from branch $2. you sure? [Y/N]:  " answer
+   if [  "${answer}"  =  "Y" ]; then 
+      git checkout  "$1" --  "$2"
+   fi 
+}
+
+function gs_ob
+{
+   git show  "$1":"$2" 
+}
+
+function gs_oc
+{
+    git show HEAD~"$1":"$2"
+}
+
+function gbr
+{
+    if [ ! $# -gt 0 ]; then
+        echo "git branch rename requires parameters. see man"
+    else        
+        git branch -m $1 $2
+        cd $PWD 
+    fi
+}
+
+# this refreshes from origin
+# ater this, you can checkout stuff
+function gfo
+{
+    git fetch origin
+}
+
+
+
+###### DF RELATED #####
+function sas
+{
+    daemonize  "studio.sh"
+}
+
+# opening vim needs some loving
+function vim
+{
+    local STTYOPTS="$(stty -g)"
+    stty stop '' -ixoff
+    command vim "$@"
+    stty "$STTYOPTS"
+}
+
+function sjd
+{
+    daemonize "java -jar ~/work/cyber-tools/jd/jd-gui-1.4.0.jar"
+}
+

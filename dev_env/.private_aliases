@@ -1,0 +1,91 @@
+# my own ls
+alias ll='ls -alFhG'
+
+# go to work :)
+alias gtw="cd $WORK"
+
+# go to my lab
+alias gtl="cd $WORK/lab1"
+
+# open emacs no windows of course
+alias se="emacs -nw > /dev/null 2>&1"
+
+# go to Downloads
+alias gtd="cd $HOME/Downloads"
+
+#clear the screen
+alias c="clear"
+
+# i need this for the fucking mac to work.
+# for some reason I cant touch the vi exe
+alias "vi=vim"
+
+# fire up vi editor
+alias "v=vim"
+
+# fires up vim for a vertical viewing
+# this can be useful for header/src couples
+alias "vih=vim -O "
+
+# fire up less viewer
+alias "l=less"
+
+# fire up make [pwd]
+alias "m=make"
+
+# vim an entire folder into tabs
+alias "vt=vim -p *"
+
+# cpu consumption by process [top 5]
+alias cpuc="ps aux | sort -nrk 3,3 | head -n 5"
+
+# untar a tar.bz file
+alias utbz="tar xvjf"
+
+# untar a tar.gz file
+alias utgz="tar xvzf"
+
+# tars in compressed mode
+alias tz="tar -cvzf"
+
+# simply untars
+alias ut="tar -xvf"
+
+## git related
+
+alias gf="git fetch"
+alias gr="git rebase"
+alias gl="git log"
+alias gs="git status"
+alias gd="git diff"
+alias gdh="gd HEAD"
+alias ga="git add"
+alias gc="git commit -a" # with adding
+alias gb="git branch"
+alias fb="git branch | grep"
+
+# vagrant related
+alias vu="vagrant up"
+alias vd="vagrant destroy"
+alias vs="vagrant ssh"
+alias vh="vagrant halt"
+alias vr="vagrant reload"
+
+# df related
+alias ad="adb devices"
+alias as="adb shell"
+alias gtdf="cd $WORK/df"
+alias gtdfc="cd  $DF_CYRUS_ROOT"
+alias gtdfd="cd  $DF_DROPPER_ROOT"
+alias gtdfs="cd $DF_SERVER_ROOT"
+alias gtdfl="cd $DF_LAB_ROOT"
+alias gtdt="cd $DF_ANDROID_DEBUGTOOLS_ROOT"
+alias gtat="cd $DF_ANDROID_TOOLS_ROOT"
+alias gtm="cd $DF_ANDROID_MAGISK_ROOT"
+alias ssrv="ssh deploy@172.16.13.7"
+alias hdc="hexdump -C"
+alias grb="./gradlew assemble"
+alias gtws="cd /run/user/1000/gvfs/smb-share:server=10.0.0.215,share=rds/UsersFolder/eranb"
+
+#kids related
+alias start_boscaceoil='wine ~/Desktop/alon/boscaceoil/BoscaCeoil.exe'
