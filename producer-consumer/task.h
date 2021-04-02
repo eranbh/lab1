@@ -38,7 +38,7 @@ class Task
         template<typename ... Args>
         void stop(Args&& ... args)
         {
-
+            m_runnable.stop(args...);
         }
 
     private:

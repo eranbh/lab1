@@ -5,6 +5,9 @@ class ConsumerTask
 {
     public:
 
+        ConsumerTask(std::string socketPath)
+        {}
+
         // main entry point
         void run()
         {
