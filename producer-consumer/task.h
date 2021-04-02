@@ -8,7 +8,7 @@ class Task
     public:
         template<typename ... Args>
         Task(Args&& ... args):
-            m_runnable{std::forward(args)...}
+            m_runnable{args...}
         {}
 
         ~Task()

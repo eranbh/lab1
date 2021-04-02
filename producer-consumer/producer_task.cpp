@@ -1,30 +1,84 @@
+#include <unistd.h>
+#include <assert.h>
 #include <iostream>
-#include <filesystem>
+#include <sys/socket.h>
+#include <string.h>
+#include "producer_task.h"
 #include "task.h"
+#include "serialization_utils.h"
 
-class ProducerTask
+ProducerTask::ProducerTask(std::string socketName) :
+    m_socketName{std::move(socketName)}
 {
-    public:
+    m_listfd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if(m_listfd == -1)
+    {
+        exit(-1);
+    }
+}
 
-        ProducerTask(std::filesystem::path socketName):
-            m_socketName{std::move(socketName)}{}
+void  ProducerTask::run()
+{
+    std::cout << "--- STARTING PRODUCER ---" << std::endl;
+    startProducing();
+}
 
-        // main entry point
-        void run()
+void  ProducerTask::startProducing()
+{
+    int msgIndex{0};
+    while(1)
+    {
+        handleConnect();
+
+        // take a message from a db / outer space
+        ConsumerDataMsg msg {.type=MsgTypes::DATA , .id=msgIndex};
+
+        sendMsgToConsumer(std::move(msg));
+
+        ProducerAckMsg ack = getConsumerAck();
+
+        std::cout << "producer: got ack for: " << ack.lastMsgId << std::endl;
+
+        msgIndex++;
+    }   
+}
+
+void ProducerTask::handleConnect()
+{
+    struct sockaddr saddr = {AF_UNIX, ""};
+    memcpy(saddr.sa_data, m_socketName.c_str(), m_socketName.size());
+    socklen_t saddrlen = sizeof(struct sockaddr);
+
+    while(1)
+    {
+        if (auto conn = connect(m_listfd, &saddr, saddrlen) ; conn == 0 || errno == EISCONN)
         {
-            std::cout << "--- STARTING PRODUCER ---" << std::endl;
-
-            std::cout << "--- PRODUCER STOPPED---" << std::endl;
+            break;
         }
+        else
+        {
+            ::close(m_listfd);
+            m_listfd = socket(AF_UNIX, SOCK_STREAM, 0);
+            std::cout << "consumer down. reconnecting ... " << errno << std::endl;
+        }
+    }
+}
 
-    private:
+void ProducerTask::sendMsgToConsumer(ConsumerDataMsg msg)
+{
+    writeToSocket(m_listfd, std::move(msg));
+}
 
-        std::filesystem::path m_socketName;
-};
+ProducerAckMsg ProducerTask::getConsumerAck()
+{
+    ProducerAckMsg ack = readFromSocket<ProducerAckMsg>(m_listfd);
+    return ack;
+}
+
 
 int main(int aaa, char* bbb[])
 {
-    Task<ProducerTask> consumerTask{};
+    Task<ProducerTask> consumerTask{SOCK_NAME};
     consumerTask.start();
     return 0;
 }
