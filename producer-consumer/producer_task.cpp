@@ -10,11 +10,7 @@
 ProducerTask::ProducerTask(std::string socketName) :
     m_socketName{std::move(socketName)}
 {
-    m_listfd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if(m_listfd == -1)
-    {
-        exit(-1);
-    }
+    m_listfd = createNewListeningSocket();
 }
 
 void  ProducerTask::run()
@@ -25,7 +21,7 @@ void  ProducerTask::run()
 
 void  ProducerTask::startProducing()
 {
-    int msgIndex{0};
+    int msgIndex{1};
     while(1)
     {
         handleConnect();
@@ -58,8 +54,9 @@ void ProducerTask::handleConnect()
         else
         {
             ::close(m_listfd);
-            m_listfd = socket(AF_UNIX, SOCK_STREAM, 0);
+            m_listfd = createNewListeningSocket();
             std::cout << "consumer down. reconnecting ... " << errno << std::endl;
+            sleep(1);
         }
     }
 }

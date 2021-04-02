@@ -21,12 +21,7 @@ ConsumerTask::ConsumerTask(std::string socketName) :
     // an issue if we use annonimus sockets
     unlink(SOCK_NAME.c_str());
 
-    m_listfd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if(m_listfd == -1)
-    {
-        std::cout << "consumer: socket failed. " << errno << std::endl;
-        exit(-1);
-    }
+    m_listfd = createNewListeningSocket();
 
     struct sockaddr saddr = {AF_UNIX, ""};
     memcpy(saddr.sa_data, m_socketName.c_str(), m_socketName.size());
@@ -68,6 +63,12 @@ handleNewConnection(int connfd)
     while(1)
     {
         ConsumerDataMsg msg = readConsumerMsg(connfd);
+
+        if(msg.id == 0)
+        {
+            std::cout << "consumer: producer went down. waiting for new connections" << std::endl;
+            return;
+        }
         
         // handle msg --> put it in a queue for another thread? process it?
 

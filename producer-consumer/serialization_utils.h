@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unistd.h>
+#include <sys/socket.h>
 #include <vector>
 #include <iostream>
 
@@ -26,4 +27,16 @@ FromSerializeType readFromSocket(int socket)
     }
 
     return msg;
+}
+
+int createNewListeningSocket()
+{
+    int socket1 = socket(AF_UNIX, SOCK_STREAM, 0);
+    if(socket1 == -1)
+    {
+        std::cout << "socket failed. " << errno << std::endl;
+        exit(-1);
+    }
+
+    return socket1;
 }
