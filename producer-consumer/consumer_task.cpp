@@ -67,6 +67,7 @@ handleNewConnection(int connfd)
         if(msg.id == 0)
         {
             std::cout << "consumer: producer went down. waiting for new connections" << std::endl;
+            ::close(connfd);
             return;
         }
         
